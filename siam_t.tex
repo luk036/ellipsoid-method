@@ -1,0 +1,85 @@
+%%
+%% This is file `docultex.tex', 
+%% Documentation for siam macros for use with LaTeX 2e
+%% 
+%% August 1, 1995
+%%
+%% Version 1.1a
+%% 
+%% You are not allowed to change this file. 
+%% 
+%% You are allowed to distribute this file under the condition that 
+%% it is distributed together with all of the files in the siam macro 
+%% distribution. These are:
+%%
+%%  siamltex.cls (main LaTeX macro for SIAM)
+%%  siamltex.sty (includes siamltex.cls for compatibility mode)
+%%  siam10.clo   (size option for 10pt papers)
+%%  subeqn.clo   (allows equation numbners with lettered subelements)
+%%  siam.bst     (bibliographic style file for BibTeX)
+%%  docultex.tex (this file)
+%%  lexample.tex (example file for latex macro)
+%%
+%% If you receive only some of these files from someone, complain! 
+%% 
+%% You are NOT ALLOWED to distribute this file alone. You are NOT 
+%% ALLOWED to take money for the distribution or use of either this 
+%% file or a changed version, except for a nominal charge for copying 
+%% etc. 
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+
+\documentclass[final,leqno]{siamltex}
+
+\title{USING SIAM'S \LaTeX\ MACROS\thanks{This work was
+supported by the Society for Industrial and Applied
+Mathematics}} 
+
+\author{TeX Production\thanks{Society for Industrial and
+Applied Mathematics, Philadelphia, Pennsylvania. 
+(tex@siam. org). Questions, comments, or corrections
+to this document may be directed to that email address.}}
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Documentation is given for use of the SIAM \LaTeX\ macros. These
+macros are now compatible with \LaTeX$2_{\varepsilon}$.
+Instructions and suggestions for compliance with SIAM style
+standards are also included. Familiarity with standard \LaTeX\ commands
+is assumed.
+\end{abstract}
+
+\begin{keywords}\end{keywords}
+
+\begin{AMS}\end{AMS}
+
+
+\pagestyle{myheadings}
+\thispagestyle{plain}
+\markboth{TEX PRODUCTION}{USING SIAM'S \LaTeX\ MACROS}
+
+$body$
+
+\bibliographystyle{siam}
+\bibliography{cut_mask,ref}
+
+
+
+\end{document}
+%% end of file `docultex.tex'
