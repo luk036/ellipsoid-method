@@ -1,9 +1,10 @@
 ---
-title: Cutting-plane Method and Its Oracles
+title: Ellipsoid Method and Its Oracles
 author: Wai-Shing Luk
+bibliography:
+  - fir-ref.bib
 ...
 
----
 
 > When you have eliminated the impossible, whatever remains, however
 > improbable, must be the truth.
@@ -549,6 +550,10 @@ $$\begin{array}{ll}
 
 ---
 
+## Python Code
+
+\scriptsize
+
 ```python
 class network_oracle:
     def __init__(self, G, f, p):
@@ -608,6 +613,10 @@ where $k'$ denotes $\log( | k | )$ and
 $x = (\pi', \psi' )^{ \mathrm{ T } }$.
 
 ---
+
+## Python Code
+
+\scriptsize
 
 ```python
 def con(G, e, x):
@@ -716,6 +725,10 @@ The oracle only needs to:
 
 ---
 
+## Python Code
+
+\scriptsize
+
 ```python
 class lmi_oracle:
     ''' Oracle for LMI constraint F*x <= B '''
@@ -759,8 +772,11 @@ class lmi_oracle:
  \end{array}$$
 - Binary search on $t$ can be used for this problem.
 
-
 ---
+
+## Python Code
+
+\scriptsize
 
 ```python
 class qmi_oracle:
@@ -811,4 +827,3 @@ $$\begin{array}{ll}
 
     where $\{F_k\}_{i,j} =\Psi_k( \| s_j - s_i \|_2)$
 
----

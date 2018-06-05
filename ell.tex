@@ -1,7 +1,12 @@
 \PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
 \PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames*,x11names*}{xcolor}
 %
-\documentclass[]{article}
+\documentclass[10pt,ignorenonframetext,serif,onlymath]{beamer}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+\setbeamercolor{caption name}{fg=normal text.fg}
+\beamertemplatenavigationsymbolsempty
 \usepackage{lmodern}
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
@@ -27,13 +32,18 @@
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{6pt plus 2pt minus 1pt}
 }
+\usepackage{xcolor}
 \usepackage{hyperref}
 \hypersetup{
             pdftitle={Cutting-plane Method and Its Oracles},
             pdfauthor={Wai-Shing Luk},
-            pdfborder={0 0 0},
+            colorlinks=true,
+            linkcolor=Maroon,
+            citecolor=Blue,
+            urlcolor=Blue,
             breaklinks=true}
 \urlstyle{same}  % don't use monospace font for urls
+\newif\ifbibliography
 \usepackage{color}
 \usepackage{fancyvrb}
 \newcommand{\VerbBar}{|}
@@ -81,44 +91,72 @@
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Prevent slide breaks in the middle of a paragraph:
+\widowpenalties 1 10000
+\raggedbottom
+\setbeamertemplate{part page}{
+\centering
+\begin{beamercolorbox}[sep=16pt,center]{part title}
+  \usebeamerfont{part title}\insertpart\par
+\end{beamercolorbox}
+}
+\setbeamertemplate{section page}{
+\centering
+\begin{beamercolorbox}[sep=12pt,center]{part title}
+  \usebeamerfont{section title}\insertsection\par
+\end{beamercolorbox}
+}
+\setbeamertemplate{subsection page}{
+\centering
+\begin{beamercolorbox}[sep=8pt,center]{part title}
+  \usebeamerfont{subsection title}\insertsubsection\par
+\end{beamercolorbox}
+}
+\AtBeginPart{
+  \frame{\partpage}
+}
+\AtBeginSection{
+  \ifbibliography
+  \else
+    \frame{\sectionpage}
+  \fi
+}
+\AtBeginSubsection{
+  \frame{\subsectionpage}
+}
 \setlength{\emergencystretch}{3em}  % prevent overfull lines
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{0}
-% Redefines (sub)paragraphs to behave more like sections
-\ifx\paragraph\undefined\else
-\let\oldparagraph\paragraph
-\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
-\fi
-\ifx\subparagraph\undefined\else
-\let\oldsubparagraph\subparagraph
-\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
-\fi
 
 % set default figure placement to htbp
 \makeatletter
 \def\fps@figure{htbp}
 \makeatother
 
-\ifxetex \usepackage[UTF8]{ctex} \fi
+\usetheme{default}
 \usepackage{tikz,pgf,pgfplots}
 \usetikzlibrary{arrows}
 \definecolor{qqqqff}{rgb}{0.,0.,1.}
-\newcommand{\columnsbegin}{}
-\newcommand{\columnsend}{}
-\newcommand{\col}[1]{}
-\newcommand{\pause}{}
-\newcommand{\onslide}{}
+\newcommand{\columnsbegin}{\begin{columns}}
+\newcommand{\columnsend}{\end{columns}}
+\newcommand{\col}[1]{\column{#1}}
+\pgfdeclareimage[height=0.5cm]{fudan-logo}{fudan-logo.jpg}
+\logo{\pgfuseimage{fudan-logo}}
 
 \title{Cutting-plane Method and Its Oracles}
 \author{Wai-Shing Luk}
+\providecommand{\institute}[1]{}
+\institute{Fudan University}
 \date{\today}
 
 \begin{document}
-\maketitle
+\frame{\titlepage}
 
-\listoffigures
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\begin{frame}
+\tableofcontents[hideallsubsections]
+\end{frame}
+\begin{frame}
 
 \begin{quote}
 When you have eliminated the impossible, whatever remains, however
@@ -127,14 +165,13 @@ improbable, must be the truth.
 
 \emph{Sir Arthur Conan Doyle, stated by Sherlock Holmes}
 
-\hypertarget{introduction}{%
-\section{Introduction}\label{introduction}}
+\end{frame}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\hypertarget{sec:introduction}{%
+\section{Introduction}\label{sec:introduction}}
 
-\hypertarget{some-history-of-ellipsoid-method}{%
-\subsection{Some History of Ellipsoid
-Method}\label{some-history-of-ellipsoid-method}}
+\begin{frame}{Some History of Ellipsoid Method}
+\protect\hypertarget{sec:some-history-of-ellipsoid-method}{}
 
 \begin{itemize}
 \item
@@ -148,11 +185,10 @@ Method}\label{some-history-of-ellipsoid-method}}
   method, although its worst-case complexity is exponential.
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{common-perspective-of-ellipsoid-method}{%
-\subsection{Common Perspective of Ellipsoid
-Method}\label{common-perspective-of-ellipsoid-method}}
+\begin{frame}{Common Perspective of Ellipsoid Method}
+\protect\hypertarget{sec:common-perspective-of-ellipsoid-method}{}
 
 \begin{itemize}
 \item
@@ -172,10 +208,10 @@ Method}\label{common-perspective-of-ellipsoid-method}}
   solvability of combinatorial optimization problems.
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{but}{%
-\subsection{But\ldots{}}\label{but}}
+\begin{frame}{But\ldots{}}
+\protect\hypertarget{sec:but}{}
 
 \begin{itemize}
 \item
@@ -188,11 +224,10 @@ Method}\label{common-perspective-of-ellipsoid-method}}
   The oracle can exploit sparsity.
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{consider-ellipsoid-method-when}{%
-\subsection{Consider Ellipsoid Method
-When\ldots{}}\label{consider-ellipsoid-method-when}}
+\begin{frame}{Consider Ellipsoid Method When\ldots{}}
+\protect\hypertarget{sec:consider-ellipsoid-method-when}{}
 
 \begin{itemize}
 \item
@@ -204,14 +239,18 @@ When\ldots{}}\label{consider-ellipsoid-method-when}}
   Oracle can be implemented efficiently.
 \end{itemize}
 
-\hypertarget{cutting-plane-method-revisited}{%
+\end{frame}
+
+\hypertarget{sec:cutting-plane-method-revisited}{%
 \section{Cutting-plane Method
-Revisited}\label{cutting-plane-method-revisited}}
+Revisited}\label{sec:cutting-plane-method-revisited}}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\begin{frame}{Basic Idea}
+\protect\hypertarget{sec:basic-idea}{}
 
-\hypertarget{basic-idea}{%
-\subsection{Basic Idea}\label{basic-idea}}
+\begin{columns}
+
+\column{0.6\textwidth}
 
 \begin{itemize}
 \tightlist
@@ -225,16 +264,24 @@ Revisited}\label{cutting-plane-method-revisited}}
   \item
     Find a point \(x^* \in \mathbb{R}^n\) in \(\mathcal{K}\),
   \item
-    or determine that \(\mathcal{K}\) is empty (i.e., no feasible sol'n)
+    or determine that \(\mathcal{K}\) is empty (i.e., no feasible sol’n)
   \end{itemize}
 \end{itemize}
 
+\column{0.4\textwidth}
+
 \includegraphics{ellipsoid.files/region.pdf}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{columns}
 
-\hypertarget{cutting-plane-oracle}{%
-\subsection{Cutting-plane Oracle}\label{cutting-plane-oracle}}
+\end{frame}
+
+\begin{frame}{Cutting-plane Oracle}
+\protect\hypertarget{sec:cutting-plane-oracle}{}
+
+\begin{columns}
+
+\column{0.6\textwidth}
 
 \begin{itemize}
 \tightlist
@@ -253,13 +300,16 @@ Revisited}\label{cutting-plane-method-revisited}}
   \end{itemize}
 \end{itemize}
 
+\column{0.4\textwidth}
+
 \includegraphics{ellipsoid.files/cut.pdf}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{columns}
 
-\hypertarget{cutting-plane-oracle-contd}{%
-\subsection{Cutting-plane oracle
-(cont'd)}\label{cutting-plane-oracle-contd}}
+\end{frame}
+
+\begin{frame}{Cutting-plane oracle (cont’d)}
+\protect\hypertarget{sec:cutting-plane-oracle-contd}{}
 
 \begin{itemize}
 \item
@@ -273,10 +323,10 @@ Revisited}\label{cutting-plane-method-revisited}}
   cutting-plane is called \emph{deep cut}.
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{subgradient}{%
-\subsection{Subgradient}\label{subgradient}}
+\begin{frame}{Subgradient}
+\protect\hypertarget{sec:subgradient}{}
 
 \begin{itemize}
 \tightlist
@@ -301,11 +351,10 @@ Remarks:
   \(\partial f(x_0) = \nabla f(x_0)\)
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{key-components-of-cutting-plane-method}{%
-\subsection{Key components of Cutting-plane
-method}\label{key-components-of-cutting-plane-method}}
+\begin{frame}{Key components of Cutting-plane method}
+\protect\hypertarget{sec:key-components-of-cutting-plane-method}{}
 
 \begin{itemize}
 \tightlist
@@ -327,11 +376,10 @@ method}\label{key-components-of-cutting-plane-method}}
   \end{itemize}
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{generic-cutting-plane-method}{%
-\subsection{Generic Cutting-plane
-method}\label{generic-cutting-plane-method}}
+\begin{frame}{Generic Cutting-plane method}
+\protect\hypertarget{sec:generic-cutting-plane-method}{}
 
 \begin{itemize}
 \tightlist
@@ -342,7 +390,7 @@ method}\label{generic-cutting-plane-method}}
   \textbf{Repeat}
 
   \begin{enumerate}
-  \def\labelenumi{\arabic{enumi}.}
+  [1.]
   \tightlist
   \item
     Choose a point \(x_0\) in \(\mathcal{S}\)
@@ -359,10 +407,10 @@ method}\label{generic-cutting-plane-method}}
   \end{enumerate}
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{python-code}{%
-\subsection{Python code}\label{python-code}}
+\begin{frame}[fragile]{Python code}
+\protect\hypertarget{sec:python-code}{}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -383,11 +431,10 @@ method}\label{generic-cutting-plane-method}}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{convex-optimization-problem-i}{%
-\subsection{Convex Optimization Problem
-(I)}\label{convex-optimization-problem-i}}
+\begin{frame}{Convex Optimization Problem (I)}
+\protect\hypertarget{sec:convex-optimization-problem-i}{}
 
 \[\begin{array}{ll}
     \text{minimize}     & f_0(x), \\
@@ -404,11 +451,10 @@ method}\label{generic-cutting-plane-method}}
   \(t\) is the best-so-far value of \(f_0(x)\).
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{convex-optimization-problem-ii}{%
-\subsection{Convex Optimization Problem
-(II)}\label{convex-optimization-problem-ii}}
+\begin{frame}{Convex Optimization Problem (II)}
+\protect\hypertarget{sec:convex-optimization-problem-ii}{}
 
 \begin{itemize}
 \item
@@ -426,10 +472,10 @@ method}\label{generic-cutting-plane-method}}
   search on \(t\).
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{python-code-1}{%
-\subsection{Python code}\label{python-code-1}}
+\begin{frame}[fragile]{Python code}
+\protect\hypertarget{sec:python-code-1}{}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -452,7 +498,9 @@ method}\label{generic-cutting-plane-method}}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -478,22 +526,23 @@ method}\label{generic-cutting-plane-method}}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
+
+\begin{frame}
 
 \begin{itemize}
 \tightlist
 \item
   Another possible way is, to update the best-so-far \(t\) whenever a
-  feasible sol'n \(x_0\) is found such that \(\Phi_t(x_0) = 0\).
+  feasible sol’n \(x_0\) is found such that \(\Phi_t(x_0) = 0\).
 \item
   We assume that the oracle takes the responsbility for that.
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{generic-cutting-plane-method-optim}{%
-\subsection{Generic Cutting-plane method
-(Optim)}\label{generic-cutting-plane-method-optim}}
+\begin{frame}{Generic Cutting-plane method (Optim)}
+\protect\hypertarget{sec:generic-cutting-plane-method-optim}{}
 
 \begin{itemize}
 \tightlist
@@ -504,7 +553,7 @@ method}\label{generic-cutting-plane-method}}
   \textbf{Repeat}
 
   \begin{enumerate}
-  \def\labelenumi{\arabic{enumi}.}
+  [1.]
   \tightlist
   \item
     Choose a point \(x_0\) in \(\mathcal{S}\)
@@ -522,10 +571,10 @@ method}\label{generic-cutting-plane-method}}
   \end{enumerate}
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{python-code-2}{%
-\subsection{Python code}\label{python-code-2}}
+\begin{frame}[fragile]{Python code}
+\protect\hypertarget{sec:python-code-2}{}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -548,11 +597,10 @@ method}\label{generic-cutting-plane-method}}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{example-profit-maximization-problem}{%
-\subsection{Example: Profit Maximization
-Problem}\label{example-profit-maximization-problem}}
+\begin{frame}{Example: Profit Maximization Problem}
+\protect\hypertarget{sec:example-profit-maximization-problem}{}
 
 \[\begin{array}{ll}
    \text{maximize} & p(A x_1^\alpha x_2^\beta) - v_1 x_1 - v_2 x_2 \\
@@ -577,11 +625,10 @@ Problem}\label{example-profit-maximization-problem}}
   \(k\): a given constant that restricts the quantity of \(x_1\)
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{example-profit-maximization-contd}{%
-\subsection{Example: Profit maximization
-(cont'd)}\label{example-profit-maximization-contd}}
+\begin{frame}{Example: Profit maximization (cont’d)}
+\protect\hypertarget{sec:example-profit-maximization-contd}{}
 
 \begin{itemize}
 \tightlist
@@ -595,11 +642,10 @@ Problem}\label{example-profit-maximization-problem}}
     \end{array}\]
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{profit-maximization-in-convex-form}{%
-\subsection{Profit maximization in Convex
-Form}\label{profit-maximization-in-convex-form}}
+\begin{frame}{Profit maximization in Convex Form}
+\protect\hypertarget{sec:profit-maximization-in-convex-form}{}
 
 \begin{itemize}
 \item
@@ -624,11 +670,10 @@ and take logarithm of cost and constraints.
     \end{array}\]
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{python-code-profit-oracle}{%
-\subsection{Python code (Profit
-oracle)}\label{python-code-profit-oracle}}
+\begin{frame}[fragile,allowframebreaks]{Python code (Profit oracle)}
+\protect\hypertarget{sec:python-code-profit-oracle}{}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -672,10 +717,10 @@ oracle)}\label{python-code-profit-oracle}}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{area-of-applications}{%
-\subsection{Area of Applications}\label{area-of-applications}}
+\begin{frame}{Area of Applications}
+\protect\hypertarget{sec:area-of-applications}{}
 
 \begin{itemize}
 \tightlist
@@ -705,14 +750,14 @@ oracle)}\label{python-code-profit-oracle}}
   \end{itemize}
 \end{itemize}
 
-\hypertarget{robust-convex-optimization}{%
-\section{Robust Convex Optimization}\label{robust-convex-optimization}}
+\end{frame}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\hypertarget{sec:robust-convex-optimization}{%
+\section{Robust Convex
+Optimization}\label{sec:robust-convex-optimization}}
 
-\hypertarget{robust-optimization-formulation}{%
-\subsection{Robust Optimization
-Formulation}\label{robust-optimization-formulation}}
+\begin{frame}{Robust Optimization Formulation}
+\protect\hypertarget{sec:robust-optimization-formulation}{}
 
 \begin{itemize}
 \item
@@ -730,11 +775,10 @@ Formulation}\label{robust-optimization-formulation}}
     \end{array}\]
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{oracle-in-robust-optimization-formulation}{%
-\subsection{Oracle in Robust Optimization
-Formulation}\label{oracle-in-robust-optimization-formulation}}
+\begin{frame}{Oracle in Robust Optimization Formulation}
+\protect\hypertarget{sec:oracle-in-robust-optimization-formulation}{}
 
 \begin{itemize}
 \tightlist
@@ -775,11 +819,10 @@ Formulation}\label{oracle-in-robust-optimization-formulation}}
   \end{itemize}
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{example-profit-maximization-problem-convex}{%
-\subsection{Example: Profit Maximization Problem
-(convex)}\label{example-profit-maximization-problem-convex}}
+\begin{frame}{Example: Profit Maximization Problem (convex)}
+\protect\hypertarget{sec:example-profit-maximization-problem-convex}{}
 
 \[\begin{array}{ll}
 \text{max}  & t \\
@@ -803,11 +846,10 @@ Formulation}\label{oracle-in-robust-optimization-formulation}}
   \end{itemize}
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{example-profit-maximization-problem-oracle}{%
-\subsection{Example: Profit Maximization Problem
-(oracle)}\label{example-profit-maximization-problem-oracle}}
+\begin{frame}{Example: Profit Maximization Problem (oracle)}
+\protect\hypertarget{sec:example-profit-maximization-problem-oracle}{}
 
 By detail analysis, the worst case happens when:
 
@@ -828,10 +870,10 @@ By detail analysis, the worst case happens when:
 \textbf{Remark}: for more complicated problems, affine arithmetic could
 be used.
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{profit_rb_oracle}{%
-\subsection{\texorpdfstring{\texttt{profit\_rb\_oracle}}{profit\_rb\_oracle}}\label{profit_rb_oracle}}
+\begin{frame}[fragile]{\texttt{profit\_rb\_oracle}}
+\protect\hypertarget{sec:profit_rb_oracle}{}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -855,15 +897,14 @@ be used.
 \end{Highlighting}
 \end{Shaded}
 
-\hypertarget{parametric-network-potential-problem}{%
+\end{frame}
+
+\hypertarget{sec:parametric-network-potential-problem}{%
 \section{Parametric Network Potential
-Problem}\label{parametric-network-potential-problem}}
+Problem}\label{sec:parametric-network-potential-problem}}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
-
-\hypertarget{parametric-network-potential-problem-1}{%
-\subsection{Parametric Network Potential
-Problem}\label{parametric-network-potential-problem-1}}
+\begin{frame}{Parametric Network Potential Problem}
+\protect\hypertarget{sec:parametric-network-potential-problem-1}{}
 
 Given a network represented by a graph \(G = (V, E)\). Consider
 
@@ -880,11 +921,10 @@ Given a network represented by a graph \(G = (V, E)\). Consider
   Assume: network is large but the number of parameters is small.
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{network-potential-problem-contd}{%
-\subsection{Network Potential Problem
-(cont'd)}\label{network-potential-problem-contd}}
+\begin{frame}{Network Potential Problem (cont’d)}
+\protect\hypertarget{sec:network-potential-problem-contd}{}
 
 Given \(x_0\), the problem has a feasible solution if and only if \(G\)
 contains no negative cycle. Let \(\mathcal{C}\) be a set of all cycles
@@ -903,11 +943,10 @@ of \(G\).
   \(W_k(x) = \sum_{ (i,j)\in C_k} h_{ij}(x)\).
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{oracle-in-network-potential-problem}{%
-\subsection{Oracle in Network Potential
-Problem}\label{oracle-in-network-potential-problem}}
+\begin{frame}{Oracle in Network Potential Problem}
+\protect\hypertarget{sec:oracle-in-network-potential-problem}{}
 
 \begin{itemize}
 \tightlist
@@ -945,7 +984,9 @@ Problem}\label{oracle-in-network-potential-problem}}
   \end{itemize}
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -970,11 +1011,10 @@ Problem}\label{oracle-in-network-potential-problem}}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{example-optimal-matrix-scaling}{%
-\subsection{Example: Optimal Matrix
-Scaling}\label{example-optimal-matrix-scaling}}
+\begin{frame}{Example: Optimal Matrix Scaling}
+\protect\hypertarget{sec:example-optimal-matrix-scaling}{}
 
 \begin{itemize}
 \item
@@ -995,11 +1035,10 @@ Scaling}\label{example-optimal-matrix-scaling}}
   \text{variables}  &   \pi, \psi, u \, .
   \end{array}\]
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{optimal-matrix-scaling-contd}{%
-\subsection{Optimal Matrix Scaling
-(cont'd)}\label{optimal-matrix-scaling-contd}}
+\begin{frame}{Optimal Matrix Scaling (cont’d)}
+\protect\hypertarget{sec:optimal-matrix-scaling-contd}{}
 
 By taking logarithms of variables, the above problem can be transformed
 into:
@@ -1014,7 +1053,9 @@ into:
 where \(k'\) denotes \(\log( | k | )\) and
 \(x = (\pi', \psi' )^{ \mathrm{ T } }\).
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1044,11 +1085,10 @@ where \(k'\) denotes \(\log( | k | )\) and
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{example-clock-period-yield-driven-co-optimization}{%
-\subsection{Example: clock period \& yield-driven
-co-optimization}\label{example-clock-period-yield-driven-co-optimization}}
+\begin{frame}{Example: clock period \& yield-driven co-optimization}
+\protect\hypertarget{sec:example-clock-period-yield-driven-co-optimization}{}
 
 \[\begin{array}{cll}
    \text{minimize} &T_{CP} - w_{\beta}\beta \\
@@ -1070,10 +1110,10 @@ co-optimization}\label{example-clock-period-yield-driven-co-optimization}}
   \(\beta \geq 0.8\), the problem becomes convex.
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{inverse-cdf}{%
-\subsection{Inverse CDF}\label{inverse-cdf}}
+\begin{frame}{Inverse CDF}
+\protect\hypertarget{sec:inverse-cdf}{}
 
 \begin{figure}
 \centering
@@ -1081,14 +1121,13 @@ co-optimization}\label{example-clock-period-yield-driven-co-optimization}}
 \caption{img}
 \end{figure}
 
-\hypertarget{matrix-inequalities}{%
-\section{Matrix Inequalities}\label{matrix-inequalities}}
+\end{frame}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\hypertarget{sec:matrix-inequalities}{%
+\section{Matrix Inequalities}\label{sec:matrix-inequalities}}
 
-\hypertarget{problems-with-matrix-inequalities}{%
-\subsection{Problems With Matrix
-Inequalities}\label{problems-with-matrix-inequalities}}
+\begin{frame}{Problems With Matrix Inequalities}
+\protect\hypertarget{sec:problems-with-matrix-inequalities}{}
 
 Consider the following problem:
 
@@ -1105,11 +1144,10 @@ Consider the following problem:
   \(A \succeq 0\) denotes \(A\) is positive semidefinite.
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{problems-with-matrix-inequalities-1}{%
-\subsection{Problems With Matrix
-Inequalities}\label{problems-with-matrix-inequalities-1}}
+\begin{frame}{Problems With Matrix Inequalities}
+\protect\hypertarget{sec:problems-with-matrix-inequalities-1}{}
 
 \begin{itemize}
 \tightlist
@@ -1129,11 +1167,10 @@ Inequalities}\label{problems-with-matrix-inequalities-1}}
   are linear, i.e., \(F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n\)
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{oracle-in-matrix-inequalities}{%
-\subsection{Oracle in Matrix
-Inequalities}\label{oracle-in-matrix-inequalities}}
+\begin{frame}{Oracle in Matrix Inequalities}
+\protect\hypertarget{sec:oracle-in-matrix-inequalities}{}
 
 The oracle only needs to:
 
@@ -1167,7 +1204,9 @@ The oracle only needs to:
   \end{itemize}
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1198,11 +1237,10 @@ The oracle only needs to:
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{example-matrix-norm-minimization}{%
-\subsection{Example: Matrix Norm
-Minimization}\label{example-matrix-norm-minimization}}
+\begin{frame}{Example: Matrix Norm Minimization}
+\protect\hypertarget{sec:example-matrix-norm-minimization}{}
 
 \begin{itemize}
 \tightlist
@@ -1222,7 +1260,9 @@ Minimization}\label{example-matrix-norm-minimization}}
   Binary search on \(t\) can be used for this problem.
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1257,11 +1297,10 @@ Minimization}\label{example-matrix-norm-minimization}}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{example-estimation-of-correlation-function}{%
-\subsection{Example: Estimation of Correlation
-Function}\label{example-estimation-of-correlation-function}}
+\begin{frame}{Example: Estimation of Correlation Function}
+\protect\hypertarget{sec:example-estimation-of-correlation-function}{}
 
 \[\begin{array}{ll}
    \min_{\kappa, p}   & \| \Omega(p) + \kappa I - Y \| \\
@@ -1275,9 +1314,9 @@ Function}\label{example-estimation-of-correlation-function}}
   \begin{itemize}
   \tightlist
   \item
-    \(p_i\)'s are the unknown coefficients to be fitted
+    \(p_i\)’s are the unknown coefficients to be fitted
   \item
-    \(\Psi_i\)'s are a family of basis functions.
+    \(\Psi_i\)’s are a family of basis functions.
   \end{itemize}
 \item
   The covariance matrix \(\Omega(p)\) can be recast as:
@@ -1287,10 +1326,10 @@ Function}\label{example-estimation-of-correlation-function}}
   where \(\{F_k\}_{i,j} =\Psi_k( \| s_j - s_i \|_2)\)
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{basic-ellipsoid-method}{%
-\subsection{Basic Ellipsoid Method}\label{basic-ellipsoid-method}}
+\begin{frame}{Basic Ellipsoid Method}
+\protect\hypertarget{sec:basic-ellipsoid-method}{}
 
 \begin{itemize}
 \tightlist
@@ -1302,10 +1341,10 @@ Function}\label{example-estimation-of-correlation-function}}
 
 \includegraphics{ellipsoid.files/ellipsoid.pdf}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{python-code-3}{%
-\subsection{Python code}\label{python-code-3}}
+\begin{frame}[fragile]{Python code}
+\protect\hypertarget{sec:python-code-3}{}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1329,11 +1368,10 @@ Function}\label{example-estimation-of-correlation-function}}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{updating-the-ellipsoid-deep-cut}{%
-\subsection{Updating the ellipsoid
-(deep-cut)}\label{updating-the-ellipsoid-deep-cut}}
+\begin{frame}{Updating the ellipsoid (deep-cut)}
+\protect\hypertarget{sec:updating-the-ellipsoid-deep-cut}{}
 
 \begin{itemize}
 \tightlist
@@ -1357,11 +1395,10 @@ Function}\label{example-estimation-of-correlation-function}}
   \sigma = \frac{2\rho}{1+\alpha}, \qquad
   \delta = \frac{n^2(1-\alpha^2)}{n^2 - 1} \]
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{updating-the-ellipsoid-contd}{%
-\subsection{Updating the ellipsoid
-(cont'd)}\label{updating-the-ellipsoid-contd}}
+\begin{frame}{Updating the ellipsoid (cont’d)}
+\protect\hypertarget{sec:updating-the-ellipsoid-contd}{}
 
 \begin{itemize}
 \tightlist
@@ -1378,10 +1415,10 @@ Function}\label{example-estimation-of-correlation-function}}
   Reduce \(n^2\) multiplications per iteration.
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{python-code-updating}{%
-\subsection{Python code (updating)}\label{python-code-updating}}
+\begin{frame}[fragile]{Python code (updating)}
+\protect\hypertarget{sec:python-code-updating}{}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1401,10 +1438,10 @@ Function}\label{example-estimation-of-correlation-function}}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{python-code-deep-cut}{%
-\subsection{Python code (deep cut)}\label{python-code-deep-cut}}
+\begin{frame}[fragile]{Python code (deep cut)}
+\protect\hypertarget{sec:python-code-deep-cut}{}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1426,10 +1463,10 @@ Function}\label{example-estimation-of-correlation-function}}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{parallel-cuts}{%
-\subsection{Parallel Cuts}\label{parallel-cuts}}
+\begin{frame}{Parallel Cuts}
+\protect\hypertarget{sec:parallel-cuts}{}
 
 \begin{itemize}
 \item
@@ -1447,17 +1484,17 @@ Function}\label{example-estimation-of-correlation-function}}
   Usually provide faster convergence.
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{parallel-cuts-1}{%
-\subsection{Parallel Cuts}\label{parallel-cuts-1}}
+\begin{frame}{Parallel Cuts}
+\protect\hypertarget{sec:parallel-cuts-1}{}
 
 \includegraphics{ellipsoid.files/parallel_cut.pdf}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{updating-the-ellipsoid}{%
-\subsection{Updating the ellipsoid}\label{updating-the-ellipsoid}}
+\begin{frame}{Updating the ellipsoid}
+\protect\hypertarget{sec:updating-the-ellipsoid}{}
 
 \begin{itemize}
 \item
@@ -1483,10 +1520,10 @@ Function}\label{example-estimation-of-correlation-function}}
    \end{array}\]
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{python-code-parallel-cut}{%
-\subsection{Python code (parallel cut)}\label{python-code-parallel-cut}}
+\begin{frame}[fragile]{Python code (parallel cut)}
+\protect\hypertarget{sec:python-code-parallel-cut}{}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1511,11 +1548,10 @@ Function}\label{example-estimation-of-correlation-function}}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{example-fir-filter-design}{%
-\subsection{Example: FIR filter
-design}\label{example-fir-filter-design}}
+\begin{frame}{Example: FIR filter design}
+\protect\hypertarget{sec:example-fir-filter-design}{}
 
 \begin{figure}
 \centering
@@ -1529,11 +1565,10 @@ design}\label{example-fir-filter-design}}
   The time response is: \[y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]}\]
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{example-fir-filter-design-contd}{%
-\subsection{Example: FIR filter design
-(cont'd)}\label{example-fir-filter-design-contd}}
+\begin{frame}{Example: FIR filter design (cont’d)}
+\protect\hypertarget{sec:example-fir-filter-design-contd}{}
 
 \begin{itemize}
 \item
@@ -1550,11 +1585,10 @@ design}\label{example-fir-filter-design}}
   The constraint is non-convex in general.
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{example-fir-filter-design-contd-1}{%
-\subsection{Example: FIR filter design
-(cont'd)}\label{example-fir-filter-design-contd-1}}
+\begin{frame}{Example: FIR filter design (cont’d)}
+\protect\hypertarget{sec:example-fir-filter-design-contd-1}{}
 
 \begin{itemize}
 \tightlist
@@ -1574,11 +1608,10 @@ design}\label{example-fir-filter-design}}
   \end{itemize}
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{example-fir-filter-design-contd-2}{%
-\subsection{Example: FIR filter design
-(cont'd)}\label{example-fir-filter-design-contd-2}}
+\begin{frame}{Example: FIR filter design (cont’d)}
+\protect\hypertarget{sec:example-fir-filter-design-contd-2}{}
 
 \begin{itemize}
 \item
@@ -1597,11 +1630,10 @@ design}\label{example-fir-filter-design}}
               & R(\omega) > 0, \forall \omega \in [0,\pi]
 \end{array}\]
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{example-maximum-likelihood-estimation}{%
-\subsection{Example: Maximum Likelihood
-estimation}\label{example-maximum-likelihood-estimation}}
+\begin{frame}{Example: Maximum Likelihood estimation}
+\protect\hypertarget{sec:example-maximum-likelihood-estimation}{}
 
 \[\begin{array}{ll}
       \min_{\kappa, p}   &      \log \det (\Omega(p) + \kappa I) + \mathrm{Tr}((\Omega(p) + \kappa I)^{-1}Y) \\
@@ -1617,11 +1649,10 @@ Note: 1st term is concave, 2nd term is convex
   definite matrix, then the function is convex within \([0, 2Y]\)
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{example-maximum-likelihood-estimation-contd}{%
-\subsection{Example: Maximum Likelihood estimation
-(cont'd)}\label{example-maximum-likelihood-estimation-contd}}
+\begin{frame}{Example: Maximum Likelihood estimation (cont’d)}
+\protect\hypertarget{sec:example-maximum-likelihood-estimation-contd}{}
 
 \begin{itemize}
 \tightlist
@@ -1635,14 +1666,13 @@ Note: 1st term is concave, 2nd term is convex
                     & 0 \preceq V(p) \preceq 2Y, \kappa \geq 0
 \end{array}\]
 
-\hypertarget{discrete-optimization}{%
-\section{Discrete Optimization}\label{discrete-optimization}}
+\end{frame}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\hypertarget{sec:discrete-optimization}{%
+\section{Discrete Optimization}\label{sec:discrete-optimization}}
 
-\hypertarget{why-discrete-convex-programming}{%
-\subsection{Why Discrete Convex
-Programming}\label{why-discrete-convex-programming}}
+\begin{frame}{Why Discrete Convex Programming}
+\protect\hypertarget{sec:why-discrete-convex-programming}{}
 
 \begin{itemize}
 \item
@@ -1657,18 +1687,17 @@ Programming}\label{why-discrete-convex-programming}}
   programming (MICP) by mapping the design variables to integers.
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{whats-wrong-w-existing-methods}{%
-\subsection{What's Wrong w/ Existing
-Methods?}\label{whats-wrong-w-existing-methods}}
+\begin{frame}{What’s Wrong w/ Existing Methods?}
+\protect\hypertarget{sec:whats-wrong-w-existing-methods}{}
 
 \begin{itemize}
 \item
   Mostly based on relaxation.
 \item
   Then use the relaxed solution as a lower bound and use the
-  branch--and--bound method for the discrete optimal solution.
+  branch–and–bound method for the discrete optimal solution.
 
   \begin{itemize}
   \tightlist
@@ -1681,23 +1710,22 @@ Methods?}\label{whats-wrong-w-existing-methods}}
   convex fitting?
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{mixed-integer-convex-programming}{%
-\subsection{Mixed-Integer Convex
-Programming}\label{mixed-integer-convex-programming}}
+\begin{frame}{Mixed-Integer Convex Programming}
+\protect\hypertarget{sec:mixed-integer-convex-programming}{}
 
 Consider: \[\begin{array}{ll}
         \text{minimize}      & f_0(x), \\
         \text{subject to}    & f_j(x) \leq 0, \; \forall j=1,2,\ldots \\
                              & x \in \mathbb{D} 
-\end{array}\] where - \(f_0(x)\) and \(f_j(x)\) are ``convex'' - Some
+\end{array}\] where - \(f_0(x)\) and \(f_j(x)\) are “convex” - Some
 design variables are discrete.
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{oracle-requirement}{%
-\subsection{Oracle Requirement}\label{oracle-requirement}}
+\begin{frame}{Oracle Requirement}
+\protect\hypertarget{sec:oracle-requirement}{}
 
 \begin{itemize}
 \item
@@ -1711,12 +1739,13 @@ design variables are discrete.
   e.g.~round-robin the evaluation of constraints)
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+\end{frame}
 
-\hypertarget{example-fir-filter-design-1}{%
-\subsection{Example: FIR filter
-design}\label{example-fir-filter-design-1}}
+\begin{frame}{Example: FIR filter design}
+\protect\hypertarget{sec:example-fir-filter-design-1}{}
 
 \includegraphics[width=0.9\textwidth,height=\textheight]{ellipsoid.files/lowpass_ripple.pdf}
+
+\end{frame}
 
 \end{document}

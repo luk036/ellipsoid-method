@@ -1,10 +1,12 @@
 
+# Ellipsoid Method Revisited
+
 ## Basic Ellipsoid Method
 
 -   An ellipsoid $\mathcal{E}(x_c, P)$ is specified as a set
     $$\{x \mid (x-x_c)P^{-1}(x-x_c) \leq 1 \},$$ where $x_c$ is the center of the ellipsoid.
 
-![](ellipsoid.files/ellipsoid.pdf)
+![](ellipsoid.files/ellipsoid.pdf){width=60%}
 
 ---
 
@@ -157,6 +159,7 @@ def update_core(self, calc_ell, cut):
 
 ## Python code (parallel cut)
 
+\scriptsize
 
 ```python
 a0, a1 = alpha
@@ -307,7 +310,9 @@ $$\begin{array}{ll}
         \text{subject to}    & f_j(x) \leq 0, \; \forall j=1,2,\ldots \\
                              & x \in \mathbb{D} 
 \end{array}$$
+
 where
+
 -  $f_0(x)$ and $f_j(x)$ are "convex"
 -  Some design variables are discrete.
 
