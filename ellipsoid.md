@@ -37,14 +37,14 @@ class ell:
 ## Updating the ellipsoid (deep-cut)
 
 -   Calculation of minimum volume ellipsoid covering:
-    $$\mathcal{E} \cap \{z \mid g^T (z - x_c) + h \leq 0 \}$$
--   Let $\tilde{g} = P\,g$, $\tau = \sqrt{g^T\tilde{g}}$,
+    $$\mathcal{E} \cap \{z \mid g^\top (z - x_c) + h \leq 0 \}$$
+-   Let $\tilde{g} = P\,g$, $\tau = \sqrt{g^\top\tilde{g}}$,
     $\alpha = h/\tau$.
 -   If $\alpha > 1$, intersection is empty.
 -   If $\alpha < -1/n$ (shallow cut), no smaller ellipsoid can be found.
 -   Otherwise,
  $$x_c^+ = x_c - \frac{\rho}{\tau} \tilde{g}, \qquad
-    P^+ = \delta\left(P - \frac{\sigma}{\tau^2} \tilde{g}\tilde{g}^T\right)
+    P^+ = \delta\left(P - \frac{\sigma}{\tau^2} \tilde{g}\tilde{g}^\top\right)
  $$ where
 
  $$\rho = \frac{1+n\alpha}{n+1}, \qquad
@@ -56,10 +56,10 @@ class ell:
 ## Updating the ellipsoid (cont'd)
 
 -   Even better, split $P$ into two variables $\kappa \cdot Q$
--   Let $\tilde{g} = Q \cdot g$, $\tau = \sqrt{g^T\tilde{g}}$,
+-   Let $\tilde{g} = Q \cdot g$, $\tau = \sqrt{g^\top\tilde{g}}$,
     $\tau' = \sqrt{\kappa} \tau$, $\alpha = h/\tau'$.
  $$x_c^+ = x_c - \frac{\rho}{\tau'} \tilde{g}, \qquad
-    Q^+ = Q - \frac{\sigma}{\tau^2} \tilde{g}\tilde{g}^T, \qquad
+    Q^+ = Q - \frac{\sigma}{\tau^2} \tilde{g}\tilde{g}^\top, \qquad
     \kappa^+ =  \delta \kappa
  $$
 -   Reduce $n^2$ multiplications per iteration.
@@ -115,12 +115,12 @@ def update_core(self, calc_ell, cut):
 
 -   The pair of cuts is given by $g$ and $(h_1, h_2)$ such that:
     $$\begin{array}{l}
-    g^T (x - x_c) + h_1 \leq 0,  \\
-    g^T (x - x_c) + h_2 \geq 0,
+    g^\top (x - x_c) + h_1 \leq 0,  \\
+    g^\top (x - x_c) + h_2 \geq 0,
     \end{array}$$ for all $x \in \mathcal{K}$.
 
 -   Only linear inequality constraint can produce such parallel cut:
-    $$ l \leq a^T x + b \leq u, \qquad L \preceq F(x) \preceq U $$
+    $$ l \leq a^\top x + b \leq u, \qquad L \preceq F(x) \preceq U $$
 
 -   Usually provide faster convergence.
 
@@ -136,13 +136,13 @@ def update_core(self, calc_ell, cut):
 
 ## Updating the ellipsoid
 
--   Let $\tilde{g} = P\,g$, $\tau = \sqrt{g^T\tilde{g}}$,
+-   Let $\tilde{g} = P\,g$, $\tau = \sqrt{g^\top\tilde{g}}$,
     $\alpha_1 = h_1/\tau$, $\alpha_2 = h_2/\tau$.
 -   If $\alpha_2 > 1$, it reduces to deep-cut with $\alpha = \alpha_1$.
 -   If $\alpha_1 > \alpha_2$, intersection is empty.
 -   If $\alpha_1 \alpha_2 < -1/n$, no smaller ellipsoid can be found. Otherwise,
  $$x_c^+ = x_c - \frac{\rho}{\tau'} \tilde{g}, \qquad
-    Q^+ = Q - \frac{\sigma}{\tau^2} \tilde{g}\tilde{g}^T, \qquad
+    Q^+ = Q - \frac{\sigma}{\tau^2} \tilde{g}\tilde{g}^\top, \qquad
     \kappa^+ =  \delta \kappa
  $$
 
@@ -322,7 +322,7 @@ where
 
 -   The oracle looks for the nearby discrete solution $x_d$ of $x_c$
     with the cutting-plane:
-    $$g^T (x - x_d) + h \leq 0, h \geq 0, g \neq 0$$
+    $$g^\top (x - x_d) + h \leq 0, h \geq 0, g \neq 0$$
 
 -   Note: the cut may be a shallow cut.
 -   Suggestion: use different cuts as possible for each iteration (e.g.
