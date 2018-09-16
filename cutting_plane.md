@@ -85,7 +85,7 @@ bibliography:
 
 \col{0.4\textwidth}
 
-![](ellipsoid.files/region.pdf)
+![](ellipsoid.files/region.svg)
 
 \columnsend
 
@@ -105,7 +105,7 @@ bibliography:
 
 \col{0.4\textwidth}
 
-![](ellipsoid.files/cut.pdf)
+![](ellipsoid.files/cut.svg)
 
 \columnsend
 
@@ -666,7 +666,7 @@ $$\begin{array}{cll}
 
 ## Inverse CDF
 
-![img](ellipsoid.files/Fig2-b-invcdf.pdf)
+![img](ellipsoid.files/Fig2-b-invcdf.svg)
 
 
 Matrix Inequalities

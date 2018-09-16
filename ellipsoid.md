@@ -6,7 +6,7 @@
 -   An ellipsoid $\mathcal{E}(x_c, P)$ is specified as a set
     $$\{x \mid (x-x_c)P^{-1}(x-x_c) \leq 1 \},$$ where $x_c$ is the center of the ellipsoid.
 
-![](ellipsoid.files/ellipsoid.pdf){width=60%}
+![](ellipsoid.files/ellipsoid.svg){width=60%}
 
 ---
 
@@ -37,32 +37,33 @@ class ell:
 ## Updating the ellipsoid (deep-cut)
 
 -   Calculation of minimum volume ellipsoid covering:
-    $$\mathcal{E} \cap \{z \mid g^\top (z - x_c) + h \leq 0 \}$$
+    $$\mathcal{E} \cap \{z \mid g^\top (z - x_c) + \beta \leq 0 \}$$
 -   Let $\tilde{g} = P\,g$, $\tau = \sqrt{g^\top\tilde{g}}$,
-    $\alpha = h/\tau$.
--   If $\alpha > 1$, intersection is empty.
--   If $\alpha < -1/n$ (shallow cut), no smaller ellipsoid can be found.
+-   If $\beta > \tau$, intersection is empty.
+-   If $\beta < -\tau/n$ (shallow cut), no smaller ellipsoid can be found.
 -   Otherwise,
- $$x_c^+ = x_c - \frac{\rho}{\tau} \tilde{g}, \qquad
+ $$x_c^+ = x_c - \frac{\rho}{\tau^2} \tilde{g}, \qquad
     P^+ = \delta\left(P - \frac{\sigma}{\tau^2} \tilde{g}\tilde{g}^\top\right)
  $$ where
 
- $$\rho = \frac{1+n\alpha}{n+1}, \qquad
-  \sigma = \frac{2\rho}{1+\alpha}, \qquad
-  \delta = \frac{n^2(1-\alpha^2)}{n^2 - 1} $$
+ $$\rho = \frac{\tau+n\beta}{n+1}, \qquad
+  \sigma = \frac{2\rho}{\tau+\beta}, \qquad
+  \delta = \frac{n^2(\tau^2-\beta^2)}{(n^2 - 1)\tau^2} $$
 
 ---
 
 ## Updating the ellipsoid (cont'd)
 
 -   Even better, split $P$ into two variables $\kappa \cdot Q$
--   Let $\tilde{g} = Q \cdot g$, $\tau = \sqrt{g^\top\tilde{g}}$,
-    $\tau' = \sqrt{\kappa} \tau$, $\alpha = h/\tau'$.
- $$x_c^+ = x_c - \frac{\rho}{\tau'} \tilde{g}, \qquad
-    Q^+ = Q - \frac{\sigma}{\tau^2} \tilde{g}\tilde{g}^\top, \qquad
-    \kappa^+ =  \delta \kappa
+-   Let $\tilde{g} = Q \cdot g$, $\omega = g^\top\tilde{g}$, $\tau = \sqrt{\kappa\cdot\omega}$.
+ $$x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
+    Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\top, \qquad
+    \kappa^+ =  \delta\cdot\kappa
  $$
 -   Reduce $n^2$ multiplications per iteration.
+-   Note:
+    -   The determinant of $Q$ decreases monotonically.
+    -   The range of $\delta$ is $(0, \frac{n^2}{n^2 - 1})$
 
 ---
 
@@ -72,16 +73,18 @@ class ell:
 def update_core(self, calc_ell, cut):
     g, beta = cut
     Qg = self.Q.dot(g)
-    tsq = g.dot(Qg)
-    tau = np.sqrt(self.kappa * tsq)
-    alpha = beta / tau
-    status, rho, sigma, delta = calc_ell(alpha)
+    omega = g.dot(Qg)
+    tsq = self.kappa * omega
+    if tsq <= 0.:
+        return 4, 0.
+    status, params = calc_ell(beta, tsq)
     if status != 0:
-        return status, tau
-    self._xc -= (self.kappa * rho / tau) * Qg
-*   self.Q -= np.outer((sigma / tsq) * Qg, Qg)
-*   self.kappa *= delta
-    return status, tau
+        return status, tsq
+    rho, sigma, delta = params
+    self._xc -= (rho / omega) * Qg
+    self.Q -= (sigma / omega) * np.outer(Qg, Qg)
+    self.kappa *= delta
+    return status, tsq
 ```
 
 
@@ -90,21 +93,47 @@ def update_core(self, calc_ell, cut):
 ## Python code (deep cut)
 
 ```python
-    def calc_dc(self, alpha):
-        '''deep cut'''
-        if alpha == 0.: 
-            return self.calc_cc()
-        n = len(self.xc)
-        status, rho, sigma, delta = 0, 0., 0., 0.
-        if alpha > 1.:
-            status = 1  # no sol'n
-        elif n*alpha < -1.:
-            status = 3  # no effect
-        else:
-            rho = (1.+n*alpha)/(n+1)
-            sigma = 2.*rho/(1.+alpha)
-            delta = self.c1*(1.-alpha*alpha)
-        return status, rho, sigma, delta
+def calc_dc(self, beta, tsq):
+    '''deep cut'''
+    tau = math.sqrt(tsq)
+    if beta > tau:
+        return 1, None    # no sol'n
+    if beta == 0.:
+        return self.calc_cc(tau)
+    n = self._n
+    gamma = tau + n*beta
+    if gamma < 0.:
+        return 3, None  # no effect
+    rho = gamma/(n + 1)
+    sigma = 2.*rho/(tau + beta)
+    delta = self.c1*(tsq - beta**2)/tsq
+    return 0, (rho, sigma, delta)
+```
+
+---
+
+## Central Cut
+
+-   A Special case of deep cut when $\beta = 0$
+-   Deserve a separate implement because it is much simplier.
+-   Let $\tilde{g} = Q\,g$, $\tau = \sqrt{\kappa\cdot\omega}$,
+
+ $$\rho = {\tau \over n+1}, \qquad
+  \sigma = {2 \over n+1}, \qquad
+  \delta = {n^2 \over n^2 - 1}$$
+
+---
+
+## Python code (deep cut)
+
+```python
+def calc_cc(self, tau):
+    '''central cut'''
+    np1 = self._n + 1
+    sigma = 2. / np1
+    rho = tau / np1
+    delta = self.c1
+    return 0, (rho, sigma, delta)
 ```
 
 ---
@@ -113,10 +142,10 @@ def update_core(self, calc_ell, cut):
 
 -   Oracle returns a pair of cuts instead of just one.
 
--   The pair of cuts is given by $g$ and $(h_1, h_2)$ such that:
+-   The pair of cuts is given by $g$ and $(\beta_1, \beta_2)$ such that:
     $$\begin{array}{l}
-    g^\top (x - x_c) + h_1 \leq 0,  \\
-    g^\top (x - x_c) + h_2 \geq 0,
+    g^\top (x - x_c) + \beta_1 \leq 0,  \\
+    g^\top (x - x_c) + \beta_2 \geq 0,
     \end{array}$$ for all $x \in \mathcal{K}$.
 
 -   Only linear inequality constraint can produce such parallel cut:
@@ -129,29 +158,30 @@ def update_core(self, calc_ell, cut):
 
 ## Parallel Cuts
 
-![](ellipsoid.files/parallel_cut.pdf)
+![](ellipsoid.files/parallel_cut.svg)
 
 
 ---
 
 ## Updating the ellipsoid
 
--   Let $\tilde{g} = P\,g$, $\tau = \sqrt{g^\top\tilde{g}}$,
-    $\alpha_1 = h_1/\tau$, $\alpha_2 = h_2/\tau$.
--   If $\alpha_2 > 1$, it reduces to deep-cut with $\alpha = \alpha_1$.
--   If $\alpha_1 > \alpha_2$, intersection is empty.
--   If $\alpha_1 \alpha_2 < -1/n$, no smaller ellipsoid can be found. Otherwise,
- $$x_c^+ = x_c - \frac{\rho}{\tau'} \tilde{g}, \qquad
-    Q^+ = Q - \frac{\sigma}{\tau^2} \tilde{g}\tilde{g}^\top, \qquad
+-   Let $\tilde{g} = Q\,g$, $\tau^2 = \kappa\cdot\omega$.
+-   If $\beta_1 > \beta_2$, intersection is empty.
+-   If $\beta_1 \beta_2 < -\tau^2/n$, no smaller ellipsoid can be found.
+-   If $\beta_2^2 > \tau^2$, it reduces to deep-cut with $\alpha = \alpha_1$.
+-   Otherwise,
+ $$x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
+    Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\top, \qquad
     \kappa^+ =  \delta \kappa
  $$
 
     where
  $$\begin{array}{lll}
-      \xi &=& \sqrt{4(1 - \alpha_1^2)(1 - \alpha_2^2) + n^2(\alpha_2^2 - \alpha_1^2)^2}, \\
-      \sigma &=& \frac{1}{n+1}(n + \frac{2}{(\alpha_1 + \alpha_2)^2}(1 - \alpha_1\alpha_2 - \frac{\xi}{2})), \\
-      \rho &=& \frac{1}{2}(\alpha_1 + \alpha_2) \sigma, \\
-      \delta &=& \frac{n^2}{n^2-1} (1 - \frac{1}{2}(\alpha_1^2 + \alpha_2^2 - \frac{\xi}{n}))
+      \bar{\beta} &=& (\beta_1 + \beta_2)/2 \\
+      \xi^2 &=& (\tau^2 - \beta_1^2)(\tau^2 - \beta_2^2) + (n(\beta_2 - \beta_1)\bar{\beta})^2, \\
+      \sigma &=& (n + (\tau^2 - \beta_1\beta_2 - \xi)/(2\bar{\beta}^2)) / (n + 1), \\
+      \rho &=& \bar{\beta}\cdot\sigma, \\
+      \delta &=& (n^2/(n^2-1)) (\tau^2 - (\beta_1^2 + \beta_2^2)/2 + \xi/n) / \tau^2
  \end{array}$$
 
 
@@ -162,31 +192,34 @@ def update_core(self, calc_ell, cut):
 \scriptsize
 
 ```python
-a0, a1 = alpha
-if a1 >= 1.: return self.calc_dc(a0)
-n = len(self.xc)
-status, rho, sigma, delta = 0, 0., 0., 0.
-aprod = a0 * a1
-if a0 > a1: 
-    status = 1 # no sol'n
-elif n*aprod < -1.: 
-    status = 3  # no effect
-else:
-    asq = alpha * alpha
-    asum = a0 + a1
-    asqdiff = asq[1] - asq[0]
-    xi = np.sqrt(4.*(1.-asq[0])*(1.-asq[1]) + n*n*asqdiff*asqdiff)
-    sigma = (n + (2.*(1. + aprod - xi/2.)/(asum*asum)))/(n+1)
-    rho = asum * sigma/2.
-    delta = self.c1*(1. - (asq[0] + asq[1] - xi/n)/2.)        
-return status, rho, sigma, delta
+def calc_ll_core(self, b0, b1, tsq):
+    if b1 < b0:
+        return 1, None  # no sol'n
+    n = self._n
+    b0b1 = b0*b1
+    if n*b0b1 < -tsq:
+        return 3, None  # no effect
+    b1sq = b1**2
+    if b1sq > tsq or not self.use_parallel:
+        return self.calc_dc(b0, tsq)
+    if b0 == 0:
+        return self.calc_ll_cc(b1, b1sq, tsq)
+    # parallel cut
+    t0 = tsq - b0**2
+    t1 = tsq - b1sq
+    bav = (b0 + b1)/2
+    xi = math.sqrt( t0*t1 + (n*bav*(b1 - b0))**2 )
+    sigma = (n + (tsq - b0b1 - xi)/(2 * bav**2)) / (n + 1)
+    rho = sigma * bav
+    delta = self.c1 * ((t0 + t1)/2 + xi/n) / tsq
+    return 0, (rho, sigma, delta)
 ```
 
 ---
 
 ## Example: FIR filter design
 
-![img](ellipsoid.files/fir_strctr.pdf)
+![img](ellipsoid.files/fir_strctr.svg)
 
 -   The time response is: 
     $$y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]}$$
@@ -322,7 +355,7 @@ where
 
 -   The oracle looks for the nearby discrete solution $x_d$ of $x_c$
     with the cutting-plane:
-    $$g^\top (x - x_d) + h \leq 0, h \geq 0, g \neq 0$$
+    $$g^\top (x - x_d) + \beta \leq 0, \beta \geq 0, g \neq 0$$
 
 -   Note: the cut may be a shallow cut.
 -   Suggestion: use different cuts as possible for each iteration (e.g.
@@ -332,4 +365,4 @@ where
 
 ## Example: FIR filter design
 
-![](ellipsoid.files/lowpass_ripple.pdf){width=90%}
+![](ellipsoid.files/lowpass_ripple.svg){width=90%}
