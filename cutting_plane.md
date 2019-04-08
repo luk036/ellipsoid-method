@@ -1,5 +1,5 @@
 ---
-title: Ellipsoid Method and Its Oracles
+title: Cutting-plane Method and the Amazing Oracles
 author: Wai-Shing Luk
 bibliography:
   - fir-ref.bib
@@ -85,19 +85,19 @@ bibliography:
 
 \col{0.4\textwidth}
 
-![](ellipsoid.files/region.svg)
+![](ellipsoid.files/region.pdf)
 
 \columnsend
 
 ---
 
-## Cutting-plane Oracle
+## Separation Oracle
 
 \columnsbegin
 
 \col{0.6\textwidth}
 
-- When cutting-plane oracle $\Omega$ is *queried* at $x_0$, it either
+- When a separation oracle $\Omega$ is *queried* at $x_0$, it either
   - asserts that $x_0 \in \mathcal{K}$, or
   - returns a separating hyperplane between $x_0$ and $\mathcal{K}$:
         $$g^\top (x - x_0) + h \leq 0, h \geq 0, g \neq 0, \;
@@ -105,15 +105,15 @@ bibliography:
 
 \col{0.4\textwidth}
 
-![](ellipsoid.files/cut.svg)
+![](ellipsoid.files/cut.pdf)
 
 \columnsend
 
 ---
 
-## Cutting-plane oracle (cont'd)
+## Separation oracle (cont'd)
 
-- $(g,h)$ called a *cutting-plane*, or cut, since it eliminates the
+- $(g, h)$ called a *cutting-plane*, or cut, since it eliminates the
     halfspace $\{x \mid g^\top (x - x_0) + h > 0\}$ from our search.
 
 - If $h=0$ ($x_0$ is on boundary of halfspace that is cut),
@@ -164,7 +164,7 @@ Remarks:
 
 ---
 
-## Python code
+## Corresponding Python code
 
 ```python
 def cutting_plane_feas(evaluate, S, options=Options()):
@@ -188,36 +188,35 @@ def cutting_plane_feas(evaluate, S, options=Options()):
 ## Convex Optimization Problem (I)
 
 $$\begin{array}{ll}
-    \text{minimize}     & f_0(x), \\
+    \text{minimize}     & f_0({\color{blue}x}), \\
     \text{subject to}   & x \in \mathcal{K}
 \end{array}$$
 
 - The optimization problem is treated as a feasibility problem with an
-    additional constraint $f_0(x) < t$
+    additional constraint $f_0({\color{blue}x}) < {\color{purple}t}$
 
-- $f_0(x)$ could be a convex function or a quasiconvex function.
+- $f_0({\color{blue}x})$ could be a convex function or a quasiconvex function.
 
-- $t$ is the best-so-far value of $f_0(x)$.
+- ${\color{purple}t}$ is the best-so-far value of $f_0({\color{blue}x})$.
 
 ---
 
 ## Convex Optimization Problem (II)
 
-- Problem formulation:
+- Problem can be reformulated as:
     $$\begin{array}{ll}
-              \text{find}         & x, \\
-              \text{subject to}   & \Phi_t(x) < 0 \\
-                                  & x \in \mathcal{K}
-    \end{array}$$ where $\Phi_t(x) < 0$ is the $t$-sublevel set of $f_0(x)$.
-- Note: $\mathcal{K}_t \subseteq \mathcal{K}_u$ if and only if
-    $t \leq u$ (monotonicity)
+              \text{minimize}         & {\color{purple}t}, \\
+              \text{subject to}   & \Phi({\color{blue}x}, {\color{purple}t}) < 0 \\
+                                  & {\color{blue}x} \in \mathcal{K}
+    \end{array}$$ where $\Phi({\color{blue}x}, {\color{purple}t}) < 0$ is the ${\color{purple}t}$-sublevel set of $f_0({\color{blue}x})$.
+- Note: $\mathcal{K}_t \subseteq \mathcal{K}_u$ if and only if $t \leq u$ (monotonicity)
 
 - One easy way to solve the optimization problem is to apply the binary
-    search on $t$.
+    search on ${\color{purple}t}$.
 
 ---
 
-## Python code
+## Corresponding Python code
 
 ```python
 def bsearch(evaluate, I, options=Options()):
@@ -264,27 +263,29 @@ class bsearch_adaptor:
 
 ---
 
-- Another possible way is, to update the best-so-far $t$ whenever a
-    feasible sol'n $x_0$ is found such that $\Phi_t(x_0) = 0$.
-- We assume that the oracle takes the responsbility for that.
+## Shrinking 
+
+- Another possible way is, to update the best-so-far ${\color{purple}t}$ whenever a
+    feasible solution $x_0$ is found such that $\Phi({\color{blue}x_0}, {\color{purple}t}) = 0$.
+- We assume that the oracle takes the responsibility for that.
 
 ---
 
 ## Generic Cutting-plane method (Optim)
 
-- **Given** initial $\mathcal{S}$ known to contain $\mathcal{K}_t$.
+- **Given** initial $\mathcal{S}$ known to contain $\mathcal{K}_{\color{purple}t}$.
 - **Repeat**
   1. Choose a point $x_0$ in $\mathcal{S}$
-  2. Query the cutting-plane oracle at $x_0$
-  3. **If** $x_0 \in \mathcal{K}_t$, update $t$ such that
-        $\Phi_t(x_0) = 0$.
+  2. Query the separation oracle at $x_0$
+  3. **If** $x_0 \in \mathcal{K}_{\color{purple}t}$, update ${\color{purple}t}$ such that
+        $\Phi({\color{blue}x_0}, {\color{purple}t}) = 0$.
   4. Update $\mathcal{S}$ to a smaller set that covers:
         $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\top (z - x_0) + h \leq 0\} $$
   5. **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
 
 ---
 
-## Python code
+## Corresponding Python code
 
 ```python
 def cutting_plane_dc(evaluate, S, t, options=Options()):
@@ -338,22 +339,23 @@ $$\begin{array}{ll}
 
 ## Profit maximization in Convex Form
 
-- Change variables to:
+- By taking the logarithm of each variable:
 
-  - $y_1 = \log x_1$, $y_2 = \log x_2$.
-
-and take logarithm of cost and constraints.
+  - ${\color{blue}y}_1 = \log x_1$, ${\color{blue}y}_2 = \log x_2$.
 
 - We have the problem in a convex form:
-    $$\begin{array}{ll}
-    \text{max}  & t \\
-    \text{s.t.} & \log(t + v_1 e^{y_1} + v_2 e^{y_2}) - (\alpha y_1 + \beta y_2) < \log(pA)  \\
-                  & y_1 \le \log k ,
-    \end{array}$$
+
+$$\begin{array}{ll}
+    \text{max}  & {\color{purple}t} \\
+    \text{s.t.} & \log({\color{purple}t} + v_1 e^{{\color{blue}y}_1} + v_2 e^{{\color{blue}y}_2}) - (\alpha {\color{blue}y}_1 + \beta {\color{blue}y}_2) < \log(pA) \\
+                & {\color{blue}y}_1 \le \log k.
+\end{array}$$
 
 ---
 
 ## Python code (Profit oracle) {.allowframebreaks}
+
+\scriptsize
 
 ```python
 class profit_oracle:
@@ -378,8 +380,15 @@ class profit_oracle:
             t = te - vx; fj = 0.
         g = (self.v * x) / te - self.a
         return (g, fj), t
+```
 
+---
+
+## Python code (Main program) {.allowframebreaks}
+
+```python
 import numpy as np
+from profit_oracle import *
 from cutting_plane import *
 from ell import *
 
@@ -415,17 +424,17 @@ print(fb, iter, feasible, status)
 
 - Consider:
     $$\begin{array}{ll}
-      \text{minimize}   & \sup_{q \in {\mathbb{Q}}} f_0(x,q) \\
-      \text{subject to} & f_j(x,q) \leq 0 \qquad \\
-      & \forall q \in {\mathbb{Q}} \; \text{and} \; j = 1,2,\cdots,m,
+      \text{minimize}   & \sup_{q \in \mathbb Q} f_0({\color{blue}x},q) \\
+      \text{subject to} & f_j({\color{blue}x},q) \leq 0, \;
+       \forall q \in {\mathbb Q}, \; j = 1,2,\cdots,m,
     \end{array}$$ where $q$ represents a set of varying parameters.
 
 - The problem can be reformulated as:
     $$\begin{array}{ll}
-      \text{minimize}   & t \\
-      \text{subject to} & f_0(x,q) < t  \\
-      & f_j(x,q) \leq 0 \\
-      & \forall q \in {\mathbb{Q}} \; \text{and} \; j = 1,2,\cdots,m,
+      \text{minimize}   & {\color{purple}t} \\
+      \text{subject to} & f_0({\color{blue}x},q) < {\color{purple}t}  \\
+      & f_j({\color{blue}x},q) \leq 0, \;
+       \forall q \in {\mathbb Q}, \; j = 1,2,\cdots,m,
     \end{array}$$
 
 ---
@@ -433,23 +442,23 @@ print(fb, iter, feasible, status)
 ## Oracle in Robust Optimization Formulation
 
 - The oracle only needs to determine:
-    - If $f_j(x_0, q) > 0$ for some $j$ and $q = q_0$, then
-        - the cut $(g, h)$ = $(\partial f_j(x_0, q_0), f_j(x_0, q_0))$
-    - If $f_0(x_0, q) \geq t$ for some $q = q_0$, then
-        - the cut $(g, h)$ = $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - t)$
+    - If $f_j({\color{blue}x_0}, q) > 0$ for some $j$ and $q = q_0$, then
+        - the cut $(g, h)$ = $(\partial f_j({\color{blue}x_0}, q_0), f_j({\color{blue}x_0}, q_0))$
+    - If $f_0({\color{blue}x_0}, q) \geq {\color{purple}t}$ for some $q = q_0$, then
+        - the cut $(g, h)$ = $(\partial f_0({\color{blue}x_0}, q_0), f_0({\color{blue}x_0}, q_0) - {\color{purple}t})$
     - Otherwise, $x_0$ is feasible, then
-        - Let $q_{\max} = \text{argmax}_{q \in {\mathbb{Q}}} f_0(x_0, q)$.
-        - $t := f_0(x_0, q_{\max})$.
-        - The cut $(g, h)$ = $(\partial f_0(x_0, q_{\max}), 0)$
+        - Let $q_{\max} = \text{argmax}_{q \in \mathbb Q} f_0({\color{blue}x_0}, q)$.
+        - ${\color{purple}t} := f_0({\color{blue}x_0}, q_{\max})$.
+        - The cut $(g, h)$ = $(\partial f_0({\color{blue}x_0}, q_{\max}), 0)$
 
 ---
 
 ## Example: Profit Maximization Problem (convex)
 
 $$\begin{array}{ll}
-\text{max}  & t \\
-\text{s.t.} & \log(t + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) - (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A)  \\
-                  & y_1 \le \log \hat{k} ,
+\text{max}  & {\color{purple}t} \\
+\text{s.t.} & \log({\color{purple}t} + \hat{v}_1 e^{{\color{blue}y}_1} + \hat{v}_2 e^{{\color{blue}y}_2}) - (\hat{\alpha} {\color{blue}y}_1 + \hat{\beta} {\color{blue}y}_2) \le \log(\hat{p}\,A)  \\
+                  & {\color{blue}y}_1 \le \log \hat{k} ,
 \end{array}$$
 
 - Now assume that:
@@ -466,12 +475,13 @@ By detail analysis, the worst case happens when:
 
 - $p = \bar{p} + e_3$, $k = \bar{k} + e_3$
 - $v_1 = \bar{v}_1 - e_3$, $v_2 = \bar{v}_2 - e_3$,
-- if $y_1 > 0$, $\alpha = \bar{\alpha} - e_1$, else
+- if ${\color{blue}y}_1 > 0$, $\alpha = \bar{\alpha} - e_1$, else
     $\alpha = \bar{\alpha} + e_1$
-- if $y_2 > 0$, $\beta = \bar{\beta} - e_2$, else
+- if ${\color{blue}y}_2 > 0$, $\beta = \bar{\beta} - e_2$, else
     $\beta = \bar{\beta} + e_2$
 
-**Remark**: for more complicated problems, affine arithmetic could be used.
+> **Remark**: for more complicated problems, affine arithmetic could be
+> used.
 
 ---
 
@@ -490,7 +500,7 @@ class profit_rb_oracle:
 
     def __call__(self, y, t):
         a_rb = self.a.copy()
-        for i in range(2):
+        for i in [0, 1]:
             a_rb[i] += self.uie[i] * (+1.
                         if y[i] <= 0. else -1.)
         self.P.a = a_rb
@@ -503,36 +513,37 @@ class profit_rb_oracle:
 
 ## Parametric Network Potential Problem
 
-Given a network represented by a graph $G = (V, E)$. Consider
+Given a network represented by a directed graph $G = (V, E)$.
+
+Consider:
 
 $$\begin{array}{ll}
-    \text{minimize} & f_0(x) \\
-    \text{subject to} & u_i - u_j \le h_{ij}(x), \; \forall (i, j) \in E ,\\
-    \text{variables} &x, u ,
+    \text{minimize} & {\color{purple}t} \\
+    \text{subject to} & {\color{red}u_i} - {\color{red}u_j} \le h_{ij}({\color{blue}x}, {\color{blue}t}), \; \forall (i, j) \in E ,\\
+    \text{variables} &{\color{blue}x}, {\color{red}u} ,
    \end{array}$$
 
-- $h_{ij}(x)$ is the weight function of edge $(i,j)$,
+- $h_{ij}({\color{blue}x}, {\color{blue}t})$ is the weight function of edge $(i,j)$,
 
 - Assume: network is large but the number of parameters is small.
-
 
 ---
 
 ## Network Potential Problem (cont'd)
 
-Given $x_0$, the problem has a feasible solution if and only if $G$
+Given $x$ and $t$, the problem has a feasible solution if and only if $G$
 contains no negative cycle. Let $\mathcal{C}$ be a set of all cycles of
 $G$.
 
 $$\begin{array}{ll}
-    \text{minimize} & f_0(x) \\
-    \text{subject to} & W_k(x) \ge 0, \forall C_k \in C ,\\
+    \text{minimize} & {\color{purple}t} \\
+    \text{subject to} & W_k({\color{blue}x}, {\color{purple}t}) \ge 0, \forall C_k \in C ,\\
        \text{variables} & x
    \end{array}$$
 
 - $C_k$ is a cycle of $G$
 
-- $W_k(x) = \sum_{ (i,j)\in C_k} h_{ij}(x)$.
+- $W_k({\color{blue}x}, {\color{purple}t}) = \sum_{ (i,j)\in C_k} h_{ij}({\color{blue}x}, {\color{purple}t})$.
 
 
 ---
@@ -542,17 +553,15 @@ $$\begin{array}{ll}
 - The oracle only needs to determine:
     - If there exists a negative cycle $C_k$ under $x_0$, then
         - the cut $(g, h)$ = $(-\partial W_k(x_0), -W_k(x_0))$
-    - If $f_0(x_0) \geq t$, then
-        - the cut $(g, h)$ = $(\partial f_0(x_0), f_0(x_0) - t)$
+    - If $f_0(x_0) \geq {\color{purple}t}$, then
+        - the cut $(g, h)$ = $(\partial f_0(x_0), f_0(x_0) - {\color{purple}t})$
     - Otherwise, $x_0$ is feasible, then
-        - $t := f_0(x_0)$.
+        - ${\color{purple}t} := f_0(x_0)$.
         - The cut $(g, h)$ = $(\partial f_0(x_0), 0)$
 
 ---
 
 ## Python Code
-
-\scriptsize
 
 ```python
 class network_oracle:
@@ -599,34 +608,35 @@ $$\begin{array}{ll}
 
 ## Optimal Matrix Scaling (cont'd)
 
-By taking logarithms of variables, the above problem can be transformed
+By taking the logarithms of variables, the above problem can be transformed
 into:
 
 $$\begin{array}{ll}
-  \text{minimize}   &   \pi' - \psi'  \\
-  \text{subject to} &   u_i' -  u_j'  \leq \pi' - a_{ij}', \; \forall a_{ij} \neq 0 \,, \\
-                    &   u_j' -  u_i' \leq a_{ij}' - \psi', \; \forall a_{ij} \neq 0 \,, \\
-  \text{variables}  &   \pi', \psi', u' \, .
+  \text{minimize}   &   {\color{purple}t} \\
+  \text{subject to} &   {\color{blue}\pi'} - {\color{blue}\psi'} \leq {\color{purple}t} \\
+                    &   {\color{red}u_i'} - {\color{red}u_j'}  \leq {\color{blue}\pi'} - a_{ij}', \; \forall a_{ij} \neq 0 \,, \\
+                    &   {\color{red}u_j'} - {\color{red}u_i'} \leq a_{ij}' - {\color{blue}\psi'}, \; \forall a_{ij} \neq 0 \,, \\
+  \text{variables}  &   {\color{blue}\pi'}, {\color{blue}\psi'}, {\color{red}u'} \, .
   \end{array}$$
 
 where $k'$ denotes $\log( | k | )$ and
-$x = (\pi', \psi' )^{ \mathrm{ T } }$.
+$x = ({\color{blue}\pi'}, {\color{blue}\psi'} )^\top$.
 
 ---
 
-## Python Code
+## Corresponding Python Code
 
 \scriptsize
 
 ```python
 def con(G, e, x):
     u, v = e
-    if u < v: return x[0] - G[u][v]['cost']
+    if index[u] < index[v]: return x[0] - G[u][v]['cost']
     else: return G[u][v]['cost'] - x[1]
 
 def pcon(G, e, x):
     u, v = e
-    if u < v: return np.array([1., 0.])
+    if index[u] < index[v]: return np.array([1., 0.])
     else: return np.array([0., -1.])
 
 class optscaling_oracle:
@@ -649,14 +659,14 @@ class optscaling_oracle:
 ## Example: clock period & yield-driven co-optimization
 
 $$\begin{array}{cll}
-   \text{minimize} &T_{CP} - w_{\beta}\beta \\
-   \text{subject to} & u_i - u_j \le T_{CP} + F_{ij}^{-1}(1-\beta), & \forall (i,j) \in E_s \,,\\
-                     & u_j - u_i \le F_{ij}^{-1}(1-\beta), & \forall (j,i) \in E_h \,, \\
-                     & T_{CP} \ge 0, \, 0 \le \beta \le 1 \, , \\
-    \text{variables} &T_{CP},\beta, u.
+   \text{minimize} &T_{CP} - w_{\color{blue}\beta} {\color{blue}\beta} \\
+   \text{subject to} & u_i - u_j \le T_{CP} + F_{ij}^{-1}(1 - {\color{blue}\beta}), & \forall (i,j) \in E_s \,,\\
+                     & u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), & \forall (j,i) \in E_h \,, \\
+                     & T_{CP} \ge 0, \, 0 \le {\color{blue}\beta} \le 1 \, , \\
+    \text{variables} &T_{CP}, {\color{blue}\beta}, u.
    \end{array}$$
 
-- Note that $F_{ij}^{-1}(x)$ is not concave in general in $[0,1]$.
+- Note that $F_{ij}^{-1}(x)$ is not concave in general in $[0, 1]$.
 - Fortunately, we are most likely interested in optimizing circuits
     for high yield rather than the low one in practice.
 - Therefore, by imposing an additional constraint to $\beta$, say
@@ -666,11 +676,10 @@ $$\begin{array}{cll}
 
 ## Inverse CDF
 
-![img](ellipsoid.files/Fig2-b-invcdf.svg)
+![img](ellipsoid.files/Fig2-b-invcdf.pdf)
 
 
-Matrix Inequalities
-===================
+# Matrix Inequalities
 
 ---
 
@@ -679,13 +688,12 @@ Matrix Inequalities
 Consider the following problem: 
 
 $$\begin{array}{ll}
-    \text{minimize}    & f_0(x), \\
-    \text{subject to}  & F(x) \succeq 0,
+    \text{minimize}    & {\color{purple}t}, \\
+    \text{subject to}  & F({\color{blue}x}, {\color{purple}t}) \succeq 0,
 \end{array}$$
 
-- $F(x)$: a matrix-valued function
+- $F({\color{blue}x}, {\color{purple}t})$: a matrix-valued function
 - $A \succeq 0$ denotes $A$ is positive semidefinite.
-
 
 ---
 
@@ -695,14 +703,13 @@ $$\begin{array}{ll}
     $v^\top A v \ge 0$ for all $v \in \mathbb{R}^N$.
 - The problem can be transformed into: 
     $$\begin{array}{ll}
-            \text{minimize}      & f_0(x), \\
-            \text{subject to}    & v^\top F(x) v \ge 0, \; \forall v \in \mathbb{R}^N
+            \text{minimize}      & {\color{purple}t}, \\
+            \text{subject to}    & v^\top F({\color{blue}x}, {\color{purple}t}) v \ge 0, \; \forall v \in \mathbb{R}^N
     \end{array}$$
-- Consider $v^\top F(x) v$ is concave for all $v \in \mathbb{R}^N$ w.r.t.
-    $x$, then the above problem is a convex programming.
-- Reduce to *semidefinite programming* if $f_0(x)$ and $F(x)$
-    are linear, i.e., $F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n$
-
+- Consider $v^\top F({\color{blue}x}, {\color{purple}t}) v$ is concave for all $v \in \mathbb{R}^N$ w. r. t.
+    ${\color{blue}x}$, then the above problem is a convex programming.
+- Reduce to *semidefinite programming* if $F({\color{blue}x}, {\color{purple}t})$
+    is linear w.r.t. ${\color{blue}x}$, i.e., $F({\color{blue}x}) = F_0 + x_1 F_1 + \cdots + x_n F_n$
 
 ---
 
@@ -711,7 +718,7 @@ $$\begin{array}{ll}
 The oracle only needs to:
 
 - Perform a *row-based* Cholesky factorization such that
-    $F(x_0) = R^\top R$.
+    $F(x_0, t) = R^\top R$.
 - Let $A_{:p,:p}$ denotes a submatrix
     $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$.
 - If Cholesky factorization fails at row $p$,
@@ -722,10 +729,9 @@ The oracle only needs to:
   - The cut $(g, h)$ =
         $(-v^\top \partial F_{:p,:p}(x_0) v, -v^\top F_{:p,:p}(x_0) v)$
 
-
 ---
 
-## Python Code
+## Corresponding Python Code
 
 \scriptsize
 
@@ -760,17 +766,18 @@ class lmi_oracle:
 
 ## Example: Matrix Norm Minimization
 
-- Let $A(x) = A_0 + x_1 A_1 + \cdots + x_n A_n$
-- Problem $\min_x \| A(x) \|$ can be reformulated as 
+- Let $A({\color{blue}x}) = A_0 + x_1 A_1 + \cdots + x_n A_n$
+- Problem $\min_x \| A({\color{blue}x}) \|$ can be reformulated as 
  $$\begin{array}{ll}
-       \text{minimize}      & t, \\
+       \text{minimize}      & {\color{purple}t}, \\
        \text{subject to}    & \left(
    \begin{array}{cc}
-    t\,I   & A(x) \\
-    A^\top(x) & t\,I
+    {\color{purple}t}\,I   & A({\color{blue}x}) \\
+    A^\top({\color{blue}x}) & {\color{purple}t}\,I
    \end{array} \right) \succeq 0,
  \end{array}$$
-- Binary search on $t$ can be used for this problem.
+- Binary search on ${\color{purple}t}$ can be used for this problem.
+
 
 ---
 
@@ -814,16 +821,23 @@ class qmi_oracle:
 ## Example: Estimation of Correlation Function
 
 $$\begin{array}{ll}
-   \min_{\kappa, p}   & \| \Omega(p) + \kappa I - Y \| \\
-   \text{s. t.} & \Omega(p) \succcurlyeq 0,  \kappa \geq 0 \; .\\
+   \min_{{\color{blue}\kappa}, p}   & \| \Omega({\color{blue}p}) + {\color{blue}\kappa} I - Y \| \\
+   \text{s. t.} & \Omega({\color{blue}p}) \succcurlyeq 0,  {\color{blue}\kappa} \geq 0 \; .\\
  \end{array}$$
 
-- Let $\rho(h) = \sum_i^n p_i \Psi_i(h)$, where
+- Let $\rho(h) = \sum_i^n {\color{blue}p}_i \Psi_i(h)$, where
   - $p_i$'s are the unknown coefficients to be fitted
   - $\Psi_i$'s are a family of basis functions.
-- The covariance matrix $\Omega(p)$ can be recast as:
+- The covariance matrix $\Omega({\color{blue}p})$ can be recast as:
 
-    $$\Omega(p) = p_1 F_1 + \cdots + p_n F_n$$
+    $$\Omega({\color{blue}p}) = {\color{blue}p}_1 F_1 + \cdots + {\color{blue}p}_n F_n$$
 
     where $\{F_k\}_{i,j} =\Psi_k( \| s_j - s_i \|_2)$
 
+---
+
+## Experimental Result
+
+![BSpline vs. Polynomail](ellipsoid.files/corr_fn.pdf)
+
+# Q & A

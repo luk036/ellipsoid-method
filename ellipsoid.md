@@ -1,12 +1,15 @@
 
+
 # Ellipsoid Method Revisited
+
+---
 
 ## Basic Ellipsoid Method
 
 -   An ellipsoid $\mathcal{E}(x_c, P)$ is specified as a set
     $$\{x \mid (x-x_c)P^{-1}(x-x_c) \leq 1 \},$$ where $x_c$ is the center of the ellipsoid.
 
-![](ellipsoid.files/ellipsoid.svg){width=60%}
+![](ellipsoid.files/ellipsoid.pdf){width=60%}
 
 ---
 
@@ -158,7 +161,7 @@ def calc_cc(self, tau):
 
 ## Parallel Cuts
 
-![](ellipsoid.files/parallel_cut.svg)
+![](ellipsoid.files/parallel_cut.pdf)
 
 
 ---
@@ -219,7 +222,7 @@ def calc_ll_core(self, b0, b1, tsq):
 
 ## Example: FIR filter design
 
-![img](ellipsoid.files/fir_strctr.svg)
+![img](ellipsoid.files/fir_strctr.pdf)
 
 -   The time response is: 
     $$y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]}$$
@@ -365,4 +368,4 @@ where
 
 ## Example: FIR filter design
 
-![](ellipsoid.files/lowpass_ripple.svg){width=90%}
+![](ellipsoid.files/lowpass_ripple.pdf){width=90%}
