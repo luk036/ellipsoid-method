@@ -6,8 +6,7 @@ bibliography:
 ...
 
 
-> When you have eliminated the impossible, whatever remains, however
-> improbable, must be the truth.
+> When you have eliminated the impossible, whatever remains, however improbable, must be the truth.
 
 *Sir Arthur Conan Doyle, stated by Sherlock Holmes*
 
@@ -22,7 +21,7 @@ bibliography:
 
 - Used to show that linear programming (LP) is polynomial-time
     solvable (Kachiyan 1979), settled the long-standing problem of
-    determining the theoretically complexity of LP.
+    determining the theoretical complexity of LP.
 
 - In practice, however, the simplex method runs much faster than the
     method, although its worst-case complexity is exponential.
@@ -81,7 +80,7 @@ bibliography:
 - Consider the feasibility problem:
   - Find a point $x^* \in \mathbb{R}^n$ in $\mathcal{K}$,
   - or determine that $\mathcal{K}$ is empty (i.e., no
-        feasible sol'n)
+        feasible solution)
 
 \col{0.4\textwidth}
 
@@ -116,10 +115,10 @@ bibliography:
 - $(g, h)$ called a *cutting-plane*, or cut, since it eliminates the
     halfspace $\{x \mid g^\top (x - x_0) + h > 0\}$ from our search.
 
-- If $h=0$ ($x_0$ is on boundary of halfspace that is cut),
+- If $h=0$ ($x_0$ is on the boundary of halfspace that is cut),
     cutting-plane is called *neutral cut*.
 
-- If $h>0$ ($x_0$ lies in interior of halfspace that is cut),
+- If $h>0$ ($x_0$ lies in the interior of halfspace that is cut),
     cutting-plane is called *deep cut*.
 
 ---
