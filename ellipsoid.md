@@ -1,4 +1,9 @@
-
+---
+title: Cutting-plane Method and the Amazing Oracles (II)
+author: Wai-Shing Luk
+bibliography:
+  - fir-ref.bib
+...
 
 # Ellipsoid Method Revisited
 
@@ -9,7 +14,7 @@
 -   An ellipsoid $\mathcal{E}(x_c, P)$ is specified as a set
     $$\{x \mid (x-x_c)P^{-1}(x-x_c) \leq 1 \},$$ where $x_c$ is the center of the ellipsoid.
 
-![](ellipsoid.files/ellipsoid.pdf){width=60%}
+![](ellipsoid.files/ellipsoid.pdf){width=90%}
 
 ---
 
@@ -40,18 +45,18 @@ class ell:
 ## Updating the ellipsoid (deep-cut)
 
 -   Calculation of minimum volume ellipsoid covering:
-    $$\mathcal{E} \cap \{z \mid g^\top (z - x_c) + \beta \leq 0 \}$$
--   Let $\tilde{g} = P\,g$, $\tau = \sqrt{g^\top\tilde{g}}$,
--   If $\beta > \tau$, intersection is empty.
--   If $\beta < -\tau/n$ (shallow cut), no smaller ellipsoid can be found.
+    $$\mathcal{E} \cap \{z \mid g^\top (z - x_c) + h \leq 0 \}$$
+-   Let $\tilde{g} = P\,g$, $\tau^2 = g^\top P g$.
+-   If $n \cdot h < -\tau$ (shallow cut), no smaller ellipsoid can be found.
+-   If $h > \tau$, intersection is empty.
 -   Otherwise,
- $$x_c^+ = x_c - \frac{\rho}{\tau^2} \tilde{g}, \qquad
-    P^+ = \delta\left(P - \frac{\sigma}{\tau^2} \tilde{g}\tilde{g}^\top\right)
- $$ where
-
- $$\rho = \frac{\tau+n\beta}{n+1}, \qquad
-  \sigma = \frac{2\rho}{\tau+\beta}, \qquad
-  \delta = \frac{n^2(\tau^2-\beta^2)}{(n^2 - 1)\tau^2} $$
+ $$x_c^+ = x_c - \frac{\rho}{ \tau^2 } \tilde{g}, \qquad
+    P^+ = {\color{orange}\delta\cdot}\left(P - \frac{\sigma}{ \tau^2 } \tilde{g}\tilde{g}^\top\right)$$
+    
+where
+ $$\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
+  \sigma = \frac{2\rho}{ {\color{red}\tau}+h}, \qquad
+  \delta = \frac{n^2(\tau^2 - h^2)}{(n^2 - 1)\tau^2}$$
 
 ---
 
@@ -89,7 +94,6 @@ def update_core(self, calc_ell, cut):
     self.kappa *= delta
     return status, tsq
 ```
-
 
 ---
 
@@ -139,6 +143,8 @@ def calc_cc(self, tau):
     return 0, (rho, sigma, delta)
 ```
 
+# Parallel Cuts
+
 ---
 
 ## Parallel Cuts
@@ -156,13 +162,11 @@ def calc_cc(self, tau):
 
 -   Usually provide faster convergence.
 
-
 ---
 
 ## Parallel Cuts
 
 ![](ellipsoid.files/parallel_cut.pdf)
-
 
 ---
 
@@ -186,7 +190,6 @@ def calc_cc(self, tau):
       \rho &=& \bar{\beta}\cdot\sigma, \\
       \delta &=& (n^2/(n^2-1)) (\tau^2 - (\beta_1^2 + \beta_2^2)/2 + \xi/n) / \tau^2
  \end{array}$$
-
 
 ---
 
@@ -227,7 +230,6 @@ def calc_ll_core(self, b0, b1, tsq):
 -   The time response is: 
     $$y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]}$$
 
-
 ---
 
 ## Example: FIR filter design (cont'd)
@@ -243,7 +245,6 @@ def calc_ll_core(self, b0, b1, tsq):
     upper (nonnegative) bounds at frequency $\omega$ respectively.
 
 -   The constraint is non-convex in general.
-
 
 ---
 
@@ -265,7 +266,7 @@ def calc_ll_core(self, b0, b1, tsq):
 
     $$r(t)~=~\sum_{i=-n+1}^{n-1}{h(i)h(i+t)},~t\in\mathbf{Z}.$$ 
 
-    where $h(t)=0$ for $t < 0$ or $t > n-1$.
+    where $h(t)=0$ for $t < 0$ or $t > n - 1$.
 
 -   The whole problem can be formulated as: 
 
@@ -278,16 +279,23 @@ $$\begin{array}{ll}
 
 ---
 
+## Experiment
+
+![Result](ellipsoid.files/lowpass.pdf){width=50%}
+
+---
+
 ## Example: Maximum Likelihood estimation
 
  $$\begin{array}{ll}
-      \min_{\kappa, p}   &      \log \det (\Omega(p) + \kappa I) + \mathrm{Tr}((\Omega(p) + \kappa I)^{-1}Y) \\
-      \text{s.t.} & \Omega(p) \succeq 0, \kappa \geq 0 \\
+      \min_{\color{blue}\kappa, p}   &      \log \det (\Omega({\color{blue}p}) + {\color{blue}\kappa}
+       \cdot I) + \mathrm{Tr}((\Omega({\color{blue}p}) + {\color{blue}\kappa} \cdot I)^{-1}Y) \\\\
+      \text{s.t.} & \Omega({\color{blue}p}) {\color{red}\succeq} 0, {\color{blue}\kappa} {\color{red}\geq} 0 \\\\
  \end{array}$$
 
-Note: 1st term is concave, 2nd term is convex
+Note: the 1st term is concave, the 2nd term is convex
 
--   However, if there is enough samples such that $Y$ is a positive
+-   However, if there are enough samples such that $Y$ is a positive
     definite matrix, then the function is convex within $[0, 2Y]$
 
 ---
@@ -297,14 +305,13 @@ Note: 1st term is concave, 2nd term is convex
 -   Therefore, the following problem is convex:
 
 $$\begin{array}{ll}
-      \min_{\kappa, p}   &   \log \det V(p) + \mathrm{Tr}(V(p)^{-1}Y) \\
-      \text{s.t.} & \Omega(p) + \kappa I = V(p) \\
-                    & 0 \preceq V(p) \preceq 2Y, \kappa \geq 0
+      \min_{\color{blue}\kappa, p}   &   \log \det V({\color{blue}p}) + \mathrm{Tr}(V({\color{blue}p})^{-1}Y) \\\\
+      \text{s.t.} & \Omega({\color{blue}p}) + {\color{blue}\kappa} \cdot I = V({\color{blue}p}) \\\\
+                    & 0 \preceq V({\color{blue}p}) \preceq 2Y, {\color{blue}\kappa} {>} 0
 \end{array}$$
 
 
-Discrete Optimization
-=====================
+# Discrete Optimization
 
 ---
 
@@ -369,3 +376,5 @@ where
 ## Example: FIR filter design
 
 ![](ellipsoid.files/lowpass_ripple.pdf){width=90%}
+
+# Q & A
