@@ -1,6 +1,5 @@
 ---
 date: \today
-lof: true
 header-includes:
   - '\ifxetex \usepackage[UTF8]{ctex} \fi'
   - \usepackage{tikz,pgf,pgfplots}

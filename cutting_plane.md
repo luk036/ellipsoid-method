@@ -173,10 +173,10 @@ def cutting_plane_feas(evaluate, S, options=Options()):
         cut, feasible = evaluate(S.xc)
         if feasible:  # feasible sol'n obtained
             break
-        status, tau = S.update(cut)
+        status, tsq = S.update(cut)
         if status != 0:
             break
-        if tau < options.tol:
+        if tsq < options.tol:
             status = 2
             break
     return S.xc, niter+1, feasible, status
@@ -219,7 +219,6 @@ $$\begin{array}{ll}
 
 ```python
 def bsearch(evaluate, I, options=Options()):
-    # assume monotone
     feasible = False
     l, u = I
     t = l + (u - l)/2
@@ -362,7 +361,8 @@ class profit_oracle:
         p, A, k = params
         self.log_pA = np.log(p * A)
         self.log_k = np.log(k)
-        self.v = v; self.a = a
+        self.v = v
+        self.a = a
 
     def __call__(self, y, t):
         fj = y[0] - self.log_k  # constraint
@@ -376,7 +376,8 @@ class profit_oracle:
         fj = np.log(te) - log_Cobb
         if fj < 0.:
             te = np.exp(log_Cobb)
-            t = te - vx; fj = 0.
+            t = te - vx
+            fj = 0.
         g = (self.v * x) / te - self.a
         return (g, fj), t
 ```
@@ -393,14 +394,14 @@ from ell import *
 
 p, A, k = 20.0, 40.0, 30.5
 params = p, A, k
-alpha, beta = 0.1, 0.4
-v1, v2 = 10.0, 35.0
-y0 = np.array([0.0, 0.0])  # initial x0
+a = np.array([0.1, 0.4])
+v = np.array([10.0, 35.0])
+y0 = np.array([0., 0.])  # initial x0
 E = ell(200, y0)
-P = profit_oracle(params, alpha, beta, v1, v2)
-yb1, fb, iter, feasible, status = \
+P = profit_oracle(params, a, v)
+yb1, fb, niter, feasible, status = \
     cutting_plane_dc(P, E, 0.0)
-print(fb, iter, feasible, status)
+print(fb, niter, feasible, status)
 ```
 
 ---
@@ -450,6 +451,8 @@ print(fb, iter, feasible, status)
         - ${\color{purple}t} := f_0({\color{blue}x_0}, q_{\max})$.
         - The cut $(g, h)$ = $(\partial f_0({\color{blue}x_0}, q_{\max}), 0)$
 
+- Random sampling trick
+
 ---
 
 ## Example: Profit Maximization Problem (convex)
@@ -491,8 +494,10 @@ class profit_rb_oracle:
     def __init__(self, params, a, v, vparams):
         ui, e1, e2, e3 = vparams
         self.uie = [ui * e1, ui * e2]
-        self.a = a; p, A, k = params
-        p -= ui * e3; k -= ui * e3
+        self.a = a
+        p, A, k = params
+        p -= ui * e3
+        k -= ui * e3
         v_rb = v.copy()
         v_rb += ui * e3
         self.P = profit_oracle((p, A, k), a, v_rb)
@@ -500,8 +505,8 @@ class profit_rb_oracle:
     def __call__(self, y, t):
         a_rb = self.a.copy()
         for i in [0, 1]:
-            a_rb[i] += self.uie[i] * (+1.
-                        if y[i] <= 0. else -1.)
+            a_rb[i] += self.uie[i] if y[i] <= 0. \
+                              else -self.uie[i]
         self.P.a = a_rb
         return self.P(y, t)
 ```
@@ -543,7 +548,6 @@ $$\begin{array}{ll}
 - $C_k$ is a cycle of $G$
 
 - $W_k({\color{blue}x}, {\color{purple}t}) = \sum_{ (i,j)\in C_k} h_{ij}({\color{blue}x}, {\color{purple}t})$.
-
 
 ---
 
@@ -628,19 +632,22 @@ $x = ({\color{blue}\pi'}, {\color{blue}\psi'} )^\top$.
 \scriptsize
 
 ```python
-def con(G, e, x):
+def constr(G, e, x):
     u, v = e
-    if index[u] < index[v]: return x[0] - G[u][v]['cost']
-    else: return G[u][v]['cost'] - x[1]
+    i_u = G.node_idx[u]
+    i_v = G.node_idx[v]
+    cost = G[u][v]['cost']
+    return x[0] - cost if i_u <= i_v else cost - x[1]
 
-def pcon(G, e, x):
+def pconstr(G, e, x):
     u, v = e
-    if index[u] < index[v]: return np.array([1., 0.])
-    else: return np.array([0., -1.])
+    i_u = G.node_idx[u]
+    i_v = G.node_idx[v]
+    return np.array([1.,  0.] if i_u <= i_v else [0., -1.])
 
 class optscaling_oracle:
     def __init__(self, G):
-        self.network = network_oracle(G, con, pcon)
+        self.network = network_oracle(G, constr, pconstr)
 
     def __call__(self, x, t):
         cut, feasible = self.network(x)
@@ -676,7 +683,6 @@ $$\begin{array}{cll}
 ## Inverse CDF
 
 ![img](ellipsoid.files/Fig2-b-invcdf.pdf)
-
 
 # Matrix Inequalities
 
@@ -741,24 +747,22 @@ class lmi_oracle:
     def __init__(self, F, B):
         self.F = F
         self.F0 = B
-        self.A = np.zeros(B.shape)
+        self.Q = chol_ext(len(self.F0))
 
     def __call__(self, x):
         n = len(x)
 
         def getA(i, j):
-            self.A[i, j] = self.F0[i, j]
-            self.A[i, j] -= sum(self.F[k][i, j] * x[k]
-                                for k in range(n))
-            return self.A[i, j]
+            return self.F0[i, j] - sum(
+                self.F[k][i, j] * x[k] for k in range(n))
 
-        Q = chol_ext(getA, len(self.A))
-        if Q.is_spd(): return None, 1
-        v = Q.witness()
-        p = len(v)
-        g = np.array([v.dot(self.F[i][:p, :p].dot(v))
+        self.Q.factor(getA)
+        if self.Q.is_spd():
+            return None, True
+        v, ep = self.Q.witness()
+        g = np.array([self.Q.sym_quad(v, self.F[i])
                       for i in range(n)])
-        return (g, 1.), 0
+        return (g, ep), False
 ```
 
 ---
@@ -786,33 +790,38 @@ class lmi_oracle:
 
 ```python
 class qmi_oracle:
+    t = None
+    count = 0
+
     def __init__(self, F, F0):
-        self.F = F; self.F0 = F0
+        self.F = F
+        self.F0 = F0
         self.Fx = np.zeros(F0.shape)
-        self.A = np.zeros(F0.shape)
-        self.t = None; self.count = -1
+        self.Q = chol_ext(len(F0))
 
     def update(self, t): self.t = t
 
     def __call__(self, x):
-        self.count = -1; nx = len(x)
+        self.count = 0; nx = len(x)
 
         def getA(i, j):
-            if self.count < i:
-                self.count = i; self.Fx[i] = self.F0[i]
+            if self.count < i + 1:
+                self.count = i + 1
+                self.Fx[i] = self.F0[i]
                 self.Fx[i] -= sum(self.F[k][i] * x[k]
                                   for k in range(nx))
-            self.A[i, j] = -self.Fx[i].dot(self.Fx[j])
-            if i == j: self.A[i, j] += self.t
-            return self.A[i, j]
+            a = -self.Fx[i].dot(self.Fx[j])
+            if i == j: a += self.t
+            return a
 
-        Q = chol_ext(getA, len(self.A))
-        if Q.is_spd(): return None, 1
-        v = Q.witness(); p = len(v)
+        self.Q.factor(getA)
+        if self.Q.is_spd(): return None, True
+        v, ep = self.Q.witness()
+        p = len(v)
         Av = v.dot(self.Fx[:p])
-        g = -2.*np.array([v.dot(self.F[k][:p]).dot(Av)
-                          for k in range(nx)])
-        return (g, 1.), 0
+        g = np.array([-2*v.dot(self.F[k][:p]).dot(Av)
+                      for k in range(nx)])
+        return (g, ep), False
 ```
 
 ---
