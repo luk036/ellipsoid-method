@@ -3,6 +3,7 @@ date: \today
 header-includes:
   - '\ifxetex \usepackage[UTF8]{ctex} \fi'
   - \usepackage{tikz,pgf,pgfplots}
+  - \usepackage{comment}
   - \usetikzlibrary{arrows}
   - \definecolor{qqqqff}{rgb}{0.,0.,1.}
   - \newcommand{\columnsbegin}{}
