@@ -84,8 +84,11 @@ bibliography:
 
 \col{0.4\textwidth}
 
-![](ellipsoid.files/region.pdf)
-
+\begin{tikzpicture}[scale=0.5]
+    \draw[top color=white, bottom color=cyan] plot[smooth, tension=.7] coordinates {(-3,2) (-5,2) (-6,4) (-5,5) (-3,4) (-3,2)};
+    \node at (-5,4) {$\mathcal{K}$};
+\end{tikzpicture}
+   
 \columnsend
 
 ---
@@ -99,12 +102,18 @@ bibliography:
 - When a separation oracle $\Omega$ is *queried* at $x_0$, it either
   - asserts that $x_0 \in \mathcal{K}$, or
   - returns a separating hyperplane between $x_0$ and $\mathcal{K}$:
-        $$g^\top (x - x_0) + h \leq 0, h \geq 0, g \neq 0, \;
+        $$g^\top (x - x_0) + \beta \leq 0, \beta \geq 0, g \neq 0, \;
           \forall x \in \mathcal{K}$$
 
 \col{0.4\textwidth}
 
-![](ellipsoid.files/cut.pdf)
+\begin{tikzpicture}[scale=0.5]
+ \draw[top color=white, bottom color=cyan] plot[smooth, tension=.7] coordinates {(-3,2) (-5,2) (-6,4) (-5,5) (-3,4) (-3,2)};
+ \node at (-5,4) {$\mathcal{K}$};
+\draw (1,8) -- (-3,-2);
+\draw [fill=qqqqff] (-1,2) circle (1.5pt) 
+   node [above right] {$x_0$};
+\end{tikzpicture}
 
 \columnsend
 
@@ -112,13 +121,13 @@ bibliography:
 
 ## Separation oracle (cont'd)
 
-- $(g, h)$ called a *cutting-plane*, or cut, since it eliminates the
-    halfspace $\{x \mid g^\top (x - x_0) + h > 0\}$ from our search.
+- $(g, \beta)$ called a *cutting-plane*, or cut, since it eliminates the
+    halfspace $\{x \mid g^\top (x - x_0) + \beta > 0\}$ from our search.
 
-- If $h=0$ ($x_0$ is on the boundary of halfspace that is cut),
+- If $\beta=0$ ($x_0$ is on the boundary of halfspace that is cut),
     cutting-plane is called *neutral cut*.
 
-- If $h>0$ ($x_0$ lies in the interior of halfspace that is cut),
+- If $\beta>0$ ($x_0$ lies in the interior of halfspace that is cut),
     cutting-plane is called *deep cut*.
 
 ---
@@ -131,7 +140,7 @@ bibliography:
 - A vector $g \equiv \partial f(x_0)$ is called a subgradient of a
     convex function $f$ at $x_0$ if
     $f(z) \geq f(x_0) + g^\mathrm{T} (z - x_0)$.
-- Hence, the cut $(g, h)$ is given by $(\partial f(x_0), f(x_0))$
+- Hence, the cut $(g, \beta)$ is given by $(\partial f(x_0), f(x_0))$
 
 Remarks:
 
@@ -158,7 +167,7 @@ Remarks:
   2. Query the cutting-plane oracle at $x_0$
   3. **If** $x_0 \in \mathcal{K}$, quit
   4. **Else**, update $\mathcal{S}$ to a smaller set that covers:
-        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\top (z - x_0) + h \leq 0\}$$
+        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\top (z - x_0) + \beta \leq 0\}$$
   5. **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
 
 ---
@@ -278,7 +287,7 @@ class bsearch_adaptor:
   3. **If** $x_0 \in \mathcal{K}_{\color{purple}t}$, update ${\color{purple}t}$ such that
         $\Phi({\color{blue}x_0}, {\color{purple}t}) = 0$.
   4. Update $\mathcal{S}$ to a smaller set that covers:
-        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\top (z - x_0) + h \leq 0\} $$
+        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\top (z - x_0) + \beta \leq 0\} $$
   5. **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
 
 ---
@@ -443,13 +452,13 @@ print(fb, niter, feasible, status)
 
 - The oracle only needs to determine:
     - If $f_j({\color{blue}x_0}, q) > 0$ for some $j$ and $q = q_0$, then
-        - the cut $(g, h)$ = $(\partial f_j({\color{blue}x_0}, q_0), f_j({\color{blue}x_0}, q_0))$
+        - the cut $(g, \beta)$ = $(\partial f_j({\color{blue}x_0}, q_0), f_j({\color{blue}x_0}, q_0))$
     - If $f_0({\color{blue}x_0}, q) \geq {\color{purple}t}$ for some $q = q_0$, then
-        - the cut $(g, h)$ = $(\partial f_0({\color{blue}x_0}, q_0), f_0({\color{blue}x_0}, q_0) - {\color{purple}t})$
+        - the cut $(g, \beta)$ = $(\partial f_0({\color{blue}x_0}, q_0), f_0({\color{blue}x_0}, q_0) - {\color{purple}t})$
     - Otherwise, $x_0$ is feasible, then
         - Let $q_{\max} = \text{argmax}_{q \in \mathbb Q} f_0({\color{blue}x_0}, q)$.
         - ${\color{purple}t} := f_0({\color{blue}x_0}, q_{\max})$.
-        - The cut $(g, h)$ = $(\partial f_0({\color{blue}x_0}, q_{\max}), 0)$
+        - The cut $(g, \beta)$ = $(\partial f_0({\color{blue}x_0}, q_{\max}), 0)$
 
 - Random sampling trick
 
@@ -555,12 +564,12 @@ $$\begin{array}{ll}
 
 - The oracle only needs to determine:
     - If there exists a negative cycle $C_k$ under $x_0$, then
-        - the cut $(g, h)$ = $(-\partial W_k(x_0), -W_k(x_0))$
+        - the cut $(g, \beta)$ = $(-\partial W_k(x_0), -W_k(x_0))$
     - If $f_0(x_0) \geq {\color{purple}t}$, then
-        - the cut $(g, h)$ = $(\partial f_0(x_0), f_0(x_0) - {\color{purple}t})$
+        - the cut $(g, \beta)$ = $(\partial f_0(x_0), f_0(x_0) - {\color{purple}t})$
     - Otherwise, $x_0$ is feasible, then
         - ${\color{purple}t} := f_0(x_0)$.
-        - The cut $(g, h)$ = $(\partial f_0(x_0), 0)$
+        - The cut $(g, \beta)$ = $(\partial f_0(x_0), 0)$
 
 ---
 
@@ -731,7 +740,7 @@ The oracle only needs to:
         $e_p = (0, 0, \cdots, 0, 1)^\top \in \mathbb{R}^p$, such that
     - $v = R_{:p,:p}^{-1} e_p$, and 
     - $v^\top F_{:p,:p}(x_0) v < 0$.
-  - The cut $(g, h)$ =
+  - The cut $(g, \beta)$ =
         $(-v^\top \partial F_{:p,:p}(x_0) v, -v^\top F_{:p,:p}(x_0) v)$
 
 ---
@@ -836,8 +845,8 @@ $$\begin{array}{ll}
 - Let $\rho(h) = \sum_i^n {\color{blue}p}_i \Psi_i(h)$, where
   - $p_i$'s are the unknown coefficients to be fitted
   - $\Psi_i$'s are a family of basis functions.
-- The covariance matrix $\Omega({\color{blue}p})$ can be recast as:
 
+- The covariance matrix $\Omega({\color{blue}p})$ can be recast as:
     $$\Omega({\color{blue}p}) = {\color{blue}p}_1 F_1 + \cdots + {\color{blue}p}_n F_n$$
 
     where $\{F_k\}_{i,j} =\Psi_k( \| s_j - s_i \|_2)$

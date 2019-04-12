@@ -33,33 +33,43 @@ Convex Feasibility Problem
 Let $\mathcal{K} \subseteq \mathbb{R}^n$ be a convex set. Consider the feasibility problem:
 
 1.  Find a point $x^* \in \mathbb{R}^n$ in $\mathcal{K}$, or
+
 2.  Determine that $\mathcal{K}$ is empty (i.e., no feasible solution)
 
 When a *separation oracle* $\Omega$ is *queried* at $x_0$, it either
 
 1.  Asserts that $x_0 \in \mathcal{K}$, or
+
 2.  Returns a separating hyperplane between $x_0$ and $\mathcal{K}$:
     $$g^\top (x - x_0) + \beta \leq 0, \beta \geq 0, g \neq 0, \; \forall x \in \mathcal{K}.$$ {#eq:cut}
 
-The pair $(g, h)$ is called a *cutting-plane*, or cut, since it eliminates the halfspace $\{x \mid g^\top (x - x_0) + h > 0\}$ from our search. If $h=0$ ($x_0$ is on the boundary of halfspace that is cut), cutting-plane is called *neutral cut*. If $h>0$ ($x_0$ lies in the interior of halfspace that is cut), cutting-plane is called *deep cut*.
+The pair $(g, \beta)$ is called a *cutting-plane*, or cut, since it eliminates the halfspace $\{x \mid g^\top (x - x_0) + \beta > 0\}$ from our search. If $\beta=0$ ($x_0$ is on the boundary of halfspace that is cut), cutting-plane is called *neutral cut*. If $\beta>0$ ($x_0$ lies in the interior of halfspace that is cut), cutting-plane is called *deep cut*.
 
-The $\mathcal{K}$ is usually given by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1 \cdots m$, where $f_j(x)$ is a convex function. A vector $g \equiv \partial f(x_0)$ is called a *subgradient* of a convex function $f$ at $x_0$ if $f(z) \geq f(x_0) + g^\mathrm{T} (z - x_0)$. Hence, the cut $(g, h)$ is given by $(\partial f(x_0), f(x_0))$.
+The $\mathcal{K}$ is usually given by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1 \cdots m$, where $f_j(x)$ is a convex function. A vector $g \equiv \partial f(x_0)$ is called a *subgradient* of a convex function $f$ at $x_0$ if $f(z) \geq f(x_0) + g^\mathrm{T} (z - x_0)$. Hence, the cut $(g, \beta)$ is given by $(\partial f(x_0), f(x_0))$.
 
 Note that if $f(x)$ is differentiable, we can simply take $\partial f(x_0) = \nabla f(x_0)$. Cutting-plane method consists of two key components: separation oracle $\Omega$ and a search space $\mathcal{S}$ initially big enough to cover $\mathcal{K}$. For example,
 
 -   Polyhedron $\mathcal{P}$ = $\{z \mid C z \preceq d \}$.
+
 -   Interval $\mathcal{I}$ = $[l, u]$ (for one-dimensional problem).
+
 -   Ellipsoid $\mathcal{E}$ = $\{z \mid (z-x_c)P^{-1}(z-x_c) \leq 1 \}$.
 
 Generic Cutting-plane method:
 
 -   **Given** initial $\mathcal{S}$ known to contain $\mathcal{K}$.
+
 -   **Repeat**
+
     1.  Choose a point $x_0$ in $\mathcal{S}$.
+
     2.  Query the cutting-plane oracle at $x_0$.
+
     3.  **If** $x_0 \in \mathcal{K}$, quit.
+
     4.  **Else**, update $\mathcal{S}$ to a smaller set that covers:
-        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\top (z - x_0) + h \leq 0\}.$$
+        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\top (z - x_0) + \beta \leq 0\}.$$
+
     5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
 
 Convex Optimization Problem
@@ -85,13 +95,18 @@ Another possible way is, to update the best-so-far $t$ whenever a feasible solut
 Generic Cutting-plane method (Optim)
 
 -   **Given** initial $\mathcal{S}$ known to contain $\mathcal{K}_t$.
+
 -   **Repeat**
+
     1.  Choose a point $x_0$ in $\mathcal{S}$
+
     2.  Query the separation oracle at $x_0$
-    3.  **If** $x_0 \in \mathcal{K}_t$, update $t$ such that
-        $\Phi(x_0, t) = 0$.
+
+    3.  **If** $x_0 \in \mathcal{K}_t$, update $t$ such that $\Phi(x_0, t) = 0$.
+
     4.  Update $\mathcal{S}$ to a smaller set that covers:
-        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\top (z - x_0) + h \leq 0\} $$
+        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\top (z - x_0) + \beta \leq 0\} $$
+
     5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
 
 Example: Profit Maximization Problem
@@ -134,8 +149,10 @@ Area of Applications
 
 -   Robust convex optimization
     -   oracle technique: affine arithmetic
+
 -   Parametric network potential problem
     -   oracle technique: negative cycle detection
+
 -   Semidefinite programming
     -   oracle technique: Cholesky factorization
 
@@ -161,13 +178,20 @@ $$
 The oracle only needs to determine:
 
 - If $f_j(x_0, q) > 0$ for some $j$ and $q = q_0$, then
-- the cut $(g, h)$ = $(\partial f_j(x_0, q_0), f_j(x_0, q_0))$
+
+- the cut $(g, \beta)$ = $(\partial f_j(x_0, q_0), f_j(x_0, q_0))$
+
 - If $f_0(x_0, q) \geq t$ for some $q = q_0$, then
-- the cut $(g, h)$ = $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - t)$
+
+- the cut $(g, \beta)$ = $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - t)$
+
 - Otherwise, $x_0$ is feasible, then
+
 - Let $q_{\max} = \text{argmax}_{q \in \mathbb Q} f_0(x_0, q)$.
+
 - $t := f_0(x_0, q_{\max})$.
-- The cut $(g, h)$ = $(\partial f_0(x_0, q_{\max}), 0)$
+
+- The cut $(g, \beta)$ = $(\partial f_0(x_0, q_{\max}), 0)$
 
 Random sampling trick.
 
@@ -184,9 +208,12 @@ $$
 Now assume that $\hat{\alpha}$ and $\hat{\beta}$ vary $\bar{\alpha} \pm e_1$ and $\bar{\beta} \pm e_2$ respectively, where $\hat{p}$, $\hat{k}$, $\hat{v}_1$, and $\hat{v}_2$ all vary $\pm e_3$. By detail analysis, the worst case happens when:
 
 -   $p = \bar{p} + e_3$, $k = \bar{k} + e_3$
+
 -   $v_1 = \bar{v}_1 - e_3$, $v_2 = \bar{v}_2 - e_3$,
+
 -   if $y_1 > 0$, $\alpha = \bar{\alpha} - e_1$, else
     $\alpha = \bar{\alpha} + e_1$
+
 -   if $y_2 > 0$, $\beta = \bar{\beta} - e_2$, else
     $\beta = \bar{\beta} + e_2$
 
@@ -222,12 +249,14 @@ $$
 The oracle only needs to determine:
 
 - If there exists a negative cycle $C_k$ under $x_0$, then
-- the cut $(g, h)$ = $(-\partial W_k(x_0), -W_k(x_0))$
-- If $f_0(x_0) \geq t$, then
-- the cut $(g, h)$ = $(\partial f_0(x_0), f_0(x_0) - t)$
+
+- the cut $(g, \beta)$ = $(-\partial W_k(x_0), -W_k(x_0))$
+
+- If $f_0(x_0) \geq t$, then the cut $(g, \beta)$ = $(\partial f_0(x_0), f_0(x_0) - t)$.
+
 - Otherwise, $x_0$ is feasible, then
-- $t := f_0(x_0)$.
-- The cut $(g, h)$ = $(\partial f_0(x_0), 0)$
+  - $t := f_0(x_0)$.
+  - The cut $(g, \beta)$ = $(\partial f_0(x_0), 0)$
 
 ### Example: Optimal Matrix Scaling
 
@@ -274,14 +303,16 @@ The oracle only needs to:
 
 -   Perform a *row-based* Cholesky factorization such that
     $F(x_0, t) = R^\top R$.
+
 -   Let $A_{:p,:p}$ denotes a submatrix
     $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$.
+
 -   If Cholesky factorization fails at row $p$,
     -   there exists a vector
         $e_p = (0, 0, \cdots, 0, 1)^\top \in \mathbb{R}^p$, such that
         -   $v = R_{:p,:p}^{-1} e_p$, and
         -   $v^\top F_{:p,:p}(x_0) v < 0$.
-    -   The cut $(g, h)$ =
+    -   The cut $(g, \beta)$ =
         $(-v^\top \partial F_{:p,:p}(x_0) v, -v^\top F_{:p,:p}(x_0) v)$
 
 ### Example: Matrix Norm Minimization
@@ -338,21 +369,23 @@ where $x_c$ is the center of the ellipsoid.
 Updating the ellipsoid (deep-cut)
 
 Calculation of minimum volume ellipsoid covering:
-$$\mathcal{E} \cap \{z \mid g^\top (z - x_c) + h \leq 0 \}
+$$\mathcal{E} \cap \{z \mid g^\top (z - x_c) + \beta \leq 0 \}
 $$
 Let $\tilde{g} = P\,g$, $\tau^2 = g^\top P g$.
 
-- If $n \cdot h < -\tau$ (shallow cut), no smaller ellipsoid can be found.
-- If $h > \tau$, intersection is empty.
+- If $n \cdot \beta < -\tau$ (shallow cut), no smaller ellipsoid can be found.
+
+- If $\beta > \tau$, intersection is empty.
 
 Otherwise,
+
 $$x_c^+ = x_c - \frac{\rho}{ \tau^2 } \tilde{g}, \qquad
   P^+ = \delta\cdot\left(P - \frac{\sigma}{ \tau^2 } \tilde{g}\tilde{g}^\top\right)
 $$
 where
 $$\rho = \frac{ \tau+nh}{n+1}, \qquad
-  \sigma = \frac{2\rho}{ \tau+h}, \qquad
-  \delta = \frac{n^2(\tau^2 - h^2)}{(n^2 - 1)\tau^2}
+  \sigma = \frac{2\rho}{ \tau+\beta}, \qquad
+  \delta = \frac{n^2(\tau^2 - \beta^2)}{(n^2 - 1)\tau^2}
 $$
 
 Even better, split $P$ into two variables $\kappa \cdot Q$.
@@ -365,6 +398,7 @@ Reduce $n^2$ multiplications per iteration.
 Note that:
 
 - The determinant of $Q$ decreases monotonically.
+
 - The range of $\delta$ is $(0, \frac{n^2}{n^2 - 1})$
 
 Central Cut
@@ -376,14 +410,13 @@ Let $\tilde{g} = Q\,g$, $\tau = \sqrt{\kappa\cdot\omega}$,
 
 $$\rho = {\tau \over n+1}, \qquad
   \sigma = {2 \over n+1}, \qquad
-  \delta = {n^2 \over n^2 - 1}
+  \delta = {n^2 \over n^2 - 1}.
 $$
 
 Parallel Cuts
 -------------
 
-Oracle returns a pair of cuts instead of just one.
-The pair of cuts is given by $g$ and $(\beta_1, \beta_2)$ such that:
+Oracle returns a pair of cuts instead of just one. The pair of cuts is given by $g$ and $(\beta_1, \beta_2)$ such that:
 $$\begin{array}{l}
     g^\top (x - x_c) + \beta_1 \leq 0,  \\
     g^\top (x - x_c) + \beta_2 \geq 0,
@@ -392,25 +425,26 @@ $$
 for all $x \in \mathcal{K}$.
 
 Only linear inequality constraint can produce such parallel cut:
-$$ l \leq a^\top x + b \leq u, \qquad L \preceq F(x) \preceq U
-$$
+$$ l \leq a^\top x + b \leq u, \qquad L \preceq F(x) \preceq U. $$
 
 Usually, provide faster convergence.
 
 ![Parallel cuts](ellipsoid.files/parallel_cut.pdf){#fig:parallel_cut}
 
-Updating the ellipsoid
+Updating the ellipsoid.
 
 Let $\tilde{g} = Q\,g$, $\tau^2 = \kappa\cdot\omega$.
 
 - If $\beta_1 > \beta_2$, intersection is empty.
+
 - If $\beta_1 \beta_2 < -\tau^2/n$, no smaller ellipsoid can be found.
+
 - If $\beta_2^2 > \tau^2$, it reduces to deep-cut with $\alpha = \alpha_1$.
 
 Otherwise,
 $$x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
     Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\top, \qquad
-    \kappa^+ =  \delta \kappa
+    \kappa^+ =  \delta \kappa.
 $$
 where
 $$\begin{array}{lll}
@@ -481,11 +515,9 @@ $$\begin{array}{ll}
         \text{minimize}      & f_0(x), \\
         \text{subject to}    & f_j(x) \leq 0, \; \forall j=1,2,\ldots, \\
                              & x \in \mathbb{D},
-  \end{array}
-$$
+  \end{array}$$
 where $f_0(x)$ and $f_j(x)$ are "convex". Note that some design variables are discrete. The oracle looks for the nearby discrete solution $x_d$ of $x_c$ with the cutting-plane:
-$$ g^\top (x - x_d) + \beta \leq 0, \beta \geq 0, g \neq 0.
-$$
+$$ g^\top (x - x_d) + \beta \leq 0, \beta \geq 0, g \neq 0. $$
 Note that the cut may be a shallow cut. Suggestion: use different cuts as possible for each iteration (e.g. round-robin the evaluation of constraints).
 
 ![Lowpass ripple](ellipsoid.files/lowpass_ripple.pdf){#fig:lowpass_ripple}

@@ -22,7 +22,7 @@ Basic Ellipsoid Method
  \draw[top color=white, bottom color=cyan] plot[smooth, tension=.7] coordinates {(-3,2) (-5,2) (-6,4) (-5,5) (-3,4) (-3,2)};
  \node at (-5,4) {$\mathcal{K}$};
 \draw (0,8) -- (-3,-2);
-\draw [fill=qqqqff] (-1,3) circle (1.5pt) 
+\draw [fill=qqqqff] (-1,3) circle (1.5pt)
    node [above right] {$x_c$};
 \draw  (-1,3) ellipse (7 and 3);
   \node at (5,4) {$\mathcal{E}$};
@@ -63,7 +63,9 @@ Calculation of minimum volume ellipsoid covering:
 $$ \mathcal{E} \cap \{z \mid g^\top (z - x_c) + h \leq 0 \}. $$
 
 -   Let $\tilde{g} = P\,g$, $\tau^2 = g^\top P g$.
+
 -   If $n \cdot h < -\tau$ (shallow cut), no smaller ellipsoid can be found.
+
 -   If $h > \tau$, intersection is empty.
 
 Otherwise,
@@ -80,11 +82,14 @@ Updating the ellipsoid (cont'd)
 -------------------------------
 
 -   Even better, split $P$ into two variables $\kappa \cdot Q$
+
 -   Let $\tilde{g} = Q \cdot g$, $\omega = g^\top\tilde{g}$, $\tau = \sqrt{\kappa\cdot\omega}$.
     $$x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
     Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\top, \qquad
     \kappa^+ =  \delta\cdot\kappa. $$
+
 -   Reduce $n^2$ multiplications per iteration.
+
 -   Note:
     -   The determinant of $Q$ decreases monotonically.
     -   The range of $\delta$ is $(0, \frac{n^2}{n^2 - 1})$.
@@ -141,6 +146,7 @@ Central Cut
 -----------
 
 -   A Special case of deep cut when $\beta = 0$
+
 -   Deserve a separate implement because it is much simplier.
 
 Let $\tilde{g} = Q\,g$, $\tau = \sqrt{\kappa\cdot\omega}$,
@@ -198,9 +204,13 @@ Updating the ellipsoid
 ----------------------
 
 -   Let $\tilde{g} = Q\,g$, $\tau^2 = \kappa\cdot\omega$.
+
 -   If $\beta_1 > \beta_2$, intersection is empty.
+
 -   If $\beta_1 \beta_2 < -\tau^2/n$, no smaller ellipsoid can be found.
+
 -   If $\beta_2^2 > \tau^2$, it reduces to deep-cut with $\alpha = \alpha_1$.
+
 -   Otherwise,
     $$x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
     Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\top, \qquad
@@ -221,6 +231,7 @@ Python code (parallel cut)
 --------------------------
 
 \scriptsize
+
 ```python
 def calc_ll_core(self, b0, b1, tsq):
     if b1 < b0:
@@ -279,6 +290,7 @@ Example: FIR filter design (cont'd)
 
 -   However, via *spectral factorization*, it can transform into a convex one\ [@wu1999fir]:
     $$L^2(\omega)~\leq~R(\omega)~\leq~U^2(\omega),~\forall~\omega\in(0,\pi). $$
+
     where
     -   $R(\omega)=\sum_{i=-1+n}^{n-1}{r(t)e^{-j{\omega}t}}=|H(\omega)|^2$
     -   $\mathbf{r}=(r(-n+1),r(-n+2),...,r(n-1))$ are the
@@ -386,7 +398,6 @@ $$\begin{array}{ll}
 \end{array}$$
 
 where
-
 -   $f_0(x)$ and $f_j(x)$ are "convex"
 -   Some design variables are discrete.
 
@@ -400,6 +411,7 @@ Oracle Requirement
     $$g^\top (x - x_d) + \beta \leq 0, \beta \geq 0, g \neq 0$$
 
 -   Note: the cut may be a shallow cut.
+
 -   Suggestion: use different cuts as possible for each iteration (
     e.g. round-robin the evaluation of constraints)
 
