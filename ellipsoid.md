@@ -1,24 +1,38 @@
 ---
-title: Cutting-plane Method and the Amazing Oracles (II)
-author: Wai-Shing Luk
+author: 'Wai-Shing Luk'
 bibliography:
-  - fir-ref.bib
+- 'fir-ref.bib'
+title: 'Cutting-plane Method and the Amazing Oracles (II)'
 ...
 
-# Ellipsoid Method Revisited
+Ellipsoid Method Revisited
+==========================
 
 ---
 
-## Basic Ellipsoid Method
+Basic Ellipsoid Method
+----------------------
 
 -   An ellipsoid $\mathcal{E}(x_c, P)$ is specified as a set
-    $$\{x \mid (x-x_c)P^{-1}(x-x_c) \leq 1 \},$$ where $x_c$ is the center of the ellipsoid.
+    $$\{x \mid (x-x_c)P^{-1}(x-x_c) \leq 1 \},$$
+    where $x_c$ is the center of the ellipsoid.
 
-![](ellipsoid.files/ellipsoid.pdf){width=90%}
+\begin{figure}
+\begin{tikzpicture}[scale=0.4]
+ \draw[top color=white, bottom color=cyan] plot[smooth, tension=.7] coordinates {(-3,2) (-5,2) (-6,4) (-5,5) (-3,4) (-3,2)};
+ \node at (-5,4) {$\mathcal{K}$};
+\draw (0,8) -- (-3,-2);
+\draw [fill=qqqqff] (-1,3) circle (1.5pt) 
+   node [above right] {$x_c$};
+\draw  (-1,3) ellipse (7 and 3);
+  \node at (5,4) {$\mathcal{E}$};
+\end{tikzpicture}
+\end{figure}
 
 ---
 
-## Python code 
+Python code
+-----------
 
 ```python
 import numpy as np
@@ -42,40 +56,43 @@ class ell:
 
 ---
 
-## Updating the ellipsoid (deep-cut)
+Updating the ellipsoid (deep-cut)
+---------------------------------
 
--   Calculation of minimum volume ellipsoid covering:
-    $$\mathcal{E} \cap \{z \mid g^\top (z - x_c) + h \leq 0 \}$$
+Calculation of minimum volume ellipsoid covering:
+$$ \mathcal{E} \cap \{z \mid g^\top (z - x_c) + h \leq 0 \}. $$
+
 -   Let $\tilde{g} = P\,g$, $\tau^2 = g^\top P g$.
 -   If $n \cdot h < -\tau$ (shallow cut), no smaller ellipsoid can be found.
 -   If $h > \tau$, intersection is empty.
--   Otherwise,
- $$x_c^+ = x_c - \frac{\rho}{ \tau^2 } \tilde{g}, \qquad
-    P^+ = {\color{orange}\delta\cdot}\left(P - \frac{\sigma}{ \tau^2 } \tilde{g}\tilde{g}^\top\right)$$
-    
+
+Otherwise,
+$$x_c^+ = x_c - \frac{\rho}{ \tau^2 } \tilde{g}, \qquad
+  P^+ = {\color{orange}\delta\cdot}\left(P - \frac{\sigma}{\tau^2} \tilde{g}\tilde{g}^\top\right). $$
 where
- $$\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
+$$\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
   \sigma = \frac{2\rho}{ {\color{red}\tau}+h}, \qquad
-  \delta = \frac{n^2(\tau^2 - h^2)}{(n^2 - 1)\tau^2}$$
+  \delta = \frac{n^2(\tau^2 - h^2)}{(n^2 - 1)\tau^2}. $$
 
 ---
 
-## Updating the ellipsoid (cont'd)
+Updating the ellipsoid (cont'd)
+-------------------------------
 
 -   Even better, split $P$ into two variables $\kappa \cdot Q$
 -   Let $\tilde{g} = Q \cdot g$, $\omega = g^\top\tilde{g}$, $\tau = \sqrt{\kappa\cdot\omega}$.
- $$x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
+    $$x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
     Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\top, \qquad
-    \kappa^+ =  \delta\cdot\kappa
- $$
+    \kappa^+ =  \delta\cdot\kappa. $$
 -   Reduce $n^2$ multiplications per iteration.
 -   Note:
     -   The determinant of $Q$ decreases monotonically.
-    -   The range of $\delta$ is $(0, \frac{n^2}{n^2 - 1})$
+    -   The range of $\delta$ is $(0, \frac{n^2}{n^2 - 1})$.
 
 ---
 
-## Python code (updating)
+Python code (updating)
+----------------------
 
 ```python
 def update_core(self, calc_ell, cut):
@@ -97,7 +114,8 @@ def update_core(self, calc_ell, cut):
 
 ---
 
-## Python code (deep cut)
+Python code (deep cut)
+----------------------
 
 ```python
 def calc_dc(self, beta, tsq):
@@ -119,19 +137,22 @@ def calc_dc(self, beta, tsq):
 
 ---
 
-## Central Cut
+Central Cut
+-----------
 
 -   A Special case of deep cut when $\beta = 0$
 -   Deserve a separate implement because it is much simplier.
--   Let $\tilde{g} = Q\,g$, $\tau = \sqrt{\kappa\cdot\omega}$,
 
- $$\rho = {\tau \over n+1}, \qquad
+Let $\tilde{g} = Q\,g$, $\tau = \sqrt{\kappa\cdot\omega}$,
+
+$$\rho = {\tau \over n+1}, \qquad
   \sigma = {2 \over n+1}, \qquad
-  \delta = {n^2 \over n^2 - 1}$$
+  \delta = {n^2 \over n^2 - 1}. $$
 
 ---
 
-## Python code (deep cut)
+Python code (deep cut)
+----------------------
 
 ```python
 def calc_cc(self, tau):
@@ -143,11 +164,13 @@ def calc_cc(self, tau):
     return 0, (rho, sigma, delta)
 ```
 
-# Parallel Cuts
+Parallel Cuts
+=============
 
 ---
 
-## Parallel Cuts
+Parallel Cuts
+-------------
 
 -   Oracle returns a pair of cuts instead of just one.
 
@@ -158,45 +181,46 @@ def calc_cc(self, tau):
     \end{array}$$ for all $x \in \mathcal{K}$.
 
 -   Only linear inequality constraint can produce such parallel cut:
-    $$ l \leq a^\top x + b \leq u, \qquad L \preceq F(x) \preceq U $$
+    $$ l \leq a^\top x + b \leq u, \qquad L \preceq F(x) \preceq U. $$
 
 -   Usually provide faster convergence.
 
 ---
 
-## Parallel Cuts
+Parallel Cuts
+-------------
 
 ![](ellipsoid.files/parallel_cut.pdf)
 
 ---
 
-## Updating the ellipsoid
+Updating the ellipsoid
+----------------------
 
 -   Let $\tilde{g} = Q\,g$, $\tau^2 = \kappa\cdot\omega$.
 -   If $\beta_1 > \beta_2$, intersection is empty.
 -   If $\beta_1 \beta_2 < -\tau^2/n$, no smaller ellipsoid can be found.
 -   If $\beta_2^2 > \tau^2$, it reduces to deep-cut with $\alpha = \alpha_1$.
 -   Otherwise,
- $$x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
+    $$x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
     Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\top, \qquad
-    \kappa^+ =  \delta \kappa
- $$
+    \kappa^+ =  \delta \kappa. $$
 
     where
- $$\begin{array}{lll}
-      \bar{\beta} &=& (\beta_1 + \beta_2)/2 \\
+    $$\begin{array}{lll}
+      \bar{\beta} &=& (\beta_1 + \beta_2)/2, \\
       \xi^2 &=& (\tau^2 - \beta_1^2)(\tau^2 - \beta_2^2) + (n(\beta_2 - \beta_1)\bar{\beta})^2, \\
       \sigma &=& (n + (\tau^2 - \beta_1\beta_2 - \xi)/(2\bar{\beta}^2)) / (n + 1), \\
       \rho &=& \bar{\beta}\cdot\sigma, \\
-      \delta &=& (n^2/(n^2-1)) (\tau^2 - (\beta_1^2 + \beta_2^2)/2 + \xi/n) / \tau^2
- \end{array}$$
+      \delta &=& (n^2/(n^2-1)) (\tau^2 - (\beta_1^2 + \beta_2^2)/2 + \xi/n) / \tau^2 .
+     \end{array}$$
 
 ---
 
-## Python code (parallel cut)
+Python code (parallel cut)
+--------------------------
 
 \scriptsize
-
 ```python
 def calc_ll_core(self, b0, b1, tsq):
     if b1 < b0:
@@ -223,23 +247,25 @@ def calc_ll_core(self, b0, b1, tsq):
 
 ---
 
-## Example: FIR filter design
+Example: FIR filter design
+--------------------------
 
 ![img](ellipsoid.files/fir_strctr.pdf)
 
--   The time response is: 
-    $$y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]}$$
+-   The time response is:
+    $$y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]}. $$
 
 ---
 
-## Example: FIR filter design (cont'd)
+Example: FIR filter design (cont'd)
+-----------------------------------
 
 -   The frequency response:
-    $$H(\omega)~=~\sum_{m=0}^{n-1}{h(m)e^{-jm\omega}}$$ 
+    $$H(\omega)~=~\sum_{m=0}^{n-1}{h(m)e^{-jm\omega}}. $$
 
 -   The magnitude constraints on frequency domain are expressed as
 
-    $$L(\omega)~\leq~|H(\omega)|~\leq~U(\omega),~\forall~\omega\in(-\infty,+\infty)$$
+    $$L(\omega)~\leq~|H(\omega)|~\leq~U(\omega),~\forall~\omega\in(-\infty,+\infty. $$
 
     where $L(\omega)$ and $U(\omega)$ are the lower and
     upper (nonnegative) bounds at frequency $\omega$ respectively.
@@ -248,27 +274,28 @@ def calc_ll_core(self, b0, b1, tsq):
 
 ---
 
-## Example: FIR filter design (cont'd)
+Example: FIR filter design (cont'd)
+-----------------------------------
 
--   However, via *spectral factorization*, it can transform into a convex one:
-    $$L^2(\omega)~\leq~R(\omega)~\leq~U^2(\omega),~\forall~\omega\in(0,\pi)$$
+-   However, via *spectral factorization*, it can transform into a convex one\ [@wu1999fir]:
+    $$L^2(\omega)~\leq~R(\omega)~\leq~U^2(\omega),~\forall~\omega\in(0,\pi). $$
     where
     -   $R(\omega)=\sum_{i=-1+n}^{n-1}{r(t)e^{-j{\omega}t}}=|H(\omega)|^2$
     -   $\mathbf{r}=(r(-n+1),r(-n+2),...,r(n-1))$ are the
         autocorrelation coefficients.
 
-
 ---
 
-## Example: FIR filter design (cont'd)
+Example: FIR filter design (cont'd)
+-----------------------------------
 
 -   $\mathbf{r}$ can be determined by $\mathbf{h}$:
 
-    $$r(t)~=~\sum_{i=-n+1}^{n-1}{h(i)h(i+t)},~t\in\mathbf{Z}.$$ 
+    $$r(t)~=~\sum_{i=-n+1}^{n-1}{h(i)h(i+t)},~t\in\mathbf{Z}.$$
 
     where $h(t)=0$ for $t < 0$ or $t > n - 1$.
 
--   The whole problem can be formulated as: 
+-   The whole problem can be formulated as:
 
 $$\begin{array}{ll}
   \text{min}  & \gamma \\
@@ -276,18 +303,19 @@ $$\begin{array}{ll}
               & R(\omega) > 0, \forall \omega \in [0,\pi]
 \end{array}$$
 
+---
+
+Experiment
+----------
+
+![Result](ellipsoid.files/lowpass.pdf){width="50%"}
 
 ---
 
-## Experiment
+Example: Maximum Likelihood estimation
+--------------------------------------
 
-![Result](ellipsoid.files/lowpass.pdf){width=50%}
-
----
-
-## Example: Maximum Likelihood estimation
-
- $$\begin{array}{ll}
+$$\begin{array}{ll}
       \min_{\color{blue}\kappa, p}   &      \log \det (\Omega({\color{blue}p}) + {\color{blue}\kappa}
        \cdot I) + \mathrm{Tr}((\Omega({\color{blue}p}) + {\color{blue}\kappa} \cdot I)^{-1}Y) \\\\
       \text{s.t.} & \Omega({\color{blue}p}) {\color{red}\succeq} 0, {\color{blue}\kappa} {\color{red}\geq} 0 \\\\
@@ -300,7 +328,8 @@ Note: the 1st term is concave, the 2nd term is convex
 
 ---
 
-## Example: Maximum Likelihood estimation (cont'd)
+Example: Maximum Likelihood estimation (cont'd)
+-----------------------------------------------
 
 -   Therefore, the following problem is convex:
 
@@ -310,15 +339,16 @@ $$\begin{array}{ll}
                     & 0 \preceq V({\color{blue}p}) \preceq 2Y, {\color{blue}\kappa} {>} 0
 \end{array}$$
 
-
-# Discrete Optimization
+Discrete Optimization
+=====================
 
 ---
 
-## Why Discrete Convex Programming
+Why Discrete Convex Programming
+-------------------------------
 
 -   Many engineering problems can be formulated as a convex/geometric
-    programming, e.g. digital circuit sizing
+    programming, e.g. digital circuit sizing
 
 -   Yet in an ASIC design, often there is only a limited set of choices
     from the cell library. In other words, some design variables
@@ -327,25 +357,26 @@ $$\begin{array}{ll}
 -   The discrete version can be formulated as a Mixed-Integer Convex
     programming (MICP) by mapping the design variables to integers.
 
-
 ---
 
-## What's Wrong w/ Existing Methods?
+What's Wrong w/ Existing Methods?
+---------------------------------
 
 -   Mostly based on relaxation.
 
 -   Then use the relaxed solution as a lower bound and use the
-    branch–and–bound method for the discrete optimal solution.
+    branch--and--bound method for the discrete optimal solution.
 
     -   Note: the branch-and-bound method does not utilize the convexity
         of the problem.
+
 -   What if I can only evaluate constraints on discrete data?
     Workaround: convex fitting?
 
-
 ---
 
-## Mixed-Integer Convex Programming
+Mixed-Integer Convex Programming
+--------------------------------
 
 Consider:
 $$\begin{array}{ll}
@@ -356,25 +387,29 @@ $$\begin{array}{ll}
 
 where
 
--  $f_0(x)$ and $f_j(x)$ are "convex"
--  Some design variables are discrete.
+-   $f_0(x)$ and $f_j(x)$ are "convex"
+-   Some design variables are discrete.
 
 ---
 
-## Oracle Requirement
+Oracle Requirement
+------------------
 
 -   The oracle looks for the nearby discrete solution $x_d$ of $x_c$
     with the cutting-plane:
     $$g^\top (x - x_d) + \beta \leq 0, \beta \geq 0, g \neq 0$$
 
 -   Note: the cut may be a shallow cut.
--   Suggestion: use different cuts as possible for each iteration (e.g.
-    round-robin the evaluation of constraints)
+-   Suggestion: use different cuts as possible for each iteration (
+    e.g. round-robin the evaluation of constraints)
 
 ---
 
-## Example: FIR filter design
+Example: FIR filter design
+--------------------------
 
-![](ellipsoid.files/lowpass_ripple.pdf){width=90%}
+![](ellipsoid.files/lowpass_ripple.pdf){width="90%"}
 
-# Q & A
+
+Reference
+=========

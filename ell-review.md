@@ -306,8 +306,7 @@ $$\begin{array}{ll}
   \end{array}
 $$
 Let $\rho(h) = \sum_i^n p_i \Psi_i(h)$, where $p_i$'s are the unknown coefficients to be fitted $\Psi_i$'s are a family of basis functions. The covariance matrix $\Omega(p)$ can be recast as:
-$$\Omega(p) = p_1 F_1 + \cdots + p_n F_n,
-$$
+$$\Omega(p) = p_1 F_1 + \cdots + p_n F_n, $$
 where $\{F_k\}_{i,j} =\Psi_k( \| s_j - s_i \|_2)$.
 
 Ellipsoid Method Revisited
@@ -319,11 +318,22 @@ Basic Ellipsoid Method
 ----------------------
 
 An ellipsoid $\mathcal{E}(x_c, P)$ is specified as a set
-$$\{x \mid (x-x_c)P^{-1}(x-x_c) \leq 1 \},
-$$\
+$$\{x \mid (x-x_c)P^{-1}(x-x_c) \leq 1 \}, $$
 where $x_c$ is the center of the ellipsoid.
 
-![Ellipsoid, feasible region, and cut](ellipsoid.files/ellipsoid.pdf)
+\begin{figure}
+\begin{tikzpicture}[scale=0.4]
+ \draw[top color=white, bottom color=cyan] plot[smooth, tension=.7] coordinates {(-3,2) (-5,2) (-6,4) (-5,5) (-3,4) (-3,2)};
+ \node at (-5,4) {$\mathcal{K}$};
+\draw (0,8) -- (-3,-2);
+\draw [fill=qqqqff] (-1,3) circle (1.5pt) 
+   node [above right] {$x_c$};
+\draw  (-1,3) ellipse (7 and 3);
+  \node at (5,4) {$\mathcal{E}$};
+\end{tikzpicture}
+\caption{Ellipsoid, feasible region, and cut}
+\label{fig:ellipsoid}
+\end{figure}
 
 Updating the ellipsoid (deep-cut)
 

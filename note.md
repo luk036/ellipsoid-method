@@ -4,6 +4,7 @@ pandoc -F pandoc-crossref -F pandoc-citeproc -s -t latex -N latex.yaml crossref.
 
 pandoc -F pandoc-crossref -F pandoc-citeproc -s -t html -N --katex=katex/ crossref.yaml ell-review.md -o temp.html
 
+
 \usepackage{subfig}
 \AtBeginDocument{%
 \renewcommand*\figurename{Figure}
