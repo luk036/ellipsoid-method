@@ -1,16 +1,20 @@
 ---
-abstract: 'Ellipsoid method is revisited. Besides that, three separation oracles are investigated for applications. They are robust optimization, semidefinite programming, and network optimization. Discuss the stability issue. Finally, the parallel cut is described.'
-author:
-- 'Wai-Shing Luk\thanks{Fudan University}'
-bibliography:
-- 'fir-ref.bib'
-keywords:
-- Ellipsoid method
-- Cutting plane method
-- Separation oracle
-- Cholesky Factorization
-thanks: This work was supported by the Society for Industrial and Applied Mathematics
 title: Ellipsoid Method and Its Amazing Oracles
+author:
+  - 'Wai-Shing Luk\thanks{Fudan University}'
+bibliography:
+  - 'fir-ref.bib'
+documentclass: siamltex
+classoption:
+  - final
+  - leqno
+abstract: 'Ellipsoid method is revisited. Besides that, three separation oracles are investigated for applications. They are robust optimization, semidefinite programming, and network optimization. Discuss the stability issue. Finally, the parallel cut is described.'
+keywords:
+  - Ellipsoid method
+  - Cutting plane method
+  - Separation oracle
+  - Cholesky Factorization
+thanks: This work was supported by the Society for Industrial and Applied Mathematics
 ...
 
 Introduction
@@ -420,7 +424,7 @@ The magnitude constraints on frequency domain are expressed as
 $$ L(\omega)~\leq~|H(\omega)|~\leq~U(\omega),~\forall~\omega\in(-\infty,+\infty),$$
 where $L(\omega)$ and $U(\omega)$ are the lower and upper (nonnegative) bounds at frequency $\omega$ respectively.
 
-Note that the constraint is non-convex in general.However, via *spectral factorization*, it can transform into a convex one:
+Note that the constraint is non-convex in general.However, via *spectral factorization*, it can transform into a convex one\ [@wu1999fir]:
 $$ L^2(\omega)~\leq~R(\omega)~\leq~U^2(\omega),~\forall~\omega\in(0,\pi),
 $$
 where $R(\omega)=\sum_{i=-1+n}^{n-1}{r(t)e^{-j{\omega}t}}=|H(\omega)|^2$. The vector $\mathbf{r}=(r(-n+1),r(-n+2),...,r(n-1))$ contains the autocorrelation coefficients, which can be determined by $\mathbf{h}$:
