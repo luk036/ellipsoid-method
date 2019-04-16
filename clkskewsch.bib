@@ -1,0 +1,564 @@
+
+@inproceedings{min_ni_early_2007,
+	title = {Early planning for clock skew scheduling during register binding},
+	isbn = {1092-3152},
+	doi = {10.1109/DAC.2006.229417},
+	abstract = {Design decisions made during high-level synthesis usually have great impacts on the later design stages. In this paper, We present a general framework, which plans for the clock skew-scheduling in physical design stages during register binding in high-level synthesis. Our proposed technique pursues the optimality of the native objective functions of the register binding problem. At the same time, it ensures not invalidating the subsequent clock skew scheduling for optimizing the clock period. We use the switching power as the native objective of our register binding problem. The problem is first formulated as a MILP problem. An acceleration scheme based on the concept of weakly compatible edge set (WCES) is proposed to speed up the MILP solver to obtain the optimal solution. Then, we present our heuristic algorithm to reduce the running time further. The experimental results show that on average our acceleration scheme can speed up the solver by 8.6 times, and our heuristic is 70 times faster than the solver with a 5.25\% degradation of the native objective. The minimum and maximum degradation among our benchmark set are 0.82\% and 12.2\%, respectively.},
+	booktitle = {Computer-{Aided} {Design}, 2007. {ICCAD} 2007. {IEEE}/{ACM} {International} {Conference} on},
+	author = {Min Ni and Memik, S.O.},
+	year = {2007},
+	keywords = {clock skew scheduling, heuristic algorithm, high level synthesis, high-level synthesis, integer programming, linear programming, MILP solver, register binding problem, scheduling, synchronisation, weakly compatible edge set acceleration scheme},
+	pages = {429--434}
+}
+
+@inproceedings{mader_large_2002,
+	title = {Large scale clock skew scheduling techniques for improved reliability of digital synchronous {VLSI} circuits},
+	volume = {1},
+	doi = {10.1109/ASPDAC.2006.1594691},
+	abstract = {This paper compares several methods for determining an optimal non-zero clock skew schedule for synchronous digital VLSI circuits. The optimality of a given clock skew schedule which satisfies the circuit timing constraints is defined from the perspective of circuit timing reliability. This optimality is characterized by the deviation of the computed clock schedule from an 'ideal' objective clock schedule. Both linear and quadratic programming (LP and QP) formulations of the clock skew scheduling problem are analyzed and a novel LP formulation is introduced. These formulations are compared using the ISCAS'89 suite of benchmark circuits. Mathematical optimization results are calculated using the large scale optimization package Lancelot.},
+	booktitle = {Circuits and {Systems}, 2002. {ISCAS} 2002. {IEEE} {International} {Symposium} on},
+	author = {Mader, R. and Friedman, E.G. and Litman, A. and Kourtev, I.S.},
+	year = {2002},
+	keywords = {benchmark circuits, circuit optimisation, circuit timing constraints, circuit timing reliability, clocks, digital synchronous VLSI circuits, integrated circuit reliability, integrated logic circuits, ISCAS'89 suite, Lancelot, large scale clock skew scheduling, large scale optimization package, linear programming, logic simulation, LP formulation, quadratic programming, reliability, scheduling, sequential circuits, timing, VLSI},
+	pages = {I--357--I--360 vol.1}
+}
+
+@inproceedings{kui_wang_extensiveslackbalance:_2006,
+	title = {{ExtensiveSlackBalance}: an approach to make front-end tools aware of clock skew scheduling},
+	isbn = {0738-100X},
+	shorttitle = {{ExtensiveSlackBalance}},
+	abstract = {In the traditional ASIC flow, clock skew scheduling (CSS), as a method to improve timing, is usually employed during the CTS (clock tree synthesis) step while front-end tools do not take clock skew as a manageable resource. This limits the potential of the subsequent CSS. To overcome such limitations, we design an enhanced CSS algorithm ExtensiveSlackBalance and integrate it into the back-annotation and re-optimization iterations of the current industrial flow. Experiment results show that, the clock frequency can be improved to 26.2\% on average compared to 6.4\% in the traditional ASIC flow},
+	booktitle = {Design {Automation} {Conference}, 2006 43rd {ACM}/{IEEE}},
+	author = {Kui Wang and Lian Duan and Xu Cheng},
+	year = {2006},
+	keywords = {Algorithms, application specific integrated circuits, ASIC flow, back annotation, back-annotation, clock frequency, clocks, clock skew, clock skew scheduling, clock tree synthesis, CSS algorithm, ExtensiveSlackBalance, front-end tools, logic design, logic synthesis, reoptimization iteration, scheduling, skew scheduling, trees (mathematics)},
+	pages = {951--954}
+}
+
+@inproceedings{taskin_timing_2006,
+	title = {A {Timing} {Optimization} {Method} {Based} on {Clock} {Skew} {Scheduling} and {Partitioning} in a {Parallel} {Computing} {Environment}},
+	volume = {2},
+	isbn = {1548-3746},
+	doi = {10.1109/ISQED.2002.996772},
+	abstract = {This paper describes the implementation of a heuristic method to perform non-zero clock skew scheduling of digital VLSI circuits in a parallel computing environment. In the proposed method, circuit partitions that have low number of timing paths between partitions are formed. Clock skew scheduling is applied independently to each partition-sequentially or in parallel on a computing cluster-and results are iteratively merged. The scalability of the proposed method is superior compared to conventional non-zero clock skew scheduling techniques due to the reduction of analyzed circuit sizes (partition sizes) at each iteration step and the potential to parallelize the analyses of these partitions. It is demonstrated that after only the first iteration step of the proposed method, feasible clock schedules for 65\% of the ISCAS'89 benchmark circuits are computed. For these circuits, average speedups of 2.1X and 2.6X are observed for sequential and parallel application of clock skew scheduling to partitions, respectively.},
+	booktitle = {Circuits and {Systems}, 2006. {MWSCAS} '06. 49th {IEEE} {International} {Midwest} {Symposium} on},
+	author = {Taskin, B. and Kourtev, I.S.},
+	year = {2006},
+	keywords = {circuit CAD, circuit optimisation, circuit partitions, clocks, digital VLSI circuits, heuristic method, integrated circuit design, integrated circuit design flow, ISCAS'89 benchmark circuits, iteration step, iterative methods, nonzero clock skew scheduling, parallel computing environment, parallel processing, scalability aspects, scheduling, sequential circuits, timing, timing optimization method, VLSI},
+	pages = {486--490}
+}
+
+@article{ni_fast_2009,
+	title = {A {Fast} {Heuristic} {Algorithm} for {Multidomain} {Clock} {Skew} {Scheduling}},
+	volume = {PP},
+	issn = {1063-8210},
+	doi = {10.1109/ISCAS.1999.780175},
+	abstract = {In the most general form, clock skew scheduling (CSS) generates a dedicated clock delay for each individual sequential component in the clock distribution network in order to minimize the clock period. Multidomain CSS (MDCSS) relieves this requirement. Instead, sequential components are grouped into several clusters (called clock domains), each of which has a uniform clock delay for all registers within that domain. The skew values of clock domains are provided by a set of deskew buffers with electrically programmable phase shifts and injected after the chip is manufactured. This technique is attractive since, due to process variations, it is becoming overwhelmingly difficult to create precise clock network delays for all sequential elements in a design globally. In this paper, we present a fast algorithm for determining the minimum number of clock domains to be used by MDCSS. The exact solution to this problem cannot be found within a reasonable time if the number of clock domains increases beyond three domains. We show that, even with a small-size circuit, in order to obtain the minimum clock period, more than three clock domains may be required. Therefore, a fast heuristic algorithm is needed to identify these domains. To the best of our knowledge, we present the first efficient heuristic algorithm for this problem. For large benchmark circuits, we solve the problem within 14.7 min on average (as high as 31.7 min for the worst case), while a commercial mixed-integer linear program solver cannot finish in over 5 h. Furthermore, our results show that, for 19 out of 21 small- and medium-size benchmarks, our algorithm yields the optimal solution.},
+	number = {99},
+	journal = {Very Large Scale Integration (VLSI) Systems, IEEE Transactions on},
+	author = {Ni, M. and Ogrenci Memik, S. O.},
+	year = {2009},
+	keywords = {Clock skew domain, clock skew scheduling (CSS), sequential circuit optimization},
+	pages = {1}
+}
+
+@inproceedings{shih-hsu_huang_fast_2006,
+	title = {Fast multi-domain clock skew scheduling for peak current reduction},
+	abstract = {Given several specific clocking domains, the peak current minimization problem can be formulated as a 0-1 integer linear program. However, if the number of binary variables is large, the run time is unacceptable. In this paper, we study the reduction of this high computational expense. Our approach includes the following two aspects. First, we derive the ASAP schedule and the ALAP schedule to prune the redundancies without sacrificing the exactness (optimality) of the solution. Second, we propose a zone-based scheduling algorithm to solve a large circuit heuristic ally.},
+	booktitle = {Design {Automation}, 2006. {Asia} and {South} {Pacific} {Conference} on},
+	author = {Shih-Hsu Huang and Chia-Ming Chang and Yow-Tyng Nieh},
+	year = {2006},
+	keywords = {ALAP schedule, ASAP schedule, clocks, integer linear program, integer programming, linear programming, minimisation, multi-domain clock skew scheduling, peak current reduction, scheduling, zone-based scheduling},
+	pages = {6 pp.}
+}
+
+@inproceedings{maaz_non-zero_1999,
+	title = {A non-zero clock skew scheduling algorithm for high speed clock distribution network},
+	volume = {6},
+	doi = {10.1109/MWSCAS.1999.867756},
+	abstract = {In this paper, we present a novel algorithm for scheduling clock
+skews in a synchronous digital circuits to optimize performance. The new
+algorithm is based on inclusively matching allowable clock skews
+intervals of all local data path in the circuit in order to determine
+the proper global skew ranges. This algorithm will lead to minimizing
+the clock period as well as obtaining a list of scheduled skews to be
+inserted in the clock network. These scheduled skews are then used to
+obtain a delay model for all branches of the clock distribution network
+tree. The delay values ensure the proper synchronization of data and
+eliminate any potential race condition in the circuit. The new algorithm
+has been tested and found to be a good approach toward reducing the
+clock period compared with zero intentional skew clocking},
+	booktitle = {Circuits and {Systems}, 1999. {ISCAS} '99. {Proceedings} of the 1999 {IEEE} {International} {Symposium} on},
+	author = {Maaz, M.B. and Bayoumi, M.A.},
+	year = {1999},
+	keywords = {clock network, clocks, clock skews, delay model, delays, distribution networks, hazards and race conditions, high speed clock distribution network, high-speed clock distribution network, high-speed integrated circuits, inclusively matching allowable clock skews intervals, integrated circuit design, local data path, logic design, minimisation, nonzero clock skew, non-zero clock skew scheduling algorithm, race condition, scheduled skews, scheduling, scheduling algorithm, synchronisation, synchronization, synchronous digital circuit, synchronous digital circuits, tree, VLSI/ULSI, zero intentional skew clocking},
+	pages = {382--385 vol.6}
+}
+
+@inproceedings{bae_exploiting_2009,
+	title = {Exploiting clock skew scheduling for {FPGA}},
+	isbn = {1530-1591},
+	doi = {10.1109/ICCAD.1999.810655},
+	abstract = {Clock skew scheduling (CSS) is an effective technique to optimize clock period of sequential designs. However, these techniques are not effective in the presence of certain design structural constraints that limit the CSS. In this paper, we present an analysis of several design structural constraints that affect the CSS and propose techniques to resolve these constraints. Furthermore, we propose a CSS FPGA architecture and a novel clock-period optimization (CPO) flow that tackles some of these constraints by exploiting the re-configurability of FPGAs. Experimental results demonstrate that the proposed FPGA architecture with the CPO flow achieved an average performance improvement of 24.4\% which was an average performance improvement of 10.7\% over the CPO flow without considering the constraints.},
+	booktitle = {Design, {Automation} \& {Test} in {Europe} {Conference} \& {Exhibition}, 2009. {DATE} '09.},
+	author = {Bae, Sungmin and Mangalagiri, Prasanth and Vijaykrishnan, N.},
+	year = {2009},
+	pages = {1524--1529}
+}
+
+@inproceedings{tsai_yield_2004,
+	address = {Washington, DC, USA},
+	series = {{ICCAD} '04},
+	title = {A yield improvement methodology using pre- and post-silicon statistical clock scheduling},
+	isbn = {0-7803-8702-3},
+	url = {http://dx.doi.org/10.1109/ICCAD.2004.1382649},
+	doi = {http://dx.doi.org/10.1109/ICCAD.2004.1382649},
+	abstract = {In deep sub-micron technologies, process variations can cause significant path delay and clock skew uncertainties thereby lead to timing failure and yield loss. In this paper, we propose a comprehensive clock scheduling methodology that improves timing and yield through both pre-silicon clock scheduling and post-silicon clock tuning. First, an optimal clock scheduling algorithm has been developed to allocate the slack for each path according to its timing uncertainty. To balance the skew that can be caused by process variations, programmable delay elements are inserted at the clock inputs of a small set of flip-flops on the timing critical paths. A delay-fault testing scheme combined with linear programming is used to identify and eliminate timing violations in the manufactured chips. Experimental results show that our methodology achieves substantial yield improvement over a traditional clock scheduling algorithm in many of the ISCAS89 benchmark circuits, and obtain an average yield improvement of 13.6\%.},
+	urldate = {2011-03-07},
+	booktitle = {Proceedings of the 2004 {IEEE}/{ACM} {International} conference on {Computer}-aided design},
+	publisher = {IEEE Computer Society},
+	author = {Tsai, Jeng-Liang and Baik, DongHyun and Chen, C. C. -P and Saluja, K. K},
+	year = {2004},
+	note = {ACM ID: 1112336},
+	pages = {611--618},
+	file = {ACM Snapshot:C\:\\Users\\luk\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\2b437tqa.default\\zotero\\storage\\QIBDU57Z\\citation.html:text/html}
+}
+
+@inproceedings{yang_liu_energy-efficient_2008,
+	title = {Energy-efficient soft-output trellis decoder design using trellis quasi-reduction and importance-aware clock skew scheduling},
+	doi = {10.1109/ISCAS.2008.4541524},
+	abstract = {Energy-efficient implementation of high-speed soft-output trellis decoders is of great practical importance. This paper first presents an algorithm-level technique, referred to as quasi-reduced-state trellis decoding, that enables the use of reduced-state trellis decoding concept to reduce the energy consumption of decoding data storage without incurring any speed penalty. Then we propose to integrate this algorithm-level technique with an importance-aware clock skew scheduling approach that enables the use of aggressive voltage overscaling in decoding computation datapath at the cost of small decoding performance degradation. The integration of these two techniques can provide a wide and flexible design space to explore the decoding performance vs. decoding energy consumption trade-off for very high-speed soft-output trellis decoder implementations. The effectiveness has been demonstrated through 1Gbps soft- output Viterbi algorithm (SOVA) decoder ASIC design at 65nm technology node.},
+	booktitle = {Circuits and {Systems}, 2008. {ISCAS} 2008. {IEEE} {International} {Symposium} on},
+	author = {Yang Liu and Fei Sun and Tong Zhang},
+	year = {2008},
+	keywords = {application specific integrated circuits, clocks, clock skew scheduling, decoding data storage, integrated circuit design, performance degradation, quasi-reduced-state trellis decoding, scheduling, soft-output trellis decoder design, soft-output Viterbi algorithm decoder, trellis codes, Viterbi decoding, voltage overscaling},
+	pages = {740--743}
+}
+
+@article{taskin_delay_2006,
+	title = {Delay insertion method in clock skew scheduling},
+	volume = {25},
+	issn = {0278-0070},
+	doi = {10.1109/TCAD.2006.870072},
+	abstract = {This paper describes a delay insertion method that improves the efficiency of clock skew scheduling. It is shown that reconvergent paths limit the improvement of circuit performance achievable through clock skew scheduling. A delay insertion method is proposed such that the optimal clock period achievable through clock skew scheduling is improved by mitigating the limitations caused by reconvergent paths. Experimental results demonstrate that reconvergent paths are limiting for 34\% (41\% for level sensitive) of the selected suite of ISCAS'89 benchmark circuits. Through the application of clock skew scheduling with delay insertion, an average improvement of 10\% shorter clock periods (9\% for level sensitive) is observed for ISCAS'89 benchmark circuits compared to the results of conventional clock skew scheduling.},
+	number = {4},
+	journal = {Computer-Aided Design of Integrated Circuits and Systems, IEEE Transactions on},
+	author = {Taskin, B. and Kourtev, I.S.},
+	year = {2006},
+	keywords = {circuit CAD, circuit performance, clocks, clock skew scheduling, delay circuits, delay insertion method, Delay padding, digital synchronous very large scale integration (VLSI) circuit timing, ISCAS'89 benchmark circuit, nonzero clock skew scheduling, reconvergent paths, scheduling},
+	pages = {651--663}
+}
+
+@inproceedings{albrecht_efficient_2006,
+	title = {Efficient {Incremental} {Clock} {Latency} {Scheduling} for {Large} {Circuits}},
+	volume = {1},
+	doi = {10.1109/DATE.2006.243961},
+	abstract = {The clock latency scheduling problem is usually solved on the sequential graph, also called register-to-register graph. In practice, the extraction of the sequential graph for the given circuit is much more expensive than computing the clock latency schedule for the sequential graph. In this paper we present a new algorithm for clock latency scheduling which does not require the complete sequential graph as input. The new algorithm is based on the parametric shortest paths algorithm by Young, Tarjan and Orlin. It extracts the sequential timing graph only partly, that is in the critical regions, through a call back. It is still guaranteed that the algorithm finds the critical cycle and the minimum clock period. As additional input the algorithm only requires for every register the maximum delay of any outgoing combinational path. Computing these maximum delays for all the registers is equivalent to the timing analysis problem, hence they can be computed very efficiently. Computational results on recently released public benchmarks and industrial designs show that in average only 20.0 \% of the edges in the sequential graph need to be extracted and this reduces the overall runtime to 5.8 \%},
+	booktitle = {Design, {Automation} and {Test} in {Europe}, 2006. {DATE} '06. {Proceedings}},
+	author = {Albrecht, C.},
+	year = {2006},
+	keywords = {clock latency scheduling, clocks, graph theory, outgoing combinational path, parametric shortest paths algorithm, scheduling, sequential circuits, sequential graph, sequential timing graph, timing, timing analysis problem},
+	pages = {1--6}
+}
+
+@inproceedings{hyein_lee_pulse_2008,
+	title = {Pulse width allocation with clock skew scheduling for optimizing pulsed latch-based sequential circuits},
+	isbn = {1092-3152},
+	doi = {10.1109/ICCAD.2006.320101},
+	abstract = {Pulsed latches, latches driven by a brief clock pulse, offer the convenience of flip-flop-like timing verification and optimization, while retaining superior design parameters of latches over flip-flops. But, pulsed latch-based design using a single pulse width has a limitation in reducing clock period. The limitation still exists even if clock skew scheduling is employed, since the amount of skew that can be assigned is practically limited due to process variations. The problem of allocating pulse width (out of discrete number of predefined widths) and scheduling clock skew (within prescribed upper bound) is formulated, for the first time, for optimizing pulsed latch-based sequential circuits. An allocation algorithm called PWCS\_Optimize is proposed to solve the problem. Experiments with 65-nm technology demonstrate that small number of variety of pulse widths (up to 5) combined with clock skews (up to 10\% of clock period) yield minimum clock period for many benchmark circuits. The design flow including PWCS\_Optimize, placement and routing, and synthesis of local and global clock trees is presented and assessed with example circuits.},
+	booktitle = {Computer-{Aided} {Design}, 2008. {ICCAD} 2008. {IEEE}/{ACM} {International} {Conference} on},
+	author = {Hyein Lee and Seungwhun Paik and Youngsoo Shin},
+	year = {2008},
+	keywords = {allocation algorithm, benchmark circuits, benchmark testing, clocks, clock skew scheduling, design flow, flip-flops, global clock trees, local clock trees, pulsed latches, pulse width allocation, routing, sequential circuits},
+	pages = {224--229}
+}
+
+@inproceedings{xinjie_wei_clock_2006,
+	title = {Clock skew scheduling under process variations},
+	doi = {10.1109/ICCAD.2007.4397303},
+	abstract = {Process variation may lead to chip fail because of the property variation of its datapath and clock network. We consider the problem of finding an optimal clock schedule, which has not only the minimal clock period but also the maximal tolerant to process variation. Clock skew scheduling is modeled as a constraint difference system, which can be solved by graph theory. The basic traditional algorithm has the vulnerability that the skew value is near to the skew constraint boundary. The parametric shortest path algorithm inserts unified margin value in the skew constraint with loss of circuit performance. We present an approach that can maximize the safe margin during clock skew scheduling, which is evaluated by center error square index. Experimental results show that our incremental slack distribution algorithm has the optimal clock skew scheduling result with more safe margin and has more robust tolerant to process variation},
+	booktitle = {Quality {Electronic} {Design}, 2006. {ISQED} '06. 7th {International} {Symposium} on},
+	author = {Xinjie Wei and Yici Cai and Xianlong Hong},
+	year = {2006},
+	keywords = {center error square index, clocks, clock skew scheduling, constraint difference system, graph theory, integrated circuit design, least squares approximations, parametric shortest path algorithm, process variations, property variation, safe margin, scheduling, skew constraint, slack distribution algorithm},
+	pages = {6 pp.--242}
+}
+
+@article{jeng-liang_tsai_yield-driven_2005,
+	title = {Yield-driven, false-path-aware clock skew scheduling},
+	volume = {22},
+	issn = {0740-7475},
+	doi = {10.1109/MDT.2005.75},
+	abstract = {Semiconductor technology advances have enabled designers to integrate more functionality in a single chip. As design complexity increases, many new design techniques are developed to optimize chip area and power consumption, as well as performance. Traditionally, yield improvement has been achieved through process improvement. However, in deep-submicron technologies, process variations are difficult to control. As a result, many design decisions significantly affect yield. Therefore, designers should consider yield-related issues during the design phase. This article proposes clock skew scheduling as a tool to address causes of performance-related circuit yield loss. It is an interesting example of how managing circuit-level parameters can have a direct impact on yield metrics and therefore a clear example of the direction of DFM research.},
+	number = {3},
+	journal = {Design \& Test of Computers, IEEE},
+	author = {Jeng-Liang Tsai and Dong Hyun Baik and Chenm CC-P and Saluja, K.K.},
+	year = {2005},
+	keywords = {circuit-level parameters, circuit yield, clocks, clock skew scheduling, deep-submicron technologies, design complexity, design for manufacture, DFM, integrated circuit design, integrated circuit yield, performance-related circuit yield loss, scheduling, semiconductor technology},
+	pages = {214--222}
+}
+
+@inproceedings{hashemi_optimal_2006,
+	title = {Optimal {Clock} {Skew} {Scheduling} {And} {Topology} {Design} {Tolerant} {To} {Delay} {Uncertainty} {Using} {Genetic} {Algorithms}},
+	doi = {10.1109/ICCAD.2003.1257900},
+	abstract = {This paper presents an optimal clock skew scheduling tolerant to delay uncertainty by using genetic algorithms. In using genetic algorithm two optimization problems are aimed: 1) clock period minimization and 2) tolerance maximization to the delay uncertainty due to the process and environmental parameters variations (PEPV). Application of the proposed clock skew scheduling and topology design on the test circuits demonstrates clock distribution networks with noticeably improved tolerance to delay uncertainty, up to plusmn20\% tolerance to power supply variations is reached and the most critical datapath sensitivity to PEPV is improved by a factor of 7, while the system performance degradation is small},
+	booktitle = {Mixed {Design} of {Integrated} {Circuits} and {System}, 2006. {MIXDES} 2006. {Proceedings} of the {International} {Conference}},
+	author = {Hashemi, S. and Masoumi, N. and Lucas, C.},
+	year = {2006},
+	keywords = {clock distribution networks, clock period minimization, clocks, datapath sensitivity, delay uncertainty, genetic algorithms, network topology, optimal clock skew scheduling, PEPV, process and environmental parameters variations, system performance degradation, tolerance maximization, topology design tolerant},
+	pages = {508--513}
+}
+
+@inproceedings{lam_power_2002,
+	title = {Power supply noise suppression via clock skew scheduling},
+	doi = {10.1109/ISQED.2006.34},
+	abstract = {Simultaneous switching events in the clock lines and the signals passing through sequential and combinational logic elements cause large L·di/dt and IR voltage variations in the power and ground network. This is known as power supply noise and it affects the performance and reliability of the entire circuit. In this paper, we propose an algorithm that performs clock skew scheduling to minimize the number of simultaneous switching events such that the power supply noise is suppressed. Our approach establishes a direct relationship between current (drawn by a circuit element, sequential or combinational) and skew by the concept of envelope waveforms, using a graphical representation. We provide a graph-based scheduling approach to reduce the peak current and to minimize the difference between the current peaks and valleys such that the current profile of the entire circuit is smoothened. Our approach also guarantees that the resulting clock schedule does not violate setup and hold time constraints. Experimental results on benchmark circuits show an average reduction of 19.6\% in the peak current, an average reduction of 38.7\% in the current swing, and an average reduction of 47.4\% in voltage variations in the power lines.},
+	booktitle = {Quality {Electronic} {Design}, 2002. {Proceedings}. {International} {Symposium} on},
+	author = {Lam, W.-C.D. and Cheng-Kok Koh and Tsao, C.-W.A.},
+	year = {2002},
+	keywords = {clock lines, clock skew scheduling algorithm, combinational circuits, combinational logic elements, digital integrated circuits, electronic engineering computing, graph-based scheduling approach, graphical representation, graph theory, ground network, integrated circuit noise, interference suppression, power network, power supply noise suppression, scheduling, sequential circuits, sequential logic elements, simultaneous switching events minimisation, timing, voltage variations},
+	pages = {355--360}
+}
+
+@inproceedings{georgiadis_experimental_2009,
+	title = {An experimental study of minimum mean cycle algorithms},
+	booktitle = {Proceedings of the 11th {Workshop} on {Algorithm} {Engineering} and {Experiments} ({ALENEX}). {SIAM}, {Philadelphia}},
+	author = {Georgiadis, L. and Goldberg, A. V and Tarjan, R. E and Werneck, R. F},
+	year = {2009}
+}
+
+@inproceedings{shi-hsu_huang_race-condition-aware_2005,
+	title = {Race-condition-aware clock skew scheduling},
+	doi = {10.1109/ISCAS.2002.1009851},
+	abstract = {The race conditions often limit the smallest feasible clock period that the optimal clock skew scheduling could achieve. Therefore, the combination of clock skew scheduling and delay insertion (for resolving the race conditions) might lead to further clock period reduction. However, the interactions between clock skew scheduling and delay insertion have not been well studied. In this paper, the authors provided a fresh viewpoint to look at this problem. A novel approach, called race-condition-aware (RCA) clock skew scheduling, is proposed to determine the clock skew schedule by taking the race conditions into account. The objective is not only to optimize the clock period, but also to heuristically minimize the required inserted delay. Compared with previous work, this approach has significant improvement in the time complexity.},
+	booktitle = {Design {Automation} {Conference}, 2005. {Proceedings}. 42nd},
+	author = {Shi-Hsu Huang and Yow-Tyng Nieh and Feng-Pin Lu},
+	year = {2005},
+	keywords = {circuit optimisation, clock period reduction, delay insertion, hazards and race conditions, logic design, race-condition-aware clock skew scheduling, scheduling, sequential circuits, timing, timing optimization},
+	pages = {475--478}
+}
+
+@inproceedings{ravindran_multi-domain_2003,
+	title = {Multi-domain clock skew scheduling},
+	doi = {10.1109/MWSCAS.2006.382319},
+	abstract = {The application of general clock skew scheduling is practically limited due to the difficulties in implementing a wide spectrum of dedicated clock delays in a reliable manner. This results in a significant limitation of the optimization potential. As an alternative, the application of multiple clocking domains with dedicated phase shifts that are implemented by reliable, possibly expensive design structures can overcome these limitations and substantially increase the implementable optimization potential of clock adjustments. In this paper we present an algorithm for constrained clock skew scheduling which computes for a given number of clocking domains the optimal phase shifts for the domains and the assignment of the individual registers to the domains. For the within-domain latency values, the algorithm can assume a zero-skew clock delivery or apply a user-provided upper bound. Our experiments demonstrate that a constrained clock skew schedule using a few clocking domains combined with small within-domain latency can reliably implement the full sequential optimization potential to date only possible with an unconstrained clock schedule.},
+	booktitle = {Computer {Aided} {Design}, 2003. {ICCAD}-2003. {International} {Conference} on},
+	author = {Ravindran, K. and Kuehlmann, A. and Sentovich, E.},
+	year = {2003},
+	keywords = {clock delays, clocks, delays, domain latency, multidomain clock skew scheduling, multiple clocking domains, optimal phase shifts, optimisation, optimization potential, phase shifters, scheduling, unconstrained clock schedule, zero skew clock delivery},
+	pages = {801--808}
+}
+
+@inproceedings{min_ni_leakage_2008,
+	title = {Leakage power-aware clock skew scheduling: {Converting} stolen time into leakage power reduction},
+	isbn = {0738-100X},
+	shorttitle = {Leakage power-aware clock skew scheduling},
+	abstract = {Clock skew scheduling has been traditionally considered as a tool for improving the clock period in a sequential circuit. Timing slack is "stolen" from fast combinational blocks to be used by slower blocks to meet a more stringent clock cycle time. Instead, we can leverage on the borrowed time to achieve leakage power reduction during gate sizing and/or dual Vth assignment. In this paper, we present the first approach to the best of our knowledge for integrating clock skew scheduling, threshold voltage assignment, and gate sizing into one optimization formulation. Over 29 circuits in the ISCAS89 benchmark suite, this integrated approach can reduce leakage power by as much as 55.83\% and by 18.79\% on average, compared to using combinational circuit based power optimization on each combinational block without considering clock skews. Using a 65 nm dual Vth technology library, this corresponds to a 23.87\% peak reduction (6.15\% on average) in total power at the ambient operating temperature. The average total power reduction further increases to 9.83\% if the high temperature library of the same process technology is used.},
+	booktitle = {Design {Automation} {Conference}, 2008. {DAC} 2008. 45th {ACM}/{IEEE}},
+	author = {Min Ni and Memik, S.O.},
+	year = {2008},
+	keywords = {clocks, clock skew scheduling, Dual-Vth, gate sizing, ISCAS89 benchmark suite, leakage power-aware clock skew scheduling, Leakage power optimization, leakage power reduction, logic gates, optimisation, optimization formulation, scheduling, sequential circuit, sequential circuits, threshold voltage assignment, timing slack, Vth technology library},
+	pages = {610--613}
+}
+
+@inproceedings{nawale_optimal_2006,
+	title = {Optimal {Useful} {Clock} {Skew} {Scheduling} {In} the {Presence} of {Variations} {Using} {Robust} {ILP} {Formulations}},
+	isbn = {1092-3152},
+	doi = {10.1109/ICCAD.2008.4681578},
+	abstract = {This paper exploits useful skew to improve system performance and robustness. We formulate a robust integer linear programming problem considering the interactions between data and clock paths on a microprocessor chip to improve clock frequency. The timing slack is optimized for each path to determine a clock schedule. The percentage of timing violations, obtained from a 1000 point Monte Carlo simulation, is highlighted as yield predictions and conveys the robustness of the clock schedule. The results show performance improvement of up to 9.747\% with 20\% yield and up to 6.682\% with 100\% yield. The novelty of the proposed method is its ability to tradeoff between performance improvement in frequency and robustness, via a single variable in the formulation},
+	booktitle = {Computer-{Aided} {Design}, 2006. {ICCAD} '06. {IEEE}/{ACM} {International} {Conference} on},
+	author = {Nawale, V. and Chen, T.W.},
+	year = {2006},
+	keywords = {clock frequency, clock path, clocks, clock schedule robustness, clock skew scheduling, integer programming, linear programming, microprocessor chip, Monte Carlo simulation, robust integer linear programming, synchronisation, system performance, timing, timing slack, timing violation, yield prediction},
+	pages = {27--32}
+}
+
+@inproceedings{velenis_demonstration_2001,
+	title = {Demonstration of speed enhancements on an industrial circuit through application of non-zero clock skew scheduling},
+	volume = {2},
+	abstract = {A demonstration of the application of non-zero clock skew
+scheduling to enhance the speed characteristics of several functional
+unit blocks in a high performance processor is presented. It is shown
+that non-zero clock skew scheduling can improve circuit performance
+while relaxing the strict timing constraints of the critical data paths
+within a high speed system. A software tool implementing a non-zero
+clock skew scheduling algorithm is described together with a methodology
+that generates the required clock signal delays by replacing clock
+buffers from predesigned cell libraries. Timing margin improvements of
+up to 18\% are achieved through the application of non-zero clock skew
+scheduling in certain functional blocks of an industrial high
+performance microprocessor},
+	booktitle = {Electronics, {Circuits} and {Systems}, 2001. {ICECS} 2001. {The} 8th {IEEE} {International} {Conference} on},
+	author = {Velenis, D. and Tang, K.T. and Kourtev, I.S. and Adler, V. and Baez, F. and Friedman, E.G.},
+	year = {2001},
+	keywords = {clock signal delays, critical data paths, delays, functional blocks, high performance processor, high speed system, industrial circuit, industrial microprocessor, microprocessor chips, nonzero clock skew scheduling algorithm, processor scheduling, software tool implementation, speed enhancements, timing, timing constraints relaxation, timing margin improvements},
+	pages = {1021--1025 vol.2}
+}
+
+@inproceedings{chuan_lin_clock_2007,
+	title = {Clock {Skew} {Scheduling} with {Delay} {Padding} for {Prescribed} {Skew} {Domains}},
+	doi = {10.1109/ASPDAC.2007.358042},
+	abstract = {Clock skew scheduling is a technique that intentionally introduces skews to memory elements to improve the performance of a sequential circuit. It was shown in (Ravindran, 2003) that the full optimization potential of clock skew scheduling can be reliably implemented using a few skew domains. In this paper we present an optimal skew scheduling algorithm for sequential circuits with flip-flops. Given a finite set of prescribed skew domains, the algorithm finds a domain assignment for each flip-flop such that the clock period is minimized with possible delay padding. Experimental results validate the efficiency of our algorithm and show 17\% improvement on average in clock period.},
+	booktitle = {Design {Automation} {Conference}, 2007. {ASP}-{DAC} '07. {Asia} and {South} {Pacific}},
+	author = {Chuan Lin and Hai Zhou},
+	year = {2007},
+	keywords = {clock period, clocks, clock skew scheduling, Delay padding, domain assignment, flip-flops, logic design, memory elements, optimal skew scheduling algorithm, prescribed skew domains, scheduling, sequential circuit, sequential circuits},
+	pages = {541--546}
+}
+
+@inproceedings{taskin_time_2004,
+	title = {Time borrowing and clock skew scheduling effects on multi-phase level-sensitive circuits},
+	volume = {2},
+	abstract = {This paper addresses the effects of time borrowing and clock skew scheduling on level-sensitive synchronous circuits. Synchronization of level-sensitive circuits can be accomplished through single-phase or multi-phase clocking schemes. This paper expands previous single-phase clock signal analysis to include multiphase clock signal synchronization. The tradeoffs of synchronous circuit operation with different types of registers and synchronization schemes are analyzed. The presented timing analysis problem specifically targets clock period minimization. The modified big M method is used to linearize the formulation of the timing analysis problem and experiments are performed on the ISCAS'89 benchmark circuits. For single and multi-phase level-sensitive circuits, up to 63\% and 62\% improvements, respectively, over conventional zero-skew, flip-flop based circuits are achieved through the simultaneous application of both time borrowing and non-zero clock skew scheduling.},
+	booktitle = {Circuits and {Systems}, 2004. {ISCAS} '04. {Proceedings} of the 2004 {International} {Symposium} on},
+	author = {Taskin, B. and Kourtev, I.S.},
+	year = {2004},
+	keywords = {asynchronous circuits, benchmark circuits, clock skew scheduling effects, digital integrated circuits, flip-flop based circuits, flip-flops, modified big M method, multiphase clocking, multiphase level-sensitive circuits, nonzero clock skew scheduling, synchronisation, synchronization, synchronous circuits, time borrowing, timing analysis problem, timing circuits},
+	pages = {II--617--20 Vol.2}
+}
+
+@inproceedings{huang_clock_2007,
+	address = {New York, NY, USA},
+	series = {{DAC} '07},
+	title = {Clock period minimization with minimum delay insertion},
+	isbn = {978-1-59593-627-1},
+	doi = {10.1145/1278480.1278720},
+	abstract = {The combination of clock skew scheduling and delay insertion may lead to further clock period reduction. Although some previous works can minimize the clock period, they only heuristically reduce the required inserted delay. However, since the delay insertion is an ECO (engineering change order) process, minimizing the required inserted delay is very important for the design closure, In this paper, we present a linear program to formally formulate the simultaneous application of clock skew scheduling and delay insertion. Our objective is not only to achieve the lower bound of the clock period, but also to achieve the lower bound of required inserted delay. Compared with previous works, our paper has the following two significant contributions: (1) our approach is the first work that guarantees solving this problem optimally; and (2) our paper is the first proof of showing that the time complexity of this problem is polynomial.},
+	booktitle = {Proceedings of the 44th annual {Design} {Automation} {Conference}},
+	publisher = {ACM},
+	author = {Huang, Shih-Hsu and Cheng, Chun-Hua and Chang, Chia-Ming and Nieh, Yow-Tyng},
+	year = {2007},
+	note = {ACM ID: 1278720},
+	keywords = {Algorithms, high performance, optimization, performance, sequential circuits, timing optimization},
+	pages = {970--975},
+	file = {ACM Snapshot:C\:\\Users\\luk\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\2b437tqa.default\\zotero\\storage\\5B5E5N8G\\citation.html:text/html}
+}
+
+@article{dasdan_experimental_2004,
+	title = {Experimental analysis of the fastest optimum cycle ratio and mean algorithms},
+	volume = {9},
+	number = {4},
+	journal = {ACM Transactions on Design Automation of Electronic Systems (TODAES)},
+	author = {Dasdan, A.},
+	year = {2004},
+	pages = {385--418}
+}
+
+@inproceedings{albrecht_cycle_1999,
+	title = {Cycle time and slack optimization for {VLSI}-chips},
+	doi = {10.1109/ICCAD.1999.810654},
+	abstract = {We consider the problem of finding an optimal clock schedule, i.e.
+optimal arrival times for clock signals at latches of a VLSI chip. We
+describe a general model which includes all previously considered
+models. Then we show how to optimize the cycle time and optimally
+balance slacks on data paths and on clocktree paths. The problem of
+finding a clock schedule with the optimum cycle time was solved before,
+either by linear programming or by binary search, using a test for
+negative circuits in a digraph as a subroutine. We show for the first
+time that a direct combinatorial algorithm solves this problem
+optimally. Incidentally, this yields a new efficient method for timing
+analysis with transparent latches. Moreover, we extend this algorithm to
+the slack balancing problem: To make the chip less sensitive to routing
+detours, process variations and manufacturing skew it is desirable to
+have as few critical paths as possible. We show how to find the clock
+schedule with minimum number of critical paths (optimum slack
+distribution) in a well-defined sense. Rather than fixed dock arrival
+times we show how to obtain as large as possible intervals for the clock
+arrival times. This can be considered as slack on clocktree paths.
+Indeed, we can find the global optimum of simultaneous optimization of
+slacks on all data paths and clocktree paths. All the above is done by
+very efficient network optimization algorithms, based on parametric
+shortest paths. Our computational results with recent IBM processor
+chips show that the number of critical paths decreases dramatically, in
+addition to a considerable improvement of the cycle time. The running
+times are reasonable even for the largest designs},
+	booktitle = {Computer-{Aided} {Design}, 1999. {Digest} of {Technical} {Papers}. 1999 {IEEE}/{ACM} {International} {Conference} on},
+	author = {Albrecht, C. and Korte, B. and Schietke, J. and Vygen, J.},
+	year = {1999},
+	keywords = {circuit optimisation, clocktree paths, cycle time, manufacturing skew, optimal arrival times, optimal clock schedule, process variations, routing detours, VLSI, VLSI chip, VLSI-chips},
+	pages = {232--238}
+}
+
+@inproceedings{neves_optimal_1996,
+	title = {Optimal clock skew scheduling tolerant to process variations},
+	doi = {10.1109/TVLSI.2009.2014069},
+	abstract = {A methodology is presented in this paper for determining an
+optimal set of clock path delays for designing high performance
+VLSI/ULSI-based clock distribution networks. This methodology emphasizes
+the use of non-zero clock skew to reduce the system-wide minimum clock
+period. Although choosing (or scheduling) clock skew values has been
+previously recognized as an optimization technique for reducing the
+minimum clock period, difficulty in controlling the delays of the clock
+paths due to process parameter variations has limited its effectiveness.
+In this paper the minimum clock period is reduced using intentional
+clock skew by calculating a permissible clock skew range for each local
+data path while incorporating process dependent delay values of the
+clock signal paths. Graph-based algorithms are presented for determining
+the minimum clock period and for selecting a range of process tolerant
+clock skews for each local data path in the circuit, respectively. These
+algorithms have been demonstrated on the ISCAS-89 suite of circuits.
+Furthermore, examples of clock distribution networks with intentional
+clock skew are shown to tolerate worst case clock skew variations of up
+to 30\% without causing circuit failure while increasing the system-wide
+maximum clock frequency by up to 20\% over zero skew-based systems},
+	booktitle = {Design {Automation} {Conference} {Proceedings} 1996, 33rd},
+	author = {Neves, J.L. and Friedman, E.G.},
+	year = {1996},
+	keywords = {clock distribution networks, clock path delays, clocks, clock skew, clock skew scheduling, logic CAD, process variations, scheduling},
+	pages = {623--628}
+}
+
+@inproceedings{kourtev_quadratic_1999,
+	title = {A quadratic programming approach to clock skew scheduling for reduced sensitivity to process parameter variations},
+	doi = {10.1109/MIXDES.2006.1706632},
+	abstract = {This paper considers the problem of determining an optimal clock
+skew schedule for a synchronous VLSI circuit. A novel formulation of
+clock skew scheduling as a constrained quadratic programming (QP)
+problem is introduced. To evaluate the reliability, a quadratic cost
+function is introduced as the Euclidean distance between a specified
+ideal schedule and a feasible clock schedule. Unlike previous work, the
+algorithms presented here can be employed to obtain specified target
+values of the clock delays/skews within a circuit, such as for example,
+the clock delays/skews for the I/O registers. An efficient mathematical
+algorithm is derived for the solution of the QP problem with O(r3
+) run time complexity and O(r2) storage complexity,
+where r is the number of registers in the circuit. The algorithm is
+implemented as a C++ program and demonstrated on the ISCAS'89 suite of
+benchmark circuits as well as on a number of industrial circuits. The
+research described here yields additional insights into the correlation
+between circuit structure and circuit timing by characterizing the
+degree to which specific signal paths limit the overall performance and
+reliability of a circuit. This information is therefore applicable to
+logic and architectural synthesis},
+	booktitle = {{ASIC}/{SOC} {Conference}, 1999. {Proceedings}. {Twelfth} {Annual} {IEEE} {International}},
+	author = {Kourtev, I.S. and Friedman, E.G.},
+	year = {1999},
+	keywords = {architectural synthesis, C++ program, circuit timing, clock delays, clock skew scheduling, computational complexity, constrained quadratic programming problem, delay estimation, digital integrated circuits, Euclidean distance, integrated circuit design, I/O registers, logic design, logic synthesis, mathematical algorithm, optimal clock skew schedule, process parameter variations, quadratic cost function, quadratic programming, quadratic programming approach, reliability evaluation, run time complexity, scheduling, sensitivity reduction, storage complexity, synchronous VLSI circuit, timing, VLSI},
+	pages = {210--215}
+}
+
+@article{kourtev_synthesis_1999,
+	title = {Synthesis of clock tree topologies to implement nonzero clock skew schedule},
+	volume = {146},
+	issn = {1350-2409},
+	doi = {10.1109/ASIC.1999.806506},
+	abstract = {Designing the topology of a clock distribution network is
+considered for a synchronous digital integrated circuit so as to satisfy
+a nonzero clock skew schedule. A methodology and related algorithms for
+synthesising the topology of the clock distribution network from a clock
+schedule derived from circuit timing information are presented. A new
+formulation of the problem of designing the clock distribution network
+is given as an efficiently solvable integer linear programming problem.
+The approach is demonstrated on the suite of ISCAS'89 benchmark
+circuits. Up to 64\% performance improvement is attained on these
+circuits by exploiting nonzero clock skew throughout the synchronous
+system. Clock tree topologies that implement the nonzero clock skew
+schedule based on the synthesis algorithms presented are described for
+each of the benchmark circuits},
+	number = {6},
+	journal = {Circuits, Devices and Systems, IEE Proceedings -},
+	author = {Kourtev, I.S. and Friedman, E.G.},
+	year = {1999},
+	keywords = {circuit timing information, clock distribution network, clocks, clock tree topologies, integer linear programming problem, integer programming, integrated circuit design, ISCAS'89 benchmark circuits, linear programming, logic CAD, nonzero clock skew schedule, synchronous digital integrated circuit, synthesis algorithms, timing, VLSI},
+	pages = {321--326}
+}
+
+@inproceedings{kourtev_clock_1999,
+	title = {Clock skew scheduling for improved reliability via quadratic programming},
+	doi = {10.1049/ip-cds:19990582},
+	abstract = {This paper considers the problem of determining an optimal clock
+skew schedule for a synchronous VLSI circuit. A novel formulation of
+clock skew scheduling as a constrained quadratic programming (QP)
+problem is introduced. The concept of a permissible range, or a valid
+interval, for the clock skew of each local data path is key to this QP
+approach. From a reliability perspective, the ideal clock schedule
+corresponds to each clock skew within the circuit being at the center of
+the respective permissible range. However, this ideal clock schedule is
+nor practically implementable because of limitations imposed by the
+connectivity among the registers within the circuit. To evaluate the
+reliability, a quadratic cost function is introduced as the Euclidean
+distance between the ideal schedule and a given practically feasible
+clock schedule. This cost function is the minimization objective of the
+described algorithms for the solution of the previously mentioned
+quadratic program. Furthermore, the work described here substantially
+differs from previous research in that it permits complete control over
+specific clock signal delays or skews within the circuit. Specifically,
+the algorithms described here can be employed to obtain results with
+explicitly specified target values of important clock delays/skews with
+a circuit, such as for example, the clock delays/skews for I/O
+registers. An additional benefit is a potential reduction in clock
+period of up to 10\%. An efficient mathematical algorithm is derived for
+the solution of the QP problem with O(r3) run time complexity
+and O(r2) storage complexity, where r is the number of
+registers in the circuit. The algorithm is implemented as a C++ program
+and demonstrated on the ISCAS'89 suite of benchmark circuits as well as
+on a number of industrial circuits. The work described here yields
+additional insights into the correlation between circuit structure and
+circuit timing by characterizing the degree to which specific signal
+paths limit the overall performance and reliability of a circuit. This
+information is directly applicable to logic and architectural synthesis},
+	booktitle = {Computer-{Aided} {Design}, 1999. {Digest} of {Technical} {Papers}. 1999 {IEEE}/{ACM} {International} {Conference} on},
+	author = {Kourtev, I.S. and Friedman, E.G.},
+	year = {1999},
+	keywords = {circuit CAD, clock skew scheduling, computational complexity, constrained quadratic programming, Euclidean distance, integrated circuit reliability, optimal clock skew schedule, quadratic programming, reliability, synchronous VLSI circuit, VLSI},
+	pages = {239--243}
+}
+
+@inproceedings{yang_liu_soft_2007,
+	title = {Soft {Clock} {Skew} {Scheduling} for {Variation}-{Tolerant} {Signal} {Processing} {Circuits}: {A} {Case} {Study} of {Viterbi} {Decoders}},
+	shorttitle = {Soft {Clock} {Skew} {Scheduling} for {Variation}-{Tolerant} {Signal} {Processing} {Circuits}},
+	doi = {10.1109/ISQED.2007.146},
+	abstract = {This paper concerns the variation tolerance in signal processing integrated circuits. Motivated by the fact that variation-induced timing faults at different locations in signal processing circuits have different effects on the signal processing performance, we developed an importance-aware clock skew scheduling technique, called soft clock skew scheduling, that can realize system-level tolerance to variation-induced timing faults. With state-parallel Viterbi decoders as test vehicles, we demonstrated its effectiveness on increasing the achievable clock frequency in presence of significant variation-induced timing faults, while maintaining good decoding performance},
+	booktitle = {Quality {Electronic} {Design}, 2007. {ISQED} '07. 8th {International} {Symposium} on},
+	author = {Yang Liu and Tong Zhang and Jiang Hu},
+	year = {2007},
+	keywords = {clocks, digital signal processing chips, fault diagnosis, signal processing integrated circuits, soft clock skew scheduling technique, system-level tolerance, timing, variation-induced timing faults, variation-tolerant signal processing circuits, Viterbi decoders, Viterbi decoding},
+	pages = {749--754}
+}
+
+@inproceedings{xun_liu_maximizing_1999,
+	title = {Maximizing performance by retiming and clock skew scheduling},
+	doi = {10.1109/ICECS.2001.957650},
+	abstract = {The application of retiming and clock skew scheduling for
+improving the operating speed of synchronous circuits under setup and
+hold constraints is investigated in this paper. It is shown that when
+both long and short paths are considered, circuits optimized by the
+simultaneous application of retiming and clock scheduling can achieve
+shorter clock periods than optimized circuits generated by applying
+either of the two techniques separately. A mixed-integer linear
+programming formulation and an efficient heuristic are given for the
+problem of simultaneous retiming and clock skew scheduling under setup
+and hold constraints. Experiments with benchmark circuits demonstrate
+the efficiency of this heuristic and the effectiveness of the combined
+optimization. All of the test circuits show improvement. For more than
+half of them, the maximum operating speed increases by more than 21\%
+over the optimized circuits obtained by applying retiming or clock skew
+scheduling separately},
+	booktitle = {Design {Automation} {Conference}, 1999. {Proceedings}. 36th},
+	author = {Xun Liu and Papaefthymiou, M.C. and Friedman, E.G.},
+	year = {1999},
+	keywords = {benchmark circuits, circuit optimisation, circuit optimization, clock period, clock skew scheduling, combined optimization, directed graphs, heuristic, hold constraints, integer programming, linear programming, logic CAD, maximum operating speed, mixed-integer linear programming formulation, performance maximization, retiming, scheduling, setup constraints, synchronous circuits, timing},
+	pages = {231--236}
+}
+
+@inproceedings{kui_wang_fast_2008,
+	title = {A fast incremental clock skew scheduling algorithm for slack optimization},
+	doi = {10.1109/ASPDAC.2008.4484000},
+	abstract = {We propose a fast clock skew scheduling algorithm which minimizes clock period and enlarges the slacks of timing critical paths. To reduce the runtime of the timing analysis engine, our algorithm allows the sequential graph to be partly extracted. And the runtime of itself is almost linear to the size of the extracted sequential graph. Experimental results show its runtime is less than a minute for a design with more than ten thousands of flip-flops.},
+	booktitle = {Design {Automation} {Conference}, 2008. {ASPDAC} 2008. {Asia} and {South} {Pacific}},
+	author = {Kui Wang and Hao Fang and Hu Xu and Xu Cheng},
+	year = {2008},
+	keywords = {circuit optimisation, clock period, clocks, fast incremental clock skew scheduling algorithm, flip flops, flip-flops, sequential circuits, sequential graph, slack optimization, timing analysis engine, timing circuits, timing critical paths},
+	pages = {492--497}
+}
+
+@inproceedings{yi_wang_timing_2008,
+	title = {Timing yield driven clock skew scheduling considering non-{Gaussian} distributions of critical path delays},
+	isbn = {0738-100X},
+	abstract = {In nanometer technologies, process variations possess growing nonlinear impacts on circuit performance, which causes critical path delays of combinatorial circuits variate randomly with non-Gaussian distribution. In this paper, we propose a novel clock skew scheduling methodology that optimizes timing yield by handling non-Gaussian distributions of critical path delays. Firstly a general formulation of the optimization problem is proposed, which covers most of the previous formulations and indicates their limitations with statistical interpretations. Then a generalized minimum balancing algorithm is proposed for effectively solving the skew scheduling problem. Experimental results show that the proposed method significantly outperforms some representative methods previously proposed for yield optimization, and could obtain timing yield improvements up to 33.6\% and averagely 17.7\%.},
+	booktitle = {Design {Automation} {Conference}, 2008. {DAC} 2008. 45th {ACM}/{IEEE}},
+	author = {Yi Wang and Wai-Shing Luk and Xuan Zeng and Jun Tao and Changhao Yan and Jiarong Tong and Wei Cai and Jia Ni},
+	year = {2008},
+	keywords = {circuit optimisation, clocks, clock skew scheduling, critical path analysis, critical path delays, generalized minimum balancing algorithm, integrated circuit yield, non-Gaussian, non-Gaussian distributions, optimization problem, process variations, timing yield, Yield, yield optimization},
+	pages = {223--226}
+}

@@ -1,0 +1,325 @@
+%%% ShortName
+%% Journals
+@string{tcad = "IEEE Transactions on {C}omputer-{A}ided {D}esign of Integrated Circuits and Systems"}
+@string{siamNum = "SIAM Journal on Numerical Analysis"}
+@string{tvlsi = "IEEE Transactions on {V}ery {L}arge {S}cale {I}ntegration (VLSI) Systems"}
+@string{dtc = "IEEE {D}esign & {T}est of {C}omputers"}
+@string{siamJAM = "SIAM Journal on Applied Mathematics"}
+@string{tcomp = "IEEE Transactions on Computers"}
+@string{networks = "Networks"}
+@string{tdaes = "ACM Transactions on Design Automation of Electronic Systems"}
+%% Conf.s
+@string{iccad = "Proceedings of {IEEE/ACM} {I}nternational {C}onference on {C}omputer-{A}ided {D}esign"}
+@string{dac = "Proceedings of {IEEE/ACM} {D}esign {A}utomation {C}onference"}
+@string{date = "Proceedings of {IEEE/ACM} {D}esign, {A}utomation and {T}est in {E}urope Conference and Exhibition"}
+@string{aspdac = "Proceedings of {IEEE/ACM} {A}sia and {S}outh {P}acific {D}esign {A}utomation {C}onference"}
+@string{iscas = "IEEE Proc. ISCAS"}
+@string{isqed = "IEEE Proc. ISQED"}
+@string{iolts = "IEEE Proc. International On-Line Testing Symposium"}
+@string{dotpcad = "IEEE/ACM Proc. Digest of Technical Papers Compuater-Aided Design"}
+@string{iccd = "Proc. IEEE 1992 International Conference on Computer Design: VLSI in Computers and Processors"}
+
+@article{orlin1985computing,
+  title={Computing optimal scalings by parametric network algorithms},
+  author={Orlin, J.B. and Rothblum, U.G.},
+  journal={Mathematical programming},
+  volume={32},
+  number={1},
+  pages={1--10},
+  year={1985},
+  publisher={Springer}
+}
+
+@article{BGT81,
+  author = 	 {R. G. Bland and D. Goldfarb and M. J. Todd},
+  title = 	 {The ellipsoid method: A survey},
+  journal = 	 {Operations Research},
+  year = 	 1981,
+  volume =	 29,
+  number =	 6,
+  pages =	 {1039--1091}
+}
+
+
+@book{book:networkflows,
+  title={Network flows: Theory, Algorithms and Applications},
+  author={Ravindra K. Ahuja and Thomas L. Magnanti and James B. Orlin},
+  year={1993},
+  publisher={Pearson Education}
+}
+
+@inproceedings{wei2007physical,
+  title={Physical aware clock skew rescheduling},
+  author={Wei, X. and Cai, Y. and Hong, X.},
+  booktitle={Proceedings of the 17th ACM Great Lakes symposium on VLSI},
+  pages={473--476},
+  year={2007},
+  organization={ACM}
+}
+@phdthesis{kelly1991minimum,
+  TITLE={The minimum cost flow problem and the network simplex solution method},
+  AUTHOR={Kelly, D.J. and ONeill, G.M.},
+  YEAR={1991},
+  school={University College Dublin, Graduate School of Business}
+}
+
+@INPROCEEDINGS{aspdac11_mdcss_ylzhi,
+  AUTHOR =       {Yanling Zhi and Hai Zhou and Xuan Zeng},
+  TITLE =        {A Practical Method for Multi-Domain Clock Skew Optimization},
+  BOOKTITLE = aspdac,
+  YEAR =         {2011},
+  month = {January}
+}
+
+
+@inproceedings{dac_lili,
+  title={Optimal multi-domain clock skew scheduling},
+  author={Li, L. and Lu, Y. and Zhou, H.},
+  booktitle= dac,
+  pages={152--157},
+  year={2011},
+}
+
+%%%%%%%%%% Clock skew scheduling
+@INPROCEEDINGS{css:adreas_iccad03,
+  AUTHOR =       {K. Ravindran and A. Kuehlmann and E. Sentovich},
+  TITLE =        {Multi-domain clock skew scheduling},
+  BOOKTITLE = iccad,
+  YEAR =         {2003},
+  pages =        {801-808},
+  month = {}
+}
+@INPROCEEDINGS{css:jonas_iccad09,
+  AUTHOR =       {Jonas Casanova and Jordi Cortadella},
+  TITLE =        {Multi-level clustering for clock skew optimization},
+  BOOKTITLE = iccad,
+  YEAR =         {2009},
+  pages =        {547-554},
+  month = {}
+}
+
+@INPROCEEDINGS{css:luk_dac08,
+  AUTHOR =       {Yi Wang and Wai-Shing Luk and Xuan Zeng and Jun Tao and Changhao Yan and Jiarong Tong and Wei Cai and Jia Ni},
+  TITLE =        {Timing yield driven clock skew scheduling considering non-{Gaussian} distributions of critical path delays},
+  BOOKTITLE = dac,
+  YEAR =         {2008},
+  pages =        {223-226},
+  month = {June}
+}
+
+@article{yanling2012yield,
+  title={Yield-Driven Clock Skew Scheduling for Arbitrary Distributions of Critical Path Delays},
+  author={Yanling Zhi and Wai-Shing Luk and Yi Wang and Changhao Yan and Xuan Zeng},
+  journal={IEICE TRANSACTIONS on Fundamentals of Electronics, Communications and Computer Sciences},
+  volume={95},
+  number={12},
+  pages={2172--2181},
+  year={2012},
+  publisher={The Institute of Electronics, Information and Communication Engineers}
+}
+
+@ARTICLE{css:john_opt,
+  AUTHOR =       {J. Fishburn},
+  TITLE =        {Clock skew optimization},
+  JOURNAL =      tcomp,
+  YEAR =         {1990},
+  volume =       {39},
+  number =       {7},
+  pages =        {945-951},
+  month =        {}
+}
+
+@INPROCEEDINGS{placement:naser_date09,
+  AUTHOR =       {Naser MohammadZadeh and Minoo Mirsaeedi and Ali Jahanian and Morteza Saheb Zamani},
+  TITLE =        {Multi-Domain Clock Skew Scheduling-Aware Register Placement to Optimize Clock Distribution Network},
+  BOOKTITLE = date,
+  YEAR =         {2009},
+  pages =        {833-838},
+  month = {April}
+}
+
+%%%%%%%%%% slack optimization
+@INPROCEEDINGS{sopt:albrecht_1999,
+  AUTHOR =       {C. Albrecht and B. Korte and J. Schietke and J. Vygen},
+  TITLE =        {Cycle time and slack optimization for {VLSI}-chips},
+  BOOKTITLE = dotpcad,
+  YEAR =         {1999},
+  pages =        {232-238},
+  month = {}
+}
+@INPROCEEDINGS{sopt:wang2008fast,
+  title={{A fast incremental clock skew scheduling algorithm for slack optimization}},
+  author={Wang, K. and Fang, H. and Xu, H. and Cheng, X.},
+  booktitle=aspdac,
+  pages={492--497},
+  year={2008},
+  organization={IEEE Computer Society Press}
+}
+
+%%%%%%%%%% algorithms
+
+@article{alg:yto,
+  title={{Faster Parametric Shortest Path and Minimum Balance Algorithms}},
+  author={Young, N.E. and Tarjany, R.E. and Orlinz, J.B.},
+  journal={Networks},
+  volume={21},
+  number={2},
+  year={1991},
+  pages = {205-221},
+  publisher={Citeseer}
+}
+
+@book{alg:clrs,
+  title={{Introduction to algorithms (Second Edition)}},
+  author={Thamas H. Cormen and Charles E. Leiserson and Ronald L. Rivest and Clifford Stein},
+  year={2001},
+  pages = {588-590},
+  publisher={The MIT press}
+}
+
+@conference{sat:chaff_2001,
+  title={{Chaff: Engineering an efficient SAT solver}},
+  author={Matthew W. Moskewicz and Conor F. Madigan and Ying Zhao and Lintao Zhang and Sharad Malik},
+  booktitle= dac,
+  pages={530--535},
+  year={2001}
+}
+
+
+@INPROCEEDINGS{benchmarks:sis,
+  title={{Sequential circuit design using synthesis and optimization}},
+  author={Sentovich, EM and Singh, KJ and Moon, C. and Savoj, H. and Brayton, RK and Sangiovanni-Vincentelli, A.},
+  booktitle={IEEE International Conference on Computer Design: VLSI in Computers and Processors},
+  pages={328--333},
+  year={1992}
+}
+
+@misc{website:opensparc,
+      title = "An Open Source used in {Sun SPARC} Servers | {OpenSPARC}",
+      month = "August",
+      year = 2010,
+      howpublished = "\url{http://www.opensparc.net/}",
+}
+
+@misc{website:clockconcurrent,
+      title="Clock Concurrent Optimization",
+      year={2011},
+      howpublished = "\url{http://s218101435.onlinehome.us/cadence/feb12/Clock_Concurrent_Opt_WP_V2.pdf}, Cadence Design Systems, Inc."
+}
+@misc{tools:dc,
+  title={{Design compiler}},
+  year={2010},
+  howpublished = "\url{http://www.synopsys.com}, Synopsys Inc."
+}
+
+@misc{lib:opengate,
+  title={{Nangate 45nm Open Cell Library}},
+  year={2010},
+  howpublished = "\url{http://www.nangate.com/}, Nangate Inc."
+}
+@misc{lib:lemon,
+  title={{Library for Efficient Modeling and Optimization in Networks}},
+  howpublished = "\url{http://lemon.cs.elte.hu/trac/lemon}"
+}
+@misc{lib:glpk,
+  title={{GNU Linear Programming Kit}},
+  howpublished = "\url{http://www.gnu.org/software/glpk/glpk.html#downloading}"
+}
+@misc{lib:mosek,
+  title={{MOSEK}},
+  howpublished = "\url{http://www.mosek.com/}"
+}
+@misc{benchmarks:iwls,
+  title={IWLS 2005 Benchmarks},
+  author = {Christoph, Albrecht},
+  howpublished = "\url{http://iwls.org/iwls2005/benchmarks.html}"
+}
+
+@article{css:min_tvlsi,
+ author = {Min Ni and Seda Ogrenci Memik},
+ title = {A fast heuristic algorithm for multidomain clock skew scheduling},
+ journal = tvlsi,
+ volume = {18},
+ number = {4},
+ year = {2010},
+ issn = {1063-8210},
+ pages = {630--637},
+}
+
+@article{leiserson1991retiming,
+  title={{Retiming synchronous circuitry}},
+  author={Leiserson, C.E. and Saxe, J.B.},
+  journal={Algorithmica},
+  volume={6},
+  number={1},
+  pages={5--35},
+  issn={0178-4617},
+  year={1991},
+  publisher={Springer}
+}
+
+@article{even1996retiming,
+  title={{Retiming revisited and reversed}},
+  author={Even, G. and Spillinger, I.Y. and Stok, L.},
+  journal={Computer-Aided Design of Integrated Circuits and Systems, IEEE Transactions on},
+  volume={15},
+  number={3},
+  pages={348--357},
+  issn={0278-0070},
+  year={1996},
+  publisher={IEEE}
+}
+
+@TECHREPORT{Tarjan1981negcycle,
+  AUTHOR =       {Tarjan,R.E.},
+  TITLE =        {Shortest paths},
+  INSTITUTION =  {AT\&T Bell Laboratories},
+  YEAR =         {1981}
+}
+
+@conference{deokar1994graph,
+  title={{A graph-theoretic approach to clock skew optimization}},
+  author={Deokar, R.B. and Sapatnekar, S.S.},
+  booktitle=iscas,
+  volume={1},
+  pages={407--410},
+  year={1994},
+}
+
+@book{mehlhorn1999leda,
+  title={LEDA: a platform for combinatorial and geometric computing},
+  author={Mehlhorn, K. and N{\"a}her, S.},
+  year={1999},
+  publisher={Cambridge University Press}
+}
+
+@book{siek2002boost,
+  title={The Boost graph library: User guide and reference manual},
+  author={Siek, J. and Lee, L.Q. and Lumsdaine, A.},
+  year={2002},
+  publisher={Addison-Wesley}
+}
+
+@inproceedings{huang2006fast,
+  title={Fast multi-domain clock skew scheduling for peak current reduction},
+  author={Huang, S.H. and Chang, C.M. and Nieh, Y.T.},
+  booktitle=aspdac,
+  pages={254--259},
+  year={2006},
+}
+
+@inproceedings{lin2007clock,
+  title={Clock skew scheduling with delay padding for prescribed skew domains},
+  author={Lin, C. and Zhou, H.},
+  booktitle=aspdac,
+  pages={541--546},
+  year={2007},
+}
+
+@inproceedings{liu2007robust,
+  title={Robust analog circuit sizing using ellipsoid method and affine arithmetic},
+  author={Liu, Xuexin and Luk, Wai-Shing and Song, Yu and Tang, Pushan and Zeng, Xuan},
+  booktitle= aspdac,
+  pages={203--208},
+  year={2007},
+}

@@ -1,0 +1,964 @@
+% -*- coding: utf-8 -*-
+
+%%% ShortName
+@string{tcad = "IEEE Transactions on Computer Aided Design"}
+@string{siamNum = "SIAM Journal on Numerical Analysis"}
+@string{tvlsi = "IEEE Transactions on VLSI"}
+@string{dtc = "IEEE Design Test Comput."}
+@string{siamJAM = "SIAM Journal on Applied Mathematics"}
+@string{tcomp = "IEEE Transactions on Computers"}
+@string{networks = "Networks"}
+@string{tdaes = "ACM Transactions on Design Automation of Electronic Systems"}
+%% Conf.s
+@string{iccad = "IEEE Proc. ICCAD"}
+@string{dac = "IEEE/ACM Proc. DAC"}
+@string{date = "IEEE Proc. DATE"}
+@string{aspdac = "IEEE Proc. ASPDAC"}
+@string{iscas = "IEEE Proc. ISCAS"}
+@string{isqed = "IEEE Proc. ISQED"}
+@string{iolts = "IEEE Proc. International On-Line Testing Symposium"}
+@string{dotpcad = "IEEE/ACM Proc. Digest of Technical Papers Compuater-Aided Design"}
+@string{iccd = "Proc. IEEE International Conference on Computer Design: VLSI in Computers and Processors"}
+
+@Article{mooreslaw,
+  author = 	 {Moore Gordon E.},
+  title = 	 {Cramming more components onto integrated circuits},
+  journal = 	 {Electronics Magazine.},
+  year = 	 {1965},
+  OPTkey = 	 {},
+  volume = 	 {38},
+  number = 	 {8},
+  pages = 	 {},
+  month = 	 {April},
+  OPTnote = 	 {},
+  OPTannote = 	 {}
+}
+
+@electronic{intel:22nm,
+key = "Intel",
+title = "{Intel 22nm Technology}",
+year = {2012},
+note = "\url{http://www.intel.com/content/www/us/en/silicon-innovations/intel-22nm-technology.html}",
+}
+
+@electronic{ivybridge,
+key = "Ivy Bridge",
+title = "{Ivy Bridge(Microarchitecture)}",
+year = {2012},
+note = "\url{http://en.wikipedia.org/wiki/Ivy_Bridge_(microarchitecture)}",
+}
+
+@article{stine1998rapid,
+  title={Rapid characterization and modeling of pattern-dependent variation in chemical-mechanical polishing},
+  author={Stine, B.E. and Ouma, D.O. and Divecha, R.R. and Boning, D.S. and Chung, J.E. and Hetherington, D.L. and Harwoo, CR and Nakagawa, O.S. and Oh, S.Y.},
+  journal={Semiconductor Manufacturing, IEEE Transactions on},
+  volume={11},
+  number={1},
+  pages={129--140},
+  year={1998},
+  publisher={IEEE}
+}
+
+@article{chiang2007design,
+  title={Design for manufacturability and yield for nano-scale CMOS},
+  author={Chiang, C. and Kawa, J.},
+  journal={Recherche},
+  volume={67},
+  pages={02},
+  year={2007}
+}
+
+@electronic{itrs2011,
+key = "ITRS",
+title = "{International Technology Roadmap for Semiconductors 2011 Edition}",
+year = {2011},
+note = "\url{http://www.itrs.net/Links/2011ITRS/Home2011.htm}",
+}
+
+
+@inproceedings{tsay1991exact,
+  title={Exact zero skew},
+  booktitle = ICCAD,
+  author={Ren-Song Tsay},
+  year={1991},
+  organization={IEEE}
+}
+
+@article{shoji1986elimination,
+  title={Elimination of process-dependent clock skew in CMOS VLSI},
+  author={Shoji, Masakazu},
+  journal={IEEE Journal of Solid-State Circuits},
+  volume={21},
+  number={5},
+  pages={875--880},
+  year={1986},
+  publisher={IEEE}
+}
+
+@ARTICLE{john1990css,
+  AUTHOR =       {John P. Fishburn},
+  TITLE =        {Clock skew optimization},
+  JOURNAL =      tcomp,
+  YEAR =         {1990},
+  volume =       {39},
+  number =       {7},
+  pages =        {945-951},
+  month =        {}
+}
+
+@article{friedman2001clock,
+  title={Clock distribution networks in synchronous digital integrated circuits},
+  author={Friedman, E.G.},
+  journal={Proceedings of the IEEE},
+  volume={89},
+  number={5},
+  pages={665--692},
+  year={2001},
+  publisher={IEEE}
+}
+
+@inproceedings{ravindran2003multi,
+  title={Multi-domain clock skew scheduling},
+  author={Ravindran, K. and Kuehlmann, A. and Sentovich, E.},
+  booktitle=iccad,
+  pages={801-808},
+  year={2003},
+  organization={IEEE Computer Society}
+}
+
+@inproceedings{li2011optimal,
+  title={Optimal multi-domain clock skew scheduling},
+  author={Li, Li and Lu, Yinghai and Zhou, Hai},
+  booktitle=dac,
+  pages={152--157},
+  year={2011},
+  organization={IEEE}
+}
+
+@book{kourtev2008timing,
+  title={Timing optimization through clock skew scheduling},
+  author={Kourtev, Ivan S. and Taskin, Baris and Friedman, Eby G.},
+  year={2008},
+  publisher={Springer Verlag}
+}
+
+@inproceedings{casanova2009multi,
+  title={Multi-level clustering for clock skew optimization},
+  author={Casanova, J. and Cortadella, J.},
+  booktitle=iccad,
+  pages={547--554},
+  year={2009},
+  organization={ACM}
+}
+
+@inproceedings{sat:chaff_2001,
+  title={{Chaff: Engineering an efficient SAT solver}},
+  author={Matthew W. Moskewicz and Conor F. Madigan and Ying Zhao and Lintao Zhang and Sharad Malik},
+  booktitle= dac,
+  pages={530--535},
+  year={2001}
+}
+
+
+@article{gondzio1996computational,
+  title={A computational view of interior point methods},
+  author={Gondzio, J. and Terlaky, T.},
+  journal={Advances in Linear and Integer Programming, Oxford University Press: Oxford},
+  pages={103--144},
+  year={1996}
+}
+
+
+
+@inproceedings{huang2006fast,
+  title={Fast multi-domain clock skew scheduling for peak current reduction},
+  author={Huang, S.H. and Chang, C.M. and Nieh, Y.T.},
+  booktitle=aspdac,
+  pages={254--259},
+  year={2006},
+}
+
+@inproceedings{lin2007clock,
+  title={Clock skew scheduling with delay padding for prescribed skew domains},
+  author={Lin, C. and Zhou, H.},
+  booktitle=aspdac,
+  pages={541--546},
+  year={2007},
+}
+
+
+@inproceedings{leiserson1983optimizing,
+  title={Optimizing synchronous circuitry by retiming},
+  author={Leiserson, C.E. and Rose, F.M. and Saxe, J.B.},
+  booktitle={third Caltech Conference on VLSI},
+  volume={1983},
+  pages={87--116},
+  year={1983},
+  organization={Rockville, MD: Computer Science Press}
+}
+
+
+@article{leiserson1991retiming,
+  title={Retiming synchronous circuitry},
+  author={Leiserson, C.E. and Saxe, J.B.},
+  journal={Algorithmica},
+  volume={6},
+  number={1},
+  pages={5--35},
+  year={1991},
+  publisher={Springer}
+}
+
+@article{even1996retiming,
+  title={Retiming revisited and reversed},
+  author={Even, G. and Spillinger, I.Y. and Stok, L.},
+  journal=tcad,
+  volume={15},
+  number={3},
+  pages={348--357},
+  year={1996},
+  publisher={IEEE}
+}
+
+@inproceedings{shenoy1994efficient,
+  title={Efficient implementation of retiming},
+  author={Shenoy, N. and Rudell, R.},
+  booktitle=iccad
+  pages={226--233},
+  year={1994},
+  organization={IEEE Computer Society Press}
+}
+
+@inproceedings{zhou2005deriving,
+  title={Deriving a new efficient algorithm for min-period retiming},
+  author={Zhou, H.},
+  booktitle=aspdac
+  volume={2},
+  pages={990--993},
+  year={2005},
+  organization={IEEE}
+}
+
+@article{zhou2008new,
+  title={A new efficient retiming algorithm derived by formal manipulation},
+  author={Zhou, H.},
+  journal=tdaes,
+  volume={13},
+  number={1},
+  pages={7},
+  year={2008},
+  publisher={ACM}
+}
+
+
+@book{dingzhijie2007digital,
+  title={数字电路: 分析与设计},
+  author={丁志杰 and 赵宏图 and 梁淼},
+  year={2007},
+  publisher={北京理工大学出版社}
+}
+
+@book{mano1984digital,
+  title={Digital design},
+  author={Mano, M.M. and Ciletti, M.D.},
+  year={1984}
+}
+
+@article{weste1985principles,
+  title={Principles of CMOS VLSI design: a systems perspective},
+  author={Weste, N.H.E. and Eshraghian, K.},
+  journal={NASA STI/Recon Technical Report A},
+  volume={854},
+  pages={47028},
+  year={1985}
+}
+
+
+@book{furber2001principles,
+  title={Principles of asynchronous circuit design: a systems perspective},
+  author={Furber, S.B.},
+  year={2001},
+  publisher={Springer}
+}
+
+@book{kohavi1987switching,
+  title={Switching and finite automata theory},
+  author={Kohavi, Z.},
+  year={1987},
+  publisher={Tata McGraw-Hill}
+}
+
+@book{uyemura1992circuit,
+  title={Circuit design for CMOS VLSI},
+  author={Uyemura, J.P.},
+  year={1992},
+  publisher={Kluwer Academic Pub}
+}
+
+@article{lu1990double,
+  title={A Novel CMOS Implementation of Double-Edge-Triggered Flip-Flops},
+  author={Shih-Lien Lu and Milos Ercegovac},
+  journal={IEEE Journal of Solid-State Circuits},
+  volume={25},
+  number={4},
+  pages={1008--1010},
+  year={1990},
+  publisher={IEEE}
+}
+
+@article{afghahi1991double,
+  title={Double-edge-triggered D-flip-flops for high-speed CMOS circuits},
+  author={Afghahi, M. and Yuan, J.},
+  journal={Solid-State Circuits, IEEE Journal of},
+  volume={26},
+  number={8},
+  pages={1168--1170},
+  year={1991},
+  publisher={IEEE}
+}
+
+@article{blair1997low,
+  title={Low-power double-edge triggered flipflop},
+  author={Blair, GM},
+  journal={Electronics Letters},
+  volume={33},
+  number={10},
+  pages={845--847},
+  year={1997},
+  publisher={IET}
+}
+
+@book{pansong2002eda,
+  title={EDA 技术实用教程},
+  author={潘松 and 黄继业 and 潘明},
+  volume={10},
+  year={2002},
+  pages = {317-318},
+  publisher={科学出版社}
+}
+
+@book{rabaey1996digital,
+  title={Digital integrated circuits: a design perspective},
+  author={Rabaey, Jan M. and Chandrakasan, Anantha  and Nikolic, Borivoje},
+  year={1996},
+  publisher={Prentice-Hall}
+}
+
+@article{murty1983linear,
+  title={Linear programming},
+  author={Murty, Katta G.},
+  year={1983},
+  publisher={John Wiley \& Sons Inc}
+}
+
+@inproceedings{deokar1994graph,
+  title={A graph-theoretic approach to clock skew optimization},
+  author={Deokar, R.B. and Sapatnekar, S.S.},
+  booktitle=iscas,
+  volume={1},
+  pages={407--410},
+  year={1994},
+  organization={IEEE}
+}
+
+@INPROCEEDINGS{albrecht_1999,
+  AUTHOR =       {C. Albrecht and B. Korte and J. Schietke and J. Vygen},
+  TITLE =        {Cycle time and slack optimization for {VLSI}-chips},
+  BOOKTITLE = iccad,
+  YEAR =         {1999},
+  pages =        {232-238},
+  month = {}
+}
+
+@article{alg:yto,
+  title={{Faster Parametric Shortest Path and Minimum Balance Algorithms}},
+  author={Young, N.E. and Tarjany, R.E. and Orlinz, J.B.},
+  journal={Networks},
+  volume={21},
+  number={2},
+  year={1991},
+  pages = {205-221},
+  publisher={Citeseer}
+}
+
+@INPROCEEDINGS{adreas_iccad03,
+  AUTHOR =       {K. Ravindran and A. Kuehlmann and E. Sentovich},
+  TITLE =        {Multi-domain clock skew scheduling},
+  BOOKTITLE = iccad,
+  YEAR =         {2003},
+  pages =        {801-808},
+  month = {}
+}
+
+@PhdThesis{burns1991performance,
+  title={Performance analysis and optimization of asynchronous circuits},
+  author={Burns, S.M.},
+  year={1991},
+  publisher={California Institute of Technology}
+}
+
+@inproceedings{dasdan1999efficient,
+  title={Efficient algorithms for optimum cycle mean and optimum cost to time ratio problems},
+  author={Dasdan, A. and Irani, S.S. and Gupta, R.K.},
+  booktitle=dac
+  pages={37--42},
+  year={1999},
+  organization={ACM}
+}
+
+@article{dasdan2004experimental,
+  title={Experimental analysis of the fastest optimum cycle ratio and mean algorithms},
+  author={Dasdan, A.},
+  journal=tdaes,
+  volume={9},
+  number={4},
+  pages={385--418},
+  year={2004},
+  publisher={ACM}
+}
+
+@book{ahuja2005network,
+  title={Network Flows: Theory, Algorithms, and Applications},
+  author={Ahuja, R.K. and Magnanti, T.L. and Orlin, J.B.},
+  volume={846},
+  year={2005},
+  publisher={Prentice Hall}
+}
+
+@techreport{dantzig1966finding,
+  title={FINDING A CYCLE IN A GRAPH WITH MINIMUM COST TO TIME RATIO WITH APPLICATION TO A SHIP ROUTING PROBLEM.},
+  author={Dantzig, G.B.},
+  year={1966},
+  institution={DTIC Document}
+}
+
+@article{fox1969finding,
+  title={Finding minimal cost-time ratio circuits},
+  author={Fox, B.},
+  journal={Operations Research},
+  pages={546--551},
+  year={1969},
+  publisher={JSTOR}
+}
+
+@BOOK{alg:howard,
+  AUTHOR = {Ronald A. Howard},
+  TITLE = {Dynamic Programming and Markov Process},
+  PUBLISHER = {MIT Press},
+  YEAR = {1960},
+  MONTH = {June}
+}
+
+@article{even1996retiming,
+  title={Retiming revisited and reversed},
+  author={Even, G. and Spillinger, I.Y. and Stok, L.},
+  journal=tcad,
+  volume={15},
+  number={3},
+  pages={348--357},
+  year={1996},
+  publisher={IEEE}
+}
+
+@article{carrig2000chip,
+  title={Chip clocking effect on performance for IBM's SA-27E ASIC technology},
+  author={Carrig, K.M.},
+  journal={IBM Micronews},
+  volume={6},
+  number={3},
+  pages={12--16},
+  year={2000}
+}
+
+@book{wolaver1991phase,
+  title={Phase-locked loop circuit design},
+  author={Wolaver, D.H.},
+  volume={177},
+  year={1991},
+  publisher={Prentice Hall}
+}
+
+@article{fredman1987fibonacci,
+  title={Fibonacci heaps and their uses in improved network optimization algorithms},
+  author={Fredman, M.L. and Tarjan, R.E.},
+  journal={Journal of the ACM (JACM)},
+  volume={34},
+  number={3},
+  pages={596--615},
+  year={1987},
+  publisher={ACM}
+}
+
+@article{atkinson1986min,
+  title={Min-max heaps and generalized priority queues},
+  author={Atkinson, M.D. and Sack, J.R. and Santoro, N. and Strothotte, T.},
+  journal={Communications of the ACM},
+  volume={29},
+  number={10},
+  pages={996--1000},
+  year={1986},
+  publisher={ACM}
+}
+
+
+@article{fishburn2002solving,
+  title={Solving a system of difference constraints with variables restricted to a finite set},
+  author={Fishburn, J.P.},
+  journal={Information processing letters},
+  volume={82},
+  number={3},
+  pages={143--144},
+  year={2002},
+  publisher={Elsevier}
+}
+
+@book{alg:clrs,
+  title={{Introduction to algorithms (Second Edition)}},
+  author={Thamas H. Cormen and Charles E. Leiserson and Ronald L. Rivest and Clifford Stein},
+  year={2001},
+  pages = {588-590},
+  publisher={The MIT press}
+}
+
+@article{land1960automatic,
+  title={An automatic method of solving discrete programming problems},
+  author={Land, A.H. and Doig, A.G.},
+  journal={Econometrica: Journal of the Econometric Society},
+  pages={497--520},
+  year={1960},
+  publisher={JSTOR}
+}
+
+@article{johnson1979computers,
+  title={Computers and Intractability: A Guide to the Theory of NP-completeness},
+  author={Johnson, D.S. and Garey, M.R.},
+  journal={Freeman\&Co, San Francisco},
+  year={1979}
+}
+
+
+@book{mehlhorn1999leda,
+  title={LEDA: a platform for combinatorial and geometric computing},
+  author={Mehlhorn, K. and N{\"a}her, S.},
+  year={1999},
+  publisher={Cambridge University Press}
+}
+
+@book{siek2002boost,
+  title={The Boost graph library: User guide and reference manual},
+  author={Siek, J. and Lee, L.Q. and Lumsdaine, A.},
+  year={2002},
+  publisher={Addison-Wesley}
+}
+
+
+@electronic{benchmarks:iwls,
+author = {Albrecht, Christoph},
+title = "{{IWLS} 2005 Benchmarks}",
+year = {2012},
+note = "\url{http://iwls.org/iwls2005/benchmarks.html}"
+}
+
+
+@electronic{lib:opengate,
+key = {Nangate Inc.},
+title={{Nangate 45nm Open Cell Library}},
+year = {2012},
+note = "\url{http://www.nangate.com/}"
+}
+
+
+
+@article{css:min_tvlsi,
+ author = {Min Ni and Seda Ogrenci Memik},
+ title = {A fast heuristic algorithm for multidomain clock skew scheduling},
+ journal = tvlsi,
+ year = {2010},
+ pages = {630--637}
+}
+
+@inproceedings{mohammadzadeh2009multi,
+  title={Multi-domain clock skew scheduling-aware register placement to optimize clock distribution network},
+  author={MohammadZadeh, N. and Mirsaeedi, M. and Jahanian, A. and Zamani, M.S.},
+  booktitle=date,
+  pages={833--838},
+  year={2009}
+}
+
+@inproceedings{yang2010register,
+  title={Register relocation to optimize clock network for multi-domain clock skew scheduling},
+  author={Yang, L. and Fan, B. and Cong, M. and Zhao, J.},
+  booktitle={Circuits and Systems (ISCAS), Proceedings of 2010 IEEE International Symposium on},
+  pages={3180--3183},
+  year={2010},
+  organization={IEEE}
+}
+
+@INPROCEEDINGS{wang2008fast,
+  title={{A fast incremental clock skew scheduling algorithm for slack optimization}},
+  author={Wang, K. and Fang, H. and Xu, H. and Cheng, X.},
+  booktitle=aspdac,
+  pages={492--497},
+  year={2008},
+  organization={IEEE Computer Society Press}
+}
+
+@inproceedings{devadas1992statistical,
+  title={Statistical timing analysis of combinational circuits},
+  author={Devadas, S. and Jyu, H.F. and Keutzer, K. and Malik, S.},
+  booktitle={IEEE International Conference on Computer Design: VLSI in Computers and Processors},
+  pages={38--43},
+  year={1992},
+  organization={IEEE}
+}
+
+@inproceedings{jyu1993statistical,
+  title={Statistical timing optimization of combinational logic circuits},
+  author={Jyu, H.F. and Malik, S.},
+  booktitle={IEEE International Conference on Computer Design: VLSI in Computers and Processors},
+  pages={77--80},
+  year={1993},
+  organization={IEEE}
+}
+
+@inproceedings{brawhear1994predicting,
+  title={Predicting circuit performance using circuit-level statistical timing analysis},
+  author={Brawhear, RB and Menezes, N. and Oh, C. and Pillage, L.T. and Mercer, M.R.},
+  booktitle=date
+  pages={332--337},
+  year={1994},
+  organization={IEEE}
+}
+
+@inproceedings{berkelaar1997statistical,
+  title={Statistical delay calculation, a linear time method},
+  author={Berkelaar, M.},
+  booktitle={Proceedings of TAU},
+  volume={97},
+  pages={4--5},
+  year={1997}
+}
+
+@inproceedings{jacobs2000gate,
+  title={Gate sizing using a statistical delay model},
+  author={Jacobs, E. and Berkelaar, M.},
+  booktitle=date,
+  pages={283--291},
+  year={2000},
+  organization={ACM}
+}
+
+@inproceedings{lin1998new,
+  title={A new statistical approach to timing analysis of VLSI circuits},
+  author={Lin, R.B. and Wu, M.C.},
+  booktitle={Proc. International Conference of VLSI Design},
+  pages={507--513},
+  year={1998},
+  organization={IEEE}
+}
+
+@inproceedings{tongsima1998optimizing,
+  title={Optimizing circuits with confidence probability using probabilistic retiming},
+  author={Tongsima, S. and Chantrapornchai, C. and Sha, E.H.M. and Passos, N.L.},
+  booktitle=iscas,
+  volume={6},
+  pages={270--273},
+  year={1998},
+  organization={IEEE}
+}
+
+@inproceedings{devgan2003block,
+  title={Block-based static timing analysis with uncertainty},
+  author={Devgan, A. and Kashyap, C.},
+  booktitle={Proceedings of the 2003 IEEE/ACM international conference on Computer-aided design},
+  pages={607},
+  year={2003},
+  organization={IEEE Computer Society}
+}
+
+@inproceedings{neves1996optimal,
+  title={Optimal clock skew scheduling tolerant to process variations},
+  author={Neves, J.L. and Friedman, E.G.},
+  booktitle=dac,
+  pages={623--628},
+  year={1996},
+  organization={ACM}
+}
+
+@inproceedings{kourtev1999clock,
+  title={Clock skew scheduling for improved reliability via quadratic programming},
+  author={Kourtev, I.S. and Friedman, E.G.},
+  booktitle=iccad,
+  pages={239--243},
+  year={1999},
+  organization={IEEE Press}
+}
+
+@InProceedings{Wei_Cai_Hong_06,
+  author =   {Xinjie Wei and Yici Cai and Xianlong Hong},
+  title =    {Clock skew scheduling under process variations},
+  booktitle =   isqed,
+  year =     2006
+}
+
+@Article{meanCycle86,
+  author =   {R. M. Karp},
+  title =    {A characterization of the minimum cycle mean in a digraph},
+  journal =      {Discrete Math.(Netherlands)},
+  volume =   23,
+  number =   3,
+  pages =    {309-311},
+  year =     1978
+}
+
+@article{weisstein2009floyd,
+  title={Floyd-Warshall Algorithm},
+  author={Weisstein, E.},
+  journal={Wolfram MathWorld},
+  year={2009}
+}
+
+
+@InProceedings{Tsai_Baik_Chen_Saluja_04,
+  author =   {Jeng-Liang Tsai and D. H. Baik and C. C.-P. Chen and K. K. Saluja},
+  title =    {A Yield Improvement Methodology Using Pre- and Post-Silicon Statistical Clock Scheduling},
+  booktitle =    iccad,
+  pages =    {611--618},
+  year =     2004
+}
+
+
+@Article{Tsai_Baik_Chen_Saluja_05,
+  author =   {J. L. Tsai and D. H. Baik and C. C.-P. Chen and K. K. Saluja},
+  title =    {Yield-driven, False-path-aware clock skew scheduling},
+  journal =      {IEEE Design \& Test of Computers},
+  volume =   22,
+  number =   3,
+  pages =    {214--222},
+  year =     2005
+}
+
+@INPROCEEDINGS{DAC05-1,
+  AUTHOR =       "Hongliang Chang and Vladimir Zolotov and Sambasivan Narayan and Chandu Visweswariah",
+  TITLE =        "Parameterized Block-Based Statistical Timing Analysis with Non-{Gaussian} Parameters, Nonlinear Delay Functions",
+  BOOKTITLE =   dac,
+  pages =        "71-76",
+  YEAR =         "2005",
+}
+
+@INPROCEEDINGS{DAC05-2,
+  AUTHOR =       "Yaping Zhan and Andrzej J. Strojwas and Xin Li and Lawrence T. Pileggi",
+  TITLE =        "Correlation-Aware Statistical Timing Analysis with Non-{Gaussian} Delay Distribution",
+  BOOKTITLE =    dac,
+  pages =        "77-82",
+  YEAR =         "2005",
+}
+
+@INPROCEEDINGS{DAC05-3,
+  AUTHOR =       "Lizheng Zhang and Weijen Chen and Yuhen Hu and John A. Gubner and Charlie Chung-Ping Chen",
+  TITLE =        "Correlation-Preserved Non-{Gaussian} Statistical Timing Analysis with Quadratic Timing Model",
+  BOOKTITLE =    dac,
+  pages =        "83-88",
+  YEAR =         "2005",
+}
+
+@INPROCEEDINGS{DAC05-4,
+  AUTHOR =       "Vishal Khandelwal and Ankur Srivastava",
+  TITLE =        "A General Framework for Accurate Statistical Timing Analysis Considering Correlations",
+  BOOKTITLE =    dac,
+  pages =        "89-94",
+  YEAR =         "2005",
+}
+
+@INPROCEEDINGS{ICCAD06-3C2,
+  AUTHOR =       "Sarvesh Bhardaj and PPraveen Ghanta and Sarma Vrudhula",
+  TITLE =        "A Framework for Statistical Timing Analysis using Non-Linear Delay and Slew Models",
+  BOOKTITLE =    iccad,
+  pages =       "225-230",
+  YEAR =         "2006",
+}
+
+
+@book{gass1985linear,
+  title={Linear programming: methods and applications},
+  author={Gass, S.I.},
+  year={1985},
+  publisher={Dover Pubns}
+}
+
+@article{gendron1994parallel,
+  title={Parallel branch-and-bound algorithms: survey and synthesis},
+  author={Gendron, B. and Crainic, T.G.},
+  journal={Operations Research},
+  pages={1042--1066},
+  year={1994},
+  publisher={JSTOR}
+}
+
+@article{lai1984anomalies,
+  title={Anomalies in parallel branch-and-bound algorithms},
+  author={Lai, T.H. and Sahni, S.},
+  journal={Communications of the ACM},
+  volume={27},
+  number={6},
+  pages={594--602},
+  year={1984},
+  publisher={ACM}
+}
+
+@article{lai1985performance,
+  title={Performance of parallel branch-and-bound algorithms},
+  author={Lai, T.H. and Sprague, A.},
+  journal={IEEE transactions on computers},
+  volume={34},
+  pages={962--964},
+  year={1985}
+}
+
+
+
+
+@PhdThesis{wangyi08phd,
+  author = 	 {王毅},
+  title = 	 {纳米尺度集成电路统计时序分析与成品率优化方法研究},
+  school = 	 {复旦大学},
+  year = 	 {2008},
+  OPTkey = 	 {},
+  OPTtype = 	 {},
+  OPTaddress = 	 {},
+  OPTmonth = 	 {},
+  OPTnote = 	 {},
+  lang = 	 {zh}
+}
+
+
+
+
+@article{hansen2010lower,
+  title={Lower bounds for Howard’s algorithm for finding Minimum Mean-Cost Cycles},
+  author={Hansen, T. and Zwick, U.},
+  journal={Algorithms and Computation},
+  pages={415--426},
+  year={2010},
+  publisher={Springer}
+}
+
+@article{goldberg1989finding,
+  title={Finding minimum-cost circulations by canceling negative cycles},
+  author={Goldberg, A.V. and Tarjan, R.E.},
+  journal={Journal of the ACM (JACM)},
+  volume={36},
+  number={4},
+  pages={873--886},
+  year={1989},
+  publisher={ACM}
+}
+
+@inproceedings{lin2006efficient,
+  title={An efficient retiming algorithm under setup and hold constraints},
+  author={Lin, C. and Zhou, H.},
+  booktitle=dac
+  pages={945--950},
+  year={2006},
+  organization={ACM}
+}
+
+@inproceedings{lin2003retiming,
+  title={Retiming for wire pipelining in system-on-chip},
+  author={Lin, C. and Zhou, H.},
+  booktitle=iccad,
+  pages={215},
+  year={2003},
+  organization={IEEE}
+}
+
+@article{malik1991retiming,
+  title={Retiming and resynthesis: Optimizing sequential networks with combinational techniques},
+  author={Malik, S. and Sentovich, E.M. and Brayton, R.K. and Sangiovanni-Vincentelli, A.},
+  journal=tcad
+  volume={10},
+  number={1},
+  pages={74--84},
+  year={1991},
+  publisher={IEEE}
+}
+
+@article{jiang2006retiming,
+  title={Retiming and resynthesis: A complexity perspective},
+  author={Jiang, J.H.R. and Brayton, R.K.},
+  journal=tcad,
+  volume={25},
+  number={12},
+  pages={2674--2686},
+  year={2006},
+  publisher={IEEE}
+}
+
+@inproceedings{ranjan1998optimization,
+  title={On the optimization power of retiming and resynthesis transformations},
+  author={Ranjan, R.K. and Singhal, V. and Somenzi, F. and Brayton, R.K.},
+  booktitle=iccad,
+  pages={402--407},
+  year={1998},
+  organization={IEEE}
+}
+
+
+@inproceedings{jiang2007inductive,
+  title={Inductive equivalence checking under retiming and resynthesis},
+  author={Jiang, J.H.R. and Hung, W.L.},
+  booktitle=iccad,
+  pages={326--333},
+  year={2007},
+  organization={IEEE}
+}
+
+@inproceedings{zhou2009retiming,
+  title={Retiming and resynthesis with sweep are complete for sequential transformation},
+  author={Zhou, H.},
+  booktitle=fmcad,
+  pages={192--197},
+  year={2009},
+  organization={IEEE}
+}
+
+@inproceedings{liu1999maximizing,
+  title={Maximizing performance by retiming and clock skew scheduling},
+  author={Liu, X. and Papaefthymiou, M.C. and Friedman, E.G.},
+  booktitle=dac,
+  pages={231--236},
+  year={1999},
+  organization={ACM}
+}
+
+@article{liu2002retiming,
+  title={Retiming and clock scheduling for digital circuit optimization},
+  author={Liu, X. and Papaefthymiou, M.C. and Friedman, E.G.},
+  journal=tcad,
+  volume={21},
+  number={2},
+  pages={184--203},
+  year={2002},
+  publisher={IEEE}
+}
+
+@article{stix2003target,
+  title={Target-oriented branch and bound method for global optimization},
+  author={Stix, V.},
+  journal={Journal of Global Optimization},
+  volume={26},
+  number={3},
+  pages={261--277},
+  year={2003},
+  publisher={Springer}
+}
+
+@inproceedings{wang2008timing,
+  title={Timing yield driven clock skew scheduling considering non-Gaussian distributions of critical path delays},
+  author={Wang, Y. and Luk, W.S. and Zeng, X. and Tao, J. and Yan, C. and Tong, J. and Cai, W. and Ni, J.},
+  booktitle=dac,
+  pages={223--226},
+  year={2008},
+  organization={ACM}
+}
+

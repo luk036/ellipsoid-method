@@ -2,8 +2,7 @@
 title: Ellipsoid Method and Its Amazing Oracles
 author:
   - 'Wai-Shing Luk\thanks{Fudan University}'
-bibliography:
-  - 'fir-ref.bib'
+bibliography: ['ellipsoid.bib', 'fir-ref.bib']
 documentclass: siamltex
 classoption:
   - final
@@ -217,14 +216,13 @@ Now assume that $\hat{\alpha}$ and $\hat{\beta}$ vary $\bar{\alpha} \pm e_1$ and
 -   if $y_2 > 0$, $\beta = \bar{\beta} - e_2$, else
     $\beta = \bar{\beta} + e_2$
 
-> **Remark**: for more complicated problems, affine arithmetic could be
-> used.
+For more complicated problems, affine arithmetic could be used\ [@liu2007robust].
 
 Parametric Network Potential Problem
 ------------------------------------
 
 Given a network represented by a directed graph $G = (V, E)$.
-Consider:
+Consider :
 $$\begin{array}{ll}
     \text{minimize} & t, \\
     \text{subject to} & u_i - u_j \le h_{ij}(x, t), \; \forall (i, j) \in E,\\
@@ -260,6 +258,7 @@ The oracle only needs to determine:
 
 ### Example: Optimal Matrix Scaling
 
+This example is taken from\ [@orlin1985computing].
 Given a sparse matrix $A = [a_{ij}] \in \mathbb{R}^{N\times N}$.
 Find another matrix $B = U A U^{-1}$ where $U$ is a nonnegative diagonal matrix, such that the ratio of any two elements of $B$ in absolute value is as close to 1 as possible.
 
@@ -285,6 +284,13 @@ $$\begin{array}{ll}
 $$
 where $k'$ denotes $\log( | k | )$ and $x = (\pi', \psi' )^\top$.
 
+Fast algorithms for finding negative cycle can be found
+in\ [@dasdan1998faster] and\ [@dasdan2004experimental].
+More application in clock skew scheduling can be found in\ [@zhou2015multi].
+
+
+## Matrix Inequalities
+
 Consider the following problem:
 $$\begin{array}{ll}
     \text{minimize}    & t, \\
@@ -298,6 +304,60 @@ $$\begin{array}{ll}
   \end{array}
 $$
 Consider $v^\top F(x, t) v$ is concave for all $v \in \mathbb{R}^N$ w.r.t. $x$, then the above problem is a convex programming. Reduce to *semidefinite programming* if $F(x, t)$ is linear w.r.t. $x$, i.e., $F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n$.
+
+Cholesky Factorization
+----------------------
+
+An alternative form, eliminating the need to take square roots, is the symmetric indefinite factorization:
+
+$$\begin{aligned}
+\mathbf{A} = \mathbf{LDL}^\mathrm{T} & =
+\begin{pmatrix}   1 & 0 & 0 \\
+   L_{21} & 1 & 0 \\
+   L_{31} & L_{32} & 1\\
+\end{pmatrix}
+\begin{pmatrix}   D_1 & 0 & 0 \\
+   0 & D_2 & 0 \\
+   0 & 0 & D_3\\
+\end{pmatrix}
+\begin{pmatrix}   1 & L_{21} & L_{31} \\
+   0 & 1 & L_{32} \\
+   0 & 0 & 1\\
+\end{pmatrix} \\
+& = \begin{pmatrix}   D_1 &   &(\mathrm{symmetric})   \\
+   L_{21}D_1 & L_{21}^2D_1 + D_2& \\
+   L_{31}D_1 & L_{31}L_{21}D_{1}+L_{32}D_2 & L_{31}^2D_1 + L_{32}^2D_2+D_3.
+\end{pmatrix}.
+\end{aligned}
+$$
+
+If $A$ is real, the following recursive relations apply for the entries of $D$ and $L$:
+
+$$ D_{j} = A_{jj} - \sum_{k=1}^{j-1} L_{jk}L_{jk}^* D_k, $$
+$$ L_{ij} = \frac{1}{D_j} \left( A_{ij} - \sum_{k=1}^{j-1} L_{ik} L_{jk}^* D_k \right) \quad \text{for } i>j. $$
+
+Again, the pattern of access allows the entire computation to be performed in-place if desired.
+
+The following is the algorithm written in Python:
+
+```python
+    def factor(self, getA):
+        self.p = 0
+
+        for i in range(self.n):
+            for j in range(i+1):
+                d = getA(i, j) - np.dot(self.T[:j, i], self.T[j, :j])
+                if i != j:
+                    self.T[i, j] = d
+                    self.T[j, i] = d / self.T[j, j]
+            if d <= 0.:
+                self.p = i + 1
+                self.T[i, i] = -d
+                break
+            else:
+                self.T[i, i] = d
+```
+
 
 The oracle only needs to:
 
@@ -340,10 +400,11 @@ Let $\rho(h) = \sum_i^n p_i \Psi_i(h)$, where $p_i$'s are the unknown coefficien
 $$\Omega(p) = p_1 F_1 + \cdots + p_n F_n, $$
 where $\{F_k\}_{i,j} =\Psi_k( \| s_j - s_i \|_2)$.
 
+
 Ellipsoid Method Revisited
 ==========================
 
-Some History of Ellipsoid Method. Introduced by Shor and Yudin and Nemirovskii in 1976. Used to show that linear programming (LP) is polynomial-time solvable (Kachiyan 1979), settled the long-standing problem of determining the theoretical complexity of LP. In practice, however, the simplex method runs much faster than the method, although its worst-case complexity is exponential.
+Some History of Ellipsoid Method\ [@BGT81]. Introduced by Shor and Yudin and Nemirovskii in 1976. Used to show that linear programming (LP) is polynomial-time solvable (Kachiyan 1979), settled the long-standing problem of determining the theoretical complexity of LP. In practice, however, the simplex method runs much faster than the method, although its worst-case complexity is exponential.
 
 Basic Ellipsoid Method
 ----------------------
@@ -353,8 +414,9 @@ $$\{x \mid (x-x_c)P^{-1}(x-x_c) \leq 1 \}, $$
 where $x_c$ is the center of the ellipsoid.
 
 \begin{figure}
+\centering
 \begin{tikzpicture}[scale=0.4]
- \draw[top color=white, bottom color=cyan] plot[smooth, tension=.7] coordinates {(-3,2) (-5,2) (-6,4) (-5,5) (-3,4) (-3,2)};
+ \draw[top color=lightgray, bottom color=lightgray] plot[smooth, tension=.7] coordinates {(-3,2) (-5,2) (-6,4) (-5,5) (-3,4) (-3,2)};
  \node at (-5,4) {$\mathcal{K}$};
 \draw (0,8) -- (-3,-2);
 \draw [fill=qqqqff] (-1,3) circle (1.5pt) 
@@ -458,30 +520,40 @@ $$
 
 ### Example: FIR filter design
 
-![FIR filter structure](ellipsoid.files/fir_strctr.pdf){#fig:fir_strctr}
+A typical structure of digital Finite Impulse Response (FIR) filters is shown in [@fig:fir-strctr], where the coefficients $h[0], h[1], \ldots, h[n-1]$ must be determined to meet given specifications. Usually, they can be manually designed using windowing or frequency-sampling techniques [@oppenheim1989discrete]. However, the experience and knowledge of designers are highly demanded in this kind of design methods. Moreover, there is no guarantee about design’s quality. Therefore, the optimization-based techniques (e.g. [@wu1999fir], more reference) have attracted tons of research effort. In this kind of methods, facilitated with growing computing resource and efficient optimization algorithms, the solution space can be effectively explored.
 
-The time response is:
-$$ y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]}.$$
-The frequency response:
-$$ H(\omega)~=~\sum_{m=0}^{n-1}{h(m)e^{-jm\omega}}.$$
-The magnitude constraints on frequency domain are expressed as
-$$ L(\omega)~\leq~|H(\omega)|~\leq~U(\omega),~\forall~\omega\in(-\infty,+\infty),$$
-where $L(\omega)$ and $U(\omega)$ are the lower and upper (nonnegative) bounds at frequency $\omega$ respectively.
+![A typical structure of an FIR filter\ @mitra2006digital.](ellipsoid.files/fir_strctr.pdf){#fig:fir-strctr}
 
-Note that the constraint is non-convex in general.However, via *spectral factorization*, it can transform into a convex one\ [@wu1999fir]:
-$$ L^2(\omega)~\leq~R(\omega)~\leq~U^2(\omega),~\forall~\omega\in(0,\pi),
-$$
-where $R(\omega)=\sum_{i=-1+n}^{n-1}{r(t)e^{-j{\omega}t}}=|H(\omega)|^2$. The vector $\mathbf{r}=(r(-n+1),r(-n+2),...,r(n-1))$ contains the autocorrelation coefficients, which can be determined by $\mathbf{h}$:
-$$ r(t)~=~\sum_{i=-n+1}^{n-1}{h(i)h(i+t)},~t\in\mathbf{Z},
-$$
-where $h(t)=0$ for $t < 0$ or $t > n - 1$. The whole problem can be formulated as:
-$$\begin{array}{ll}
-      \text{min}  & \gamma \\
-      \text{s.t.} & L^2(\omega) \leq R(\omega) \leq U^2(\omega), \; 
-                                    \forall \omega \in [0,\pi],   \\
-                  & R(\omega) > 0, \forall \omega \in [0,\pi].
-  \end{array}
-$$
+In the area of optimization algorithms, what is particularly interesting is convex optimization. If a problem is in a convex form, it can be efficiently and optimally solved. Convex optimization techniques are also implementable in designing FIR filters, including Parks-McClellan algorithm [@park1972chebyshev], METEOR [@steiglitz1992meteor] and peak-constrained least-squares (PCLS) [@selesnick1996constrained; @adams1998peak]. In the mentioned articles, with the help of exchange algorithms (e.g. Remez exchange algorithm), certain FIR filter design problems can be formed as linear or quadratic programs. They are two simple form of convex optimization problems, which can be optimally solved with existing algorithms, such as the interior-point method [@boyd2009convex]. Tempted by the optimality, more efforts were devoted to form the problem convex. Particularly, in [@wu1999fir], via spectral factorization [@goodman1997spectral], the problem of designing an FIR filter with magnitude constraints on frequency-domain is formulated as a convex optimization problem. More examples are provided in [@davidson2010enriching].
+
+Its time response is
+$$y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]}
+$${#eq:t_res}
+where $\mathbf{h} = (h(0), h(1),..., h(n-1))$ is the filter coefficients. Its frequency response $H: [0,\pi] \rightarrow \mathbb{C}$ is 
+$$H(\omega) = \sum_{m=0}^{n-1}{h(m)e^{-jm\omega}}
+$${#eq:f_res} 
+where $j = \sqrt{-1}$, $n$ is the order of the filter.
+The design of a filter with magnitude constraints is often formulated as a constraint optimization problem as the form
+$$\begin{aligned}
+  \min            &  \gamma \\
+  \mathrm{s.t.}   &  f(\mathbf{x}) \leq \gamma \\
+                  &  g(\mathbf{x}) \leq 0.\end{aligned}
+$$ {#eq:ori}
+where $\mathbf{x}$ is the vector of design variables, $g(\mathbf{x})$ represents the characteristics of the desirable filter and $f(\mathbf{x})$ is the performance metric to be optimized. For example, the magnitude constraints on frequency domain are expressed as 
+$$L(\omega) \leq |H(\omega)| \leq U(\omega), \forall \omega\in(-\infty,+\infty)
+$$ {#eq:mag_cons}
+where $L(\omega)$ and $U(\omega)$ are the lower and upper (nonnegative) bounds at frequency $\omega$ respectively. Note that $H(\omega)$ is $2\pi$ periodic and $H(\omega)=\overline{H(-\omega)}$. Therefore, we can only consider the magnitude constraint on $[0,\pi]$\ [@wu1999fir].
+
+Generally, the problem  might be quite difficult to solve, since the global optimal solution can only be obtained with resource consuming methods, such as branch-and-bound [@davidson2010enriching]. However, the situation is totally different if the problem is convex, where $f(\mathbf{x})$ and $g(\mathbf{x})$ are convex functions. In such case, the problem can be optimally solved with many efficient algorithms.
+
+Attracted by the benefits, the authors of\ [@wu1999fir] transformed , originally non-convex, into a convex form via spectral factorization: 
+
+$$L^2(\omega) \leq R(\omega) \leq U^2(\omega), \forall \omega\in(0,\pi)$$ {#eq:r_con}
+
+where $R(\omega)=\sum_{i=-n+1}^{n-1}{r(t)e^{-j{\omega}t}}=|H(\omega)|^2$ and $\mathbf{r}=(r(-n+1),r(-n+2),\ldots,r(n-1))$ are the autocorrelation coefficients. Especially, $\mathbf{r}$ can be determined by $\mathbf{h}$, with the following equation vice versa\ [@wu1999fir]: 
+
+$$r(t) = \sum_{i=-n+1}^{n-1}{h(i)h(i+t)}, t\in\mathbb{Z}.$$ {#eq:h_r}
+where $h(t)=0$ for $t<0$ or $t>n-1$.
 
 ![Result](ellipsoid.files/lowpass.pdf){#fig:lowpass}
 
@@ -521,6 +593,13 @@ $$ g^\top (x - x_d) + \beta \leq 0, \beta \geq 0, g \neq 0. $$
 Note that the cut may be a shallow cut. Suggestion: use different cuts as possible for each iteration (e.g. round-robin the evaluation of constraints).
 
 ![Lowpass ripple](ellipsoid.files/lowpass_ripple.pdf){#fig:lowpass_ripple}
+
+### Example: Multiplierless FIR Filter Design
+
+However, there are still many filter design problems that are non-convex, such as multiplierless FIR filter design problems. Note that in [@fig:fir-strctr], each coefficient associates with a multiplier unit, which makes the filter power and area hungry, especially in Application Specific Integrated Circuits (ASIC). Fortunately, it can be implemented multiplierless if each coefficient is quantized and represented as a sum of Singed Power-of-Two (SPT). Such a coefficient can be uniquely represented by a Canonic Signed-Digit (CSD) code [@george1960csd] with the smallest number of non-zero digits. In such case, the multiplication is confined to add and shift operations. An example is shown in [@fig:multi-shift]. A coefficient 0.65625 = 21/32 can be written as $2^{-1}+2^{-3}+2^{-5}$. Consequently, as shown in [@fig:shift], the multiplier can be replaced with three shifters and two adders which are with much lower cost. However, the coefficient quantization constraint, which is non-convex, makes convex optimization algorithm can not be directly applied. A similar scenario is considering the finite wordlength effect [@lim1982finite].
+
+Attracted by the benefits of the multiplierlessness, many efforts have been devoted to its design techniques. For its general problems, integer programming (e.g. [@kodek1980design; @lim1982finite; @lim1983fir; @lim1999signed]) can be implemented to achieve the optimal solution. However, it demands excessive computing resources. Other heuristic techniques, such as genetic algorithm [@xu1995design] and dynamic-programming-like method [@chen1999trellis], are also with low efficiency. Furthermore, if the quantization constraint is the only non-convex constraint in the design problem, a lower bound can be efficiently obtained by solving the relaxed problem [@davidson2010enriching]. Then to make the solution feasible, it can be either rounded to the nearest CSD codes or treated as a starting point of a local search algorithm for a better solution [@kodek1981comparison]. However, both of the methods can not guarantee the feasibility of the final solution. Besides, the local search problem is still non-convex. Therefore, the adopted algorithm could also be inefficient, such as branch-and-bound in [@kodek1981comparison].
+
 
 References {#references .unnumbered}
 ==========
