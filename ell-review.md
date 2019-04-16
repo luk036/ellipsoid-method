@@ -1,8 +1,8 @@
 ---
-title: Ellipsoid Method and Its Amazing Oracles
+title: Ellipsoid Method and the Amazing Oracles
 author:
   - 'Wai-Shing Luk\thanks{Fudan University}'
-bibliography: ['ellipsoid.bib', 'fir-ref.bib']
+bibliography: ['ellipsoid.bib', 'fir-ref.bib', 'Geostatistics.bib']
 documentclass: siamltex
 classoption:
   - final
@@ -341,23 +341,19 @@ Again, the pattern of access allows the entire computation to be performed in-pl
 The following is the algorithm written in Python:
 
 ```python
-    def factor(self, getA):
-        self.p = 0
-
-        for i in range(self.n):
-            for j in range(i+1):
-                d = getA(i, j) - np.dot(self.T[:j, i], self.T[j, :j])
-                if i != j:
-                    self.T[i, j] = d
-                    self.T[j, i] = d / self.T[j, j]
-            if d <= 0.:
-                self.p = i + 1
-                self.T[i, i] = -d
-                break
-            else:
-                self.T[i, i] = d
+def factor(self, getA):
+    T = self.T
+    for i in range(self.n):
+        for j in range(i+1):
+            d = getA(i, j) - np.dot(T[:j, i], T[j, :j])
+            T[i, j] = d
+            if i != j:
+                T[j, i] = d / T[j, j]
+        if d <= 0.:  # strictly positive
+            self.p = i
+            return
+    self.p = self.n
 ```
-
 
 The oracle only needs to:
 
@@ -390,6 +386,52 @@ $$
 Binary search on $t$ can be used for this problem.
 
 ### Example: Estimation of Correlation Function
+
+Random Field [@Schabenberger05]
+-------------------------------
+
+*Random field*, also known as *stochastic process*, can be regarded as
+an indexed family of random variables denoted as
+{$Z(\mathbf{s}): \mathbf{s}\in D$}, where $D$ is a subset of
+$d$-dimensional Euclidean space $\mathbb{R}^d$. To specify a stochastic
+process, the joint probability distribution function of any finite
+subset $(Z(\mathbf{s}_1), \ldots, Z(\mathbf{s}_n))$ must be given in a
+consistent way, which is called *distribution* of the process. For ease
+of analysis, a random field is often assumed to be with *Gaussian*
+distribution, and is called Gaussian random field.
+
+A random field has several key properties that are useful in practical
+problems. The field is *stationary* under translations, or
+*homogeneous*, if the distribution is unchanged when the point set is
+translated. The field is *isotropic* if the distribution is invariant
+under any rotation of the whole points in the parameter space. We study
+homogeneous isotropic field in this paper.
+
+The *covariance* $C$ and *correlation* $R$ of a stochastic process are
+defined by
+$$C(\mathbf{s}_i,\mathbf{s}_j) = \mathrm{cov}(Z(\mathbf{s}_i),Z(\mathbf{s}_j)) = \mathrm{E}\lbrack (Z(\mathbf{s}_i)-\mathrm{E}\lbrack Z(\mathbf{s}_i)\rbrack)(Z(\mathbf{s}_j)-\mathrm{E}\lbrack Z(\mathbf{s}_j)\rbrack)\rbrack
+$$
+and
+$$R(\mathbf{s}_i,\mathbf{s}_j)=C(\mathbf{s}_i,\mathbf{s}_j)/ \sqrt{C(\mathbf{s}_i,\mathbf{s}_i)C(\mathbf{s}_j,\mathbf{s}_j)}
+$$
+respectively for all $\mathbf{s}_i,\mathbf{s}_j\in D$, where
+$\mathrm{E}\lbrack Z(\mathbf{s})\rbrack$ denotes the expectation of
+$Z(\mathbf{s})$. Thus a process is homogeneous if $C$ and $R$ depend
+only on the separation vector $\mathbf{h}=\mathbf{s}_i-\mathbf{s}_j$.
+Furthermore, it is isotropic if $C$ and $R$ depend upon $\mathbf{h}$
+only through its length $h$, i.e.,
+$$C(\mathbf{s}_i,\mathbf{s}_j)=C(\mathbf{h})=C(h),
+$$
+
+$$R(\mathbf{s}_i,\mathbf{s}_j)=R(\mathbf{h})=R(h)=C(h)/C(0).
+$$ {#eq:corr_def}
+If we denote $C(0)$, the variance of $Z(\mathbf{s})$, as $\sigma^2$, then the
+relationship between covariance and correlation is $C(h)=\sigma^2 R(h)$.
+
+When the two components are considered, the measurement data can still
+be regarded as a Gaussian random field, but the correlation function
+will have a discontinuity at the origin. This phenomenon is called
+"nugget effect\"\ [@Diggle07].
 
 $$\begin{array}{ll}
    \min_{\kappa, p}   & \| \Omega(p) + \kappa I - Y \| \\
