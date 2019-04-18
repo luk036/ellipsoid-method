@@ -102,7 +102,7 @@ bibliography:
 - When a separation oracle $\Omega$ is *queried* at $x_0$, it either
   - asserts that $x_0 \in \mathcal{K}$, or
   - returns a separating hyperplane between $x_0$ and $\mathcal{K}$:
-        $$g^\top (x - x_0) + \beta \leq 0, \beta \geq 0, g \neq 0, \;
+        $$g^\mathsf{T} (x - x_0) + \beta \leq 0, \beta \geq 0, g \neq 0, \;
           \forall x \in \mathcal{K}$$
 
 \col{0.4\textwidth}
@@ -122,7 +122,7 @@ bibliography:
 ## Separation oracle (cont'd)
 
 - $(g, \beta)$ called a *cutting-plane*, or cut, since it eliminates the
-    halfspace $\{x \mid g^\top (x - x_0) + \beta > 0\}$ from our search.
+    halfspace $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from our search.
 
 - If $\beta=0$ ($x_0$ is on the boundary of halfspace that is cut),
     cutting-plane is called *neutral cut*.
@@ -167,7 +167,7 @@ Remarks:
   2. Query the cutting-plane oracle at $x_0$
   3. **If** $x_0 \in \mathcal{K}$, quit
   4. **Else**, update $\mathcal{S}$ to a smaller set that covers:
-        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\top (z - x_0) + \beta \leq 0\}$$
+        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \leq 0\}$$
   5. **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
 
 ---
@@ -287,7 +287,7 @@ class bsearch_adaptor:
   3. **If** $x_0 \in \mathcal{K}_{\color{purple}t}$, update ${\color{purple}t}$ such that
         $\Phi({\color{blue}x_0}, {\color{purple}t}) = 0$.
   4. Update $\mathcal{S}$ to a smaller set that covers:
-        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\top (z - x_0) + \beta \leq 0\} $$
+        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \leq 0\} $$
   5. **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
 
 ---
@@ -632,7 +632,7 @@ $$\begin{array}{ll}
   \end{array}$$
 
 where $k'$ denotes $\log( | k | )$ and
-$x = ({\color{blue}\pi'}, {\color{blue}\psi'} )^\top$.
+$x = ({\color{blue}\pi'}, {\color{blue}\psi'} )^\mathsf{T}$.
 
 ---
 
@@ -714,13 +714,13 @@ $$\begin{array}{ll}
 ## Problems With Matrix Inequalities
 
 - Recall that a matrix $A$ is positive semidefinite if and only if
-    $v^\top A v \ge 0$ for all $v \in \mathbb{R}^N$.
+    $v^\mathsf{T} A v \ge 0$ for all $v \in \mathbb{R}^N$.
 - The problem can be transformed into: 
     $$\begin{array}{ll}
             \text{minimize}      & {\color{purple}t}, \\
-            \text{subject to}    & v^\top F({\color{blue}x}, {\color{purple}t}) v \ge 0, \; \forall v \in \mathbb{R}^N
+            \text{subject to}    & v^\mathsf{T} F({\color{blue}x}, {\color{purple}t}) v \ge 0, \; \forall v \in \mathbb{R}^N
     \end{array}$$
-- Consider $v^\top F({\color{blue}x}, {\color{purple}t}) v$ is concave for all $v \in \mathbb{R}^N$ w. r. t.
+- Consider $v^\mathsf{T} F({\color{blue}x}, {\color{purple}t}) v$ is concave for all $v \in \mathbb{R}^N$ w. r. t.
     ${\color{blue}x}$, then the above problem is a convex programming.
 - Reduce to *semidefinite programming* if $F({\color{blue}x}, {\color{purple}t})$
     is linear w.r.t. ${\color{blue}x}$, i.e., $F({\color{blue}x}) = F_0 + x_1 F_1 + \cdots + x_n F_n$
@@ -732,16 +732,16 @@ $$\begin{array}{ll}
 The oracle only needs to:
 
 - Perform a *row-based* Cholesky factorization such that
-    $F(x_0, t) = R^\top R$.
+    $F(x_0, t) = R^\mathsf{T} R$.
 - Let $A_{:p,:p}$ denotes a submatrix
     $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$.
 - If Cholesky factorization fails at row $p$,
   - there exists a vector
-        $e_p = (0, 0, \cdots, 0, 1)^\top \in \mathbb{R}^p$, such that
+        $e_p = (0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p$, such that
     - $v = R_{:p,:p}^{-1} e_p$, and 
-    - $v^\top F_{:p,:p}(x_0) v < 0$.
+    - $v^\mathsf{T} F_{:p,:p}(x_0) v < 0$.
   - The cut $(g, \beta)$ =
-        $(-v^\top \partial F_{:p,:p}(x_0) v, -v^\top F_{:p,:p}(x_0) v)$
+        $(-v^\mathsf{T} \partial F_{:p,:p}(x_0) v, -v^\mathsf{T} F_{:p,:p}(x_0) v)$
 
 ---
 
@@ -785,7 +785,7 @@ class lmi_oracle:
        \text{subject to}    & \left(
    \begin{array}{cc}
     {\color{purple}t}\,I   & A({\color{blue}x}) \\
-    A^\top({\color{blue}x}) & {\color{purple}t}\,I
+    A^\mathsf{T}({\color{blue}x}) & {\color{purple}t}\,I
    \end{array} \right) \succeq 0,
  \end{array}$$
 - Binary search on ${\color{purple}t}$ can be used for this problem.

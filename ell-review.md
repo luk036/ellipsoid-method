@@ -2,7 +2,7 @@
 title: Ellipsoid Method and the Amazing Oracles
 author:
   - 'Wai-Shing Luk\thanks{Fudan University}'
-bibliography: ['ellipsoid.bib', 'fir-ref.bib', 'Geostatistics.bib']
+bibliography: ['ellipsoid.bib', 'fir-ref.bib', 'Geostatistics.bib', 'mpcss1.bib', 'mpcss2.bib']
 documentclass: siamltex
 classoption:
   - final
@@ -40,9 +40,9 @@ When a *separation oracle* $\Omega$ is *queried* at $x_0$, it either
 1.  Asserts that $x_0 \in \mathcal{K}$, or
 
 2.  Returns a separating hyperplane between $x_0$ and $\mathcal{K}$:
-    $$g^\top (x - x_0) + \beta \leq 0, \beta \geq 0, g \neq 0, \; \forall x \in \mathcal{K}.$$ {#eq:cut}
+    $$g^\mathsf{T} (x - x_0) + \beta \leq 0, \beta \geq 0, g \neq 0, \; \forall x \in \mathcal{K}.$$ {#eq:cut}
 
-The pair $(g, \beta)$ is called a *cutting-plane*, or cut, since it eliminates the halfspace $\{x \mid g^\top (x - x_0) + \beta > 0\}$ from our search. If $\beta=0$ ($x_0$ is on the boundary of halfspace that is cut), cutting-plane is called *neutral cut*. If $\beta>0$ ($x_0$ lies in the interior of halfspace that is cut), cutting-plane is called *deep cut*.
+The pair $(g, \beta)$ is called a *cutting-plane*, or cut, since it eliminates the halfspace $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from our search. If $\beta=0$ ($x_0$ is on the boundary of halfspace that is cut), cutting-plane is called *neutral cut*. If $\beta>0$ ($x_0$ lies in the interior of halfspace that is cut), cutting-plane is called *deep cut*.
 
 The $\mathcal{K}$ is usually given by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1 \cdots m$, where $f_j(x)$ is a convex function. A vector $g \equiv \partial f(x_0)$ is called a *subgradient* of a convex function $f$ at $x_0$ if $f(z) \geq f(x_0) + g^\mathrm{T} (z - x_0)$. Hence, the cut $(g, \beta)$ is given by $(\partial f(x_0), f(x_0))$.
 
@@ -67,7 +67,7 @@ Generic Cutting-plane method:
     3.  **If** $x_0 \in \mathcal{K}$, quit.
 
     4.  **Else**, update $\mathcal{S}$ to a smaller set that covers:
-        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\top (z - x_0) + \beta \leq 0\}.$$
+        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \leq 0\}.$$
 
     5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
 
@@ -104,12 +104,11 @@ Generic Cutting-plane method (Optim)
     3.  **If** $x_0 \in \mathcal{K}_t$, update $t$ such that $\Phi(x_0, t) = 0$.
 
     4.  Update $\mathcal{S}$ to a smaller set that covers:
-        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\top (z - x_0) + \beta \leq 0\} $$
+        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \leq 0\} $$
 
     5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
 
-Example: Profit Maximization Problem
-------------------------------------
+## Example: Profit Maximization Problem
 
 Consider:
 $$\begin{array}{ll}
@@ -174,6 +173,8 @@ $$\begin{array}{ll}
   \end{array}
 $$
 
+### Algorithm
+
 The oracle only needs to determine:
 
 - If $f_j(x_0, q) > 0$ for some $j$ and $q = q_0$, then
@@ -194,7 +195,7 @@ The oracle only needs to determine:
 
 Random sampling trick.
 
-### Example: Profit Maximization Problem (convex)
+### Example: Profit Maximization Problem
 
 Consider
 $$\begin{array}{ll}
@@ -217,6 +218,8 @@ Now assume that $\hat{\alpha}$ and $\hat{\beta}$ vary $\bar{\alpha} \pm e_1$ and
     $\beta = \bar{\beta} + e_2$
 
 For more complicated problems, affine arithmetic could be used\ [@liu2007robust].
+
+
 
 Parametric Network Potential Problem
 ------------------------------------
@@ -244,6 +247,15 @@ where $C_k$ is a cycle of $G$:
 $$W_k(x, t) = \sum_{ (i,j)\in C_k} h_{ij}(x, t).
 $$
 
+### Negative Cycle Detection Algorithm
+
+The negative cycle detection is the most time-consuming part in the
+proposed method, so it is very important to choose the proper negative
+cycle detection algorithm. There are lots of methods to detect negative
+cycles in a weighted graph [@cherkassky1999negative], in which Tarjan’s
+algorithm [@Tarjan1981negcycle] is one of the fastest algorithms in
+practice  @alg:dasdan_mcr [@cherkassky1999negative].
+
 The oracle only needs to determine:
 
 - If there exists a negative cycle $C_k$ under $x_0$, then
@@ -259,9 +271,10 @@ The oracle only needs to determine:
 ### Example: Optimal Matrix Scaling
 
 This example is taken from\ [@orlin1985computing].
-Given a sparse matrix $A = [a_{ij}] \in \mathbb{R}^{N\times N}$.
-Find another matrix $B = U A U^{-1}$ where $U$ is a nonnegative diagonal matrix, such that the ratio of any two elements of $B$ in absolute value is as close to 1 as possible.
-
+Given a matrix $A = [a_{ij}] \in \mathbb{R}^{N\times N}$, we would like
+to find another matrix $B = X A X^{-1}$ where $X$ is a nonnegative
+diagonal matrix, such that the ratio of any two elements of $B$ in
+absolute value is as close to one as possible.
 Let $U = \mathrm{diag}([u_1, u_2, \ldots, u_N])$. Under the min-max-ratio criterion, the problem can be formulated as:
 $$\begin{array}{ll}
     \text{minimize}   &  \pi/\psi  \\
@@ -272,8 +285,7 @@ $$\begin{array}{ll}
   \end{array}
 $$
 
-By taking the logarithms of variables, the above problem can be transformed
-into:
+By taking the logarithms of variables, the above problem can be transformed into:
 $$\begin{array}{ll}
     \text{minimize}   &  t \\
     \text{subject to} &  \pi' - \psi' \leq t \\
@@ -282,14 +294,23 @@ $$\begin{array}{ll}
     \text{variables}  &  \pi', \psi', u' \, .
   \end{array}
 $$
-where $k'$ denotes $\log( | k | )$ and $x = (\pi', \psi' )^\top$.
+where $k'$ denotes $\log( | k | )$ and $x = (\pi', \psi' )^\mathsf{T}$.
+
+In this application, $h_{ij}(x)$ is:
+
+$${h}_{ij}(x) = \left\{ \begin{array}{cll}
+     -\pi' + a_{ij}', & \forall a_{ij} \neq 0 \, ,\\
+     \psi' -a_{ji}'  ,  & \forall a_{ji} \neq 0 \, ,\\
+\end{array} \right.
+$$
 
 Fast algorithms for finding negative cycle can be found
-in\ [@dasdan1998faster] and\ [@dasdan2004experimental].
+in\ [@dasdan1998faster; @dasdan2004experimental].
 More application in clock skew scheduling can be found in\ [@zhou2015multi].
 
 
-## Matrix Inequalities
+Matrix Inequalities
+-------------------
 
 Consider the following problem:
 $$\begin{array}{ll}
@@ -297,16 +318,15 @@ $$\begin{array}{ll}
     \text{subject to}  & F(x, t) \succeq 0,
   \end{array}
 $$
-where $F(x, t)$ is a matrix-valued function, $A \succeq 0$ denotes $A$ is positive semidefinite. Recall that a matrix $A$ is positive semidefinite if and only if $v^\top A v \ge 0$ for all $v \in \mathbb{R}^N$. The problem can be transformed into:
+where $F(x, t)$ is a matrix-valued function, $A \succeq 0$ denotes $A$ is positive semidefinite. Recall that a matrix $A$ is positive semidefinite if and only if $v^\mathsf{T} A v \ge 0$ for all $v \in \mathbb{R}^N$. The problem can be transformed into:
 $$\begin{array}{ll}
         \text{minimize}      & t, \\
-        \text{subject to}    & v^\top F(x, t) v \ge 0, \; \forall v \in \mathbb{R}^N.
+        \text{subject to}    & v^\mathsf{T} F(x, t) v \ge 0, \; \forall v \in \mathbb{R}^N.
   \end{array}
 $$
-Consider $v^\top F(x, t) v$ is concave for all $v \in \mathbb{R}^N$ w.r.t. $x$, then the above problem is a convex programming. Reduce to *semidefinite programming* if $F(x, t)$ is linear w.r.t. $x$, i.e., $F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n$.
+Consider $v^\mathsf{T} F(x, t) v$ is concave for all $v \in \mathbb{R}^N$ w.r.t. $x$, then the above problem is a convex programming. Reduce to *semidefinite programming* if $F(x, t)$ is linear w.r.t. $x$, i.e., $F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n$.
 
-Cholesky Factorization
-----------------------
+### Cholesky Factorization Algorithm
 
 An alternative form, eliminating the need to take square roots, is the symmetric indefinite factorization:
 
@@ -343,8 +363,8 @@ The following is the algorithm written in Python:
 ```python
 def factor(self, getA):
     T = self.T
-    for i in range(self.n):
-        for j in range(i+1):
+    for i in range(self.n):  # from 0 to n-1
+        for j in range(i+1): # from 0 to i
             d = getA(i, j) - np.dot(T[:j, i], T[j, :j])
             T[i, j] = d
             if i != j:
@@ -355,21 +375,35 @@ def factor(self, getA):
     self.p = self.n
 ```
 
+The vector $v$ can be found. The following is the algorithm written in Python:
+
+```python
+def witness(self):
+    p = self.p
+    n = p + 1
+    v = np.zeros(n)
+    v[p] = 1
+    for i in range(p, 0, -1): # backward substitution
+        v[i-1] = -np.dot(self.T[i-1, i:n], v[i:n])
+    return v, -self.T[p, p]
+```
+
+
 The oracle only needs to:
 
 -   Perform a *row-based* Cholesky factorization such that
-    $F(x_0, t) = R^\top R$.
+    $F(x_0, t) = R^\mathsf{T} R$.
 
 -   Let $A_{:p,:p}$ denotes a submatrix
     $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$.
 
 -   If Cholesky factorization fails at row $p$,
     -   there exists a vector
-        $e_p = (0, 0, \cdots, 0, 1)^\top \in \mathbb{R}^p$, such that
+        $e_p = (0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p$, such that
         -   $v = R_{:p,:p}^{-1} e_p$, and
-        -   $v^\top F_{:p,:p}(x_0) v < 0$.
+        -   $v^\mathsf{T} F_{:p,:p}(x_0) v < 0$.
     -   The cut $(g, \beta)$ =
-        $(-v^\top \partial F_{:p,:p}(x_0) v, -v^\top F_{:p,:p}(x_0) v)$
+        $(-v^\mathsf{T} \partial F_{:p,:p}(x_0) v, -v^\mathsf{T} F_{:p,:p}(x_0) v)$
 
 ### Example: Matrix Norm Minimization
 
@@ -379,7 +413,7 @@ $$\begin{array}{ll}
     \text{subject to}    & \left(
                             \begin{array}{cc}
                              t\,I   & A(x) \\
-                             A^\top(x) & t\,I
+                             A^\mathsf{T}(x) & t\,I
                             \end{array} \right) \succeq 0.
   \end{array}
 $$
@@ -473,9 +507,9 @@ where $x_c$ is the center of the ellipsoid.
 Updating the ellipsoid (deep-cut)
 
 Calculation of minimum volume ellipsoid covering:
-$$\mathcal{E} \cap \{z \mid g^\top (z - x_c) + \beta \leq 0 \}
+$$\mathcal{E} \cap \{z \mid g^\mathsf{T} (z - x_c) + \beta \leq 0 \}
 $$
-Let $\tilde{g} = P\,g$, $\tau^2 = g^\top P g$.
+Let $\tilde{g} = P\,g$, $\tau^2 = g^\mathsf{T} P g$.
 
 - If $n \cdot \beta < -\tau$ (shallow cut), no smaller ellipsoid can be found.
 
@@ -484,7 +518,7 @@ Let $\tilde{g} = P\,g$, $\tau^2 = g^\top P g$.
 Otherwise,
 
 $$x_c^+ = x_c - \frac{\rho}{ \tau^2 } \tilde{g}, \qquad
-  P^+ = \delta\cdot\left(P - \frac{\sigma}{ \tau^2 } \tilde{g}\tilde{g}^\top\right)
+  P^+ = \delta\cdot\left(P - \frac{\sigma}{ \tau^2 } \tilde{g}\tilde{g}^\mathsf{T}\right)
 $$
 where
 $$\rho = \frac{ \tau+nh}{n+1}, \qquad
@@ -493,9 +527,9 @@ $$\rho = \frac{ \tau+nh}{n+1}, \qquad
 $$
 
 Even better, split $P$ into two variables $\kappa \cdot Q$.
-Let $\tilde{g} = Q \cdot g$, $\omega = g^\top\tilde{g}$, $\tau = \sqrt{\kappa\cdot\omega}$.
+Let $\tilde{g} = Q \cdot g$, $\omega = g^\mathsf{T}\tilde{g}$, $\tau = \sqrt{\kappa\cdot\omega}$.
 $$x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
-  Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\top, \qquad
+  Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad
   \kappa^+ =  \delta\cdot\kappa
 $$
 Reduce $n^2$ multiplications per iteration.
@@ -522,14 +556,14 @@ Parallel Cuts
 
 Oracle returns a pair of cuts instead of just one. The pair of cuts is given by $g$ and $(\beta_1, \beta_2)$ such that:
 $$\begin{array}{l}
-    g^\top (x - x_c) + \beta_1 \leq 0,  \\
-    g^\top (x - x_c) + \beta_2 \geq 0,
+    g^\mathsf{T} (x - x_c) + \beta_1 \leq 0,  \\
+    g^\mathsf{T} (x - x_c) + \beta_2 \geq 0,
   \end{array}
 $$
 for all $x \in \mathcal{K}$.
 
 Only linear inequality constraint can produce such parallel cut:
-$$ l \leq a^\top x + b \leq u, \qquad L \preceq F(x) \preceq U. $$
+$$ l \leq a^\mathsf{T} x + b \leq u, \qquad L \preceq F(x) \preceq U. $$
 
 Usually, provide faster convergence.
 
@@ -547,7 +581,7 @@ Let $\tilde{g} = Q\,g$, $\tau^2 = \kappa\cdot\omega$.
 
 Otherwise,
 $$x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
-    Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\top, \qquad
+    Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad
     \kappa^+ =  \delta \kappa.
 $$
 where
@@ -562,7 +596,7 @@ $$
 
 ### Example: FIR filter design
 
-A typical structure of digital Finite Impulse Response (FIR) filters is shown in [@fig:fir-strctr], where the coefficients $h[0], h[1], \ldots, h[n-1]$ must be determined to meet given specifications. Usually, they can be manually designed using windowing or frequency-sampling techniques [@oppenheim1989discrete]. However, the experience and knowledge of designers are highly demanded in this kind of design methods. Moreover, there is no guarantee about design’s quality. Therefore, the optimization-based techniques (e.g. [@wu1999fir], more reference) have attracted tons of research effort. In this kind of methods, facilitated with growing computing resource and efficient optimization algorithms, the solution space can be effectively explored.
+A typical structure of digital Finite Impulse Response (FIR) filters is shown in @fig:fir-strctr, where the coefficients $h[0], h[1], \ldots, h[n-1]$ must be determined to meet given specifications. Usually, they can be manually designed using windowing or frequency-sampling techniques [@oppenheim1989discrete]. However, the experience and knowledge of designers are highly demanded in this kind of design methods. Moreover, there is no guarantee about design’s quality. Therefore, the optimization-based techniques (e.g. [@wu1999fir], more reference) have attracted tons of research effort. In this kind of methods, facilitated with growing computing resource and efficient optimization algorithms, the solution space can be effectively explored.
 
 ![A typical structure of an FIR filter\ @mitra2006digital.](ellipsoid.files/fir_strctr.pdf){#fig:fir-strctr}
 
@@ -631,14 +665,14 @@ $$\begin{array}{ll}
                              & x \in \mathbb{D},
   \end{array}$$
 where $f_0(x)$ and $f_j(x)$ are "convex". Note that some design variables are discrete. The oracle looks for the nearby discrete solution $x_d$ of $x_c$ with the cutting-plane:
-$$ g^\top (x - x_d) + \beta \leq 0, \beta \geq 0, g \neq 0. $$
+$$ g^\mathsf{T} (x - x_d) + \beta \leq 0, \beta \geq 0, g \neq 0. $$
 Note that the cut may be a shallow cut. Suggestion: use different cuts as possible for each iteration (e.g. round-robin the evaluation of constraints).
 
 ![Lowpass ripple](ellipsoid.files/lowpass_ripple.pdf){#fig:lowpass_ripple}
 
 ### Example: Multiplierless FIR Filter Design
 
-However, there are still many filter design problems that are non-convex, such as multiplierless FIR filter design problems. Note that in [@fig:fir-strctr], each coefficient associates with a multiplier unit, which makes the filter power and area hungry, especially in Application Specific Integrated Circuits (ASIC). Fortunately, it can be implemented multiplierless if each coefficient is quantized and represented as a sum of Singed Power-of-Two (SPT). Such a coefficient can be uniquely represented by a Canonic Signed-Digit (CSD) code [@george1960csd] with the smallest number of non-zero digits. In such case, the multiplication is confined to add and shift operations. An example is shown in [@fig:multi-shift]. A coefficient 0.65625 = 21/32 can be written as $2^{-1}+2^{-3}+2^{-5}$. Consequently, as shown in [@fig:shift], the multiplier can be replaced with three shifters and two adders which are with much lower cost. However, the coefficient quantization constraint, which is non-convex, makes convex optimization algorithm can not be directly applied. A similar scenario is considering the finite wordlength effect [@lim1982finite].
+However, there are still many filter design problems that are non-convex, such as multiplierless FIR filter design problems. Note that in [@fig:fir-strctr], each coefficient associates with a multiplier unit, which makes the filter power and area hungry, especially in Application Specific Integrated Circuits (ASIC). Fortunately, it can be implemented multiplierless if each coefficient is quantized and represented as a sum of Singed Power-of-Two (SPT). Such a coefficient can be uniquely represented by a Canonic Signed-Digit (CSD) code [@george1960csd] with the smallest number of non-zero digits. In such case, the multiplication is confined to add and shift operations. An example is shown in @fig:multi-shift. A coefficient 0.65625 = 21/32 can be written as $2^{-1}+2^{-3}+2^{-5}$. Consequently, as shown in @fig:shift, the multiplier can be replaced with three shifters and two adders which are with much lower cost. However, the coefficient quantization constraint, which is non-convex, makes convex optimization algorithm can not be directly applied. A similar scenario is considering the finite wordlength effect [@lim1982finite].
 
 Attracted by the benefits of the multiplierlessness, many efforts have been devoted to its design techniques. For its general problems, integer programming (e.g. [@kodek1980design; @lim1982finite; @lim1983fir; @lim1999signed]) can be implemented to achieve the optimal solution. However, it demands excessive computing resources. Other heuristic techniques, such as genetic algorithm [@xu1995design] and dynamic-programming-like method [@chen1999trellis], are also with low efficiency. Furthermore, if the quantization constraint is the only non-convex constraint in the design problem, a lower bound can be efficiently obtained by solving the relaxed problem [@davidson2010enriching]. Then to make the solution feasible, it can be either rounded to the nearest CSD codes or treated as a starting point of a local search algorithm for a better solution [@kodek1981comparison]. However, both of the methods can not guarantee the feasibility of the final solution. Besides, the local search problem is still non-convex. Therefore, the adopted algorithm could also be inefficient, such as branch-and-bound in [@kodek1981comparison].
 

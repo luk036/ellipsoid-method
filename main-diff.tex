@@ -182,10 +182,10 @@ When a \emph{separation oracle} \(\Omega\) is \emph{queried} at \(x_0\), it eith
   Asserts that \(x_0 \in \mathcal{K}\), or
 \item
   Returns a separating hyperplane between \(x_0\) and \(\mathcal{K}\):
-  \begin{equation}g^\top (x - x_0) + \beta \leq 0, \beta \geq 0, g \neq 0, \; \forall x \in \mathcal{K}.\label{eq:cut}\end{equation}
+  \begin{equation}g^\mathsf{T} (x - x_0) + \beta \leq 0, \beta \geq 0, g \neq 0, \; \forall x \in \mathcal{K}.\label{eq:cut}\end{equation}
 \end{enumerate}
 
-The pair \((g, \beta)\) is called a \emph{cutting-plane}, or cut, since it eliminates the halfspace \(\{x \mid g^\top (x - x_0) + \beta > 0\}\) from our search. If \(\beta=0\) (\(x_0\) is on the boundary of halfspace that is cut), cutting-plane is called \emph{neutral cut}. If \(\beta>0\) (\(x_0\) lies in the interior of halfspace that is cut), cutting-plane is called \emph{deep cut}.
+The pair \((g, \beta)\) is called a \emph{cutting-plane}, or cut, since it eliminates the halfspace \(\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}\) from our search. If \(\beta=0\) (\(x_0\) is on the boundary of halfspace that is cut), cutting-plane is called \emph{neutral cut}. If \(\beta>0\) (\(x_0\) lies in the interior of halfspace that is cut), cutting-plane is called \emph{deep cut}.
 
 The \(\mathcal{K}\) is usually given by a set of inequalities \(f_j(x) \le 0\) or \(f_j(x) < 0\) for \(j = 1 \cdots m\), where \(f_j(x)\) is a convex function. A vector \(g \equiv \partial f(x_0)\) is called a \emph{subgradient} of a convex function \(f\) at \(x_0\) if \(f(z) \geq f(x_0) + g^\mathrm{T} (z - x_0)\). Hence, the cut \((g, \beta)\) is given by \((\partial f(x_0), f(x_0))\).
 
@@ -221,7 +221,7 @@ Generic Cutting-plane method:
     \textbf{If} \(x_0 \in \mathcal{K}\), quit.
   \item
     \textbf{Else}, update \(\mathcal{S}\) to a smaller set that covers:
-    \[\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\top (z - x_0) + \beta \leq 0\}.\]
+    \[\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \leq 0\}.\]
   \item
     \textbf{If} \(\mathcal{S}^+ = \emptyset\) or it is small enough, quit.
   \end{enumerate}
@@ -268,7 +268,7 @@ Generic Cutting-plane method (Optim)
     \(\Phi(x_0, t) = 0\).
   \item
     Update \(\mathcal{S}\) to a smaller set that covers:
-    \[\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\top (z - x_0) + \beta \leq 0\} \]
+    \[\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \leq 0\} \]
   \item
     \textbf{If} \(\mathcal{S}^+ = \emptyset\) or it is small enough, quit.
   \end{enumerate}
@@ -487,7 +487,7 @@ into:
     \text{variables}  &  \pi', \psi', u' \, .
   \end{array}
 \]
-where \(k'\) denotes \(\log( | k | )\) and \(x = (\pi', \psi' )^\top\).
+where \(k'\) denotes \(\log( | k | )\) and \(x = (\pi', \psi' )^\mathsf{T}\).
 
 Consider the following problem:
 \[\begin{array}{ll}
@@ -495,13 +495,13 @@ Consider the following problem:
     \text{subject to}  & F(x, t) \succeq 0,
   \end{array}
 \]
-where \(F(x, t)\) is a matrix-valued function, \(A \succeq 0\) denotes \(A\) is positive semidefinite. Recall that a matrix \(A\) is positive semidefinite if and only if \(v^\top A v \ge 0\) for all \(v \in \mathbb{R}^N\). The problem can be transformed into:
+where \(F(x, t)\) is a matrix-valued function, \(A \succeq 0\) denotes \(A\) is positive semidefinite. Recall that a matrix \(A\) is positive semidefinite if and only if \(v^\mathsf{T} A v \ge 0\) for all \(v \in \mathbb{R}^N\). The problem can be transformed into:
 \[\begin{array}{ll}
         \text{minimize}      & t, \\
-        \text{subject to}    & v^\top F(x, t) v \ge 0, \; \forall v \in \mathbb{R}^N.
+        \text{subject to}    & v^\mathsf{T} F(x, t) v \ge 0, \; \forall v \in \mathbb{R}^N.
   \end{array}
 \]
-Consider \(v^\top F(x, t) v\) is concave for all \(v \in \mathbb{R}^N\) w.r.t. \(x\), then the above problem is a convex programming. Reduce to \emph{semidefinite programming} if \(F(x, t)\) is linear w.r.t. \(x\), i.e., \(F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n\).
+Consider \(v^\mathsf{T} F(x, t) v\) is concave for all \(v \in \mathbb{R}^N\) w.r.t. \(x\), then the above problem is a convex programming. Reduce to \emph{semidefinite programming} if \(F(x, t)\) is linear w.r.t. \(x\), i.e., \(F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n\).
 
 The oracle only needs to:
 
@@ -509,7 +509,7 @@ The oracle only needs to:
 \tightlist
 \item
   Perform a \emph{row-based} Cholesky factorization such that
-  \(F(x_0, t) = R^\top R\).
+  \(F(x_0, t) = R^\mathsf{T} R\).
 \item
   Let \(A_{:p,:p}\) denotes a submatrix
   \(A(1:p, 1:p) \in \mathbb{R}^{p\times p}\).
@@ -520,18 +520,18 @@ The oracle only needs to:
   \tightlist
   \item
     there exists a vector
-    \(e_p = (0, 0, \cdots, 0, 1)^\top \in \mathbb{R}^p\), such that
+    \(e_p = (0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p\), such that
 
     \begin{itemize}
     \tightlist
     \item
       \(v = R_{:p,:p}^{-1} e_p\), and
     \item
-      \(v^\top F_{:p,:p}(x_0) v < 0\).
+      \(v^\mathsf{T} F_{:p,:p}(x_0) v < 0\).
     \end{itemize}
   \item
     The cut \((g, \beta)\) =
-    \((-v^\top \partial F_{:p,:p}(x_0) v, -v^\top F_{:p,:p}(x_0) v)\)
+    \((-v^\mathsf{T} \partial F_{:p,:p}(x_0) v, -v^\mathsf{T} F_{:p,:p}(x_0) v)\)
   \end{itemize}
 \end{itemize}
 
@@ -544,7 +544,7 @@ Let \(A(x) = A_0 + x_1 A_1 + \cdots + x_n A_n\). Problem \(\min_x \| A(x) \|\) c
     \text{subject to}    & \left(
                             \begin{array}{cc}
                              t\,I   & A(x) \\
-                             A^\top(x) & t\,I
+                             A^\mathsf{T}(x) & t\,I
                             \end{array} \right) \succeq 0.
   \end{array}
 \]
@@ -591,9 +591,9 @@ where \(x_c\) is the center of the ellipsoid.
 Updating the ellipsoid (deep-cut)
 
 Calculation of minimum volume ellipsoid covering:
-\[\mathcal{E} \cap \{z \mid g^\top (z - x_c) + \beta \leq 0 \}
+\[\mathcal{E} \cap \{z \mid g^\mathsf{T} (z - x_c) + \beta \leq 0 \}
 \]
-Let \(\tilde{g} = P\,g\), \(\tau^2 = g^\top P g\).
+Let \(\tilde{g} = P\,g\), \(\tau^2 = g^\mathsf{T} P g\).
 
 \begin{itemize}
 \tightlist
@@ -605,7 +605,7 @@ Let \(\tilde{g} = P\,g\), \(\tau^2 = g^\top P g\).
 
 Otherwise,
 \[x_c^+ = x_c - \frac{\rho}{ \tau^2 } \tilde{g}, \qquad
-  P^+ = \delta\cdot\left(P - \frac{\sigma}{ \tau^2 } \tilde{g}\tilde{g}^\top\right)
+  P^+ = \delta\cdot\left(P - \frac{\sigma}{ \tau^2 } \tilde{g}\tilde{g}^\mathsf{T}\right)
 \]
 where
 \[\rho = \frac{ \tau+nh}{n+1}, \qquad
@@ -614,9 +614,9 @@ where
 \]
 
 Even better, split \(P\) into two variables \(\kappa \cdot Q\).
-Let \(\tilde{g} = Q \cdot g\), \(\omega = g^\top\tilde{g}\), \(\tau = \sqrt{\kappa\cdot\omega}\).
+Let \(\tilde{g} = Q \cdot g\), \(\omega = g^\mathsf{T}\tilde{g}\), \(\tau = \sqrt{\kappa\cdot\omega}\).
 \[x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
-  Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\top, \qquad
+  Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad
   \kappa^+ =  \delta\cdot\kappa
 \]
 Reduce \(n^2\) multiplications per iteration.
@@ -648,14 +648,14 @@ Let \(\tilde{g} = Q\,g\), \(\tau = \sqrt{\kappa\cdot\omega}\),
 Oracle returns a pair of cuts instead of just one.
 The pair of cuts is given by \(g\) and \((\beta_1, \beta_2)\) such that:
 \[\begin{array}{l}
-    g^\top (x - x_c) + \beta_1 \leq 0,  \\
-    g^\top (x - x_c) + \beta_2 \geq 0,
+    g^\mathsf{T} (x - x_c) + \beta_1 \leq 0,  \\
+    g^\mathsf{T} (x - x_c) + \beta_2 \geq 0,
   \end{array}
 \]
 for all \(x \in \mathcal{K}\).
 
 Only linear inequality constraint can produce such parallel cut:
-\[ l \leq a^\top x + b \leq u, \qquad L \preceq F(x) \preceq U
+\[ l \leq a^\mathsf{T} x + b \leq u, \qquad L \preceq F(x) \preceq U
 \]
 
 Usually, provide faster convergence.
@@ -684,7 +684,7 @@ Let \(\tilde{g} = Q\,g\), \(\tau^2 = \kappa\cdot\omega\).
 
 Otherwise,
 \[x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
-    Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\top, \qquad
+    Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad
     \kappa^+ =  \delta \kappa
 \]
 where
@@ -773,7 +773,7 @@ Consider:
   \end{array}
 \]
 where \(f_0(x)\) and \(f_j(x)\) are ``convex''. Note that some design variables are discrete. The oracle looks for the nearby discrete solution \(x_d\) of \(x_c\) with the cutting-plane:
-\[ g^\top (x - x_d) + \beta \leq 0, \beta \geq 0, g \neq 0.
+\[ g^\mathsf{T} (x - x_d) + \beta \leq 0, \beta \geq 0, g \neq 0.
 \]
 Note that the cut may be a shallow cut. Suggestion: use different cuts as possible for each iteration (e.g.~round-robin the evaluation of constraints).
 
