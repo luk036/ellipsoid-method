@@ -1,25 +1,13 @@
 ---
 title: Ellipsoid Method and the Amazing Oracles
-author:
-  - 'Wai-Shing Luk\thanks{Fudan University}'
 bibliography: ['ellipsoid.bib', 'fir-ref.bib', 'Geostatistics.bib', 'mpcss1.bib', 'mpcss2.bib']
-documentclass: siamltex
-classoption:
-  - final
-  - leqno
 abstract: 'Ellipsoid method is revisited. Besides that, three separation oracles are investigated for applications. They are robust optimization, semidefinite programming, and network optimization. Discuss the stability issue. Finally, the parallel cut is described.'
-keywords:
-  - Ellipsoid method
-  - Cutting plane method
-  - Separation oracle
-  - Cholesky Factorization
-thanks: This work was supported by the Society for Industrial and Applied Mathematics
 ...
 
 Introduction
 ============
 
-The bad reputation of the ellipsoid method is not good. And that is unfair. It is commonly believed that the method is inefficient in practice for large-scale convex problems. The convergent rate is slow. It cannot exploits sparsity. It was supplanted by the interior-point methods. It can be treated as a theoretical tool for proving the polynomial-time solvability of combinatorial optimization problems.
+The bad reputation of the ellipsoid method is not good. And that is not fair. It is commonly believed that the method is inefficient in practice for large-scale convex problems. The convergent rate is slow. It cannot exploits sparsity. It was supplanted by the interior-point methods. It can be treated as a theoretical tool for proving the polynomial-time solvability of combinatorial optimization problems.
 
 However, the ellipsoid method works very differently compared with the interior point method. Also, it only requires a separation oracle. Thus, it can play nicely with other techniques. Consider Ellipsoid Method When the number of optimization variables is moderate, e.g. ECO flow, analog circuit sizing, parametric problems. The number of constraints is large, or even infinite. Whenever separation oracle can be implemented efficiently.
 
@@ -108,39 +96,42 @@ Generic Cutting-plane method (Optim)
 
     5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
 
-## Example: Profit Maximization Problem
+Example: Profit Maximization Problem {#sec:profit}
+--------------------------------------------------
 
-Consider:
+This example is taken from\ [@profit].
+Consider the following profit maxization problme:
 $$\begin{array}{ll}
-   \text{maximize} & p(A x_1^\alpha x_2^\beta) - v_1 x_1 - v_2 x_2, \\
-   \text{subject to}& x_1 \le k,
+   \text{maximize}   & p(A x_1^\alpha x_2^\beta) - v_1 x_1 - v_2 x_2, \\
+   \text{subject to} & x_1 \le k, \\
+                     & x_1, x_2 positive,
   \end{array}
 $$ {#eq:profit-max-in-original-form}
 where
 $p$ is the market price per unit,
 $A$ is the scale of production,
-$p(A x_1^\alpha x_2^\beta)$ is the Cobb-Douglas production function,
-$(\alpha, \beta)$ is the output elasticities,
-$x$ is the input quantity,
-$v$ is the output price, and
-$k$ is a given constant that restricts the quantity of $x_1$.
+$\alpha and \beta$ are the output elasticities,
+$A x_1^\alpha x_2^\beta)$ is the Cobb-Douglas production function,
+$x_i$ and $v_i$ are $i$th input quantity and output price respectively,
+and $k$ is a given constant that restricts the quantity of $x_1$.
 
-The formulation is not in the convex form. Rewrite the problem in the following form:
+The above formulation is not in a convex form. Rewrite the problem as follows:
 $$\begin{array}{ll}
     \text{maximize}   & t, \\
-    \text{subject to} & t  + v_1 x_1  + v_2 x_2 < p A x_1^{\alpha} x_2^{\beta}, \\
-                      & x_1 \le k.
+    \text{subject to} & t  + v_1 x_1  + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}, \\
+                      & x_1 \le k, \\
+                      & x_1, x_2 positive.
   \end{array}
 $$
-By taking the logarithm of each variable, we have the problem in a convex form:
+By taking the logarithm of each constraint and the change of variables, we reformulate the problem in the following convex form:
 $$\begin{array}{ll}
     \text{max}  & t, \\
-    \text{s.t.} & \log(t + v_1 e^{y_1} + v_2 e^{y_2}) - 
+    \text{s.t.} & \log(t + v_1 e^{y_1} + v_2 e^{y_2}) -
                     (\alpha y_1 + \beta y_2) < \log(pA), \\
                 & y_1 \le \log k,
   \end{array}
 $$ {#eq:profit-in-cvx-form}
-where $y_1 = \log x_1$, $y_2 = \log x_2$.
+where $y_1 = \log x_1$ and $y_2 = \log x_2$.
 
 Area of Applications
 ====================
@@ -177,30 +168,30 @@ $$
 
 The oracle only needs to determine:
 
-- If $f_j(x_0, q) > 0$ for some $j$ and $q = q_0$, then
+-   If $f_j(x_0, q) > 0$ for some $j$ and $q = q_0$, then
 
-- the cut $(g, \beta)$ = $(\partial f_j(x_0, q_0), f_j(x_0, q_0))$
+-   the cut $(g, \beta)$ = $(\partial f_j(x_0, q_0), f_j(x_0, q_0))$
 
-- If $f_0(x_0, q) \geq t$ for some $q = q_0$, then
+-   If $f_0(x_0, q) \geq t$ for some $q = q_0$, then
 
-- the cut $(g, \beta)$ = $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - t)$
+-   the cut $(g, \beta)$ = $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - t)$
 
-- Otherwise, $x_0$ is feasible, then
+-   Otherwise, $x_0$ is feasible, then
 
-- Let $q_{\max} = \text{argmax}_{q \in \mathbb Q} f_0(x_0, q)$.
+-   Let $q_{\max} = \text{argmax}_{q \in \mathbb Q} f_0(x_0, q)$.
 
-- $t := f_0(x_0, q_{\max})$.
+-   $t := f_0(x_0, q_{\max})$.
 
-- The cut $(g, \beta)$ = $(\partial f_0(x_0, q_{\max}), 0)$
+-   The cut $(g, \beta)$ = $(\partial f_0(x_0, q_{\max}), 0)$
 
 Random sampling trick.
 
-### Example: Profit Maximization Problem
+### Example: Profit Maximization Problem {#sec:profit-rb}
 
-Consider
+Consider the previous profit maximization in\ @sec:profit, with interval uncertainties on parameters of the model:
 $$\begin{array}{ll}
     \text{max}  & t \\
-    \text{s.t.} & \log(t + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) - 
+    \text{s.t.} & \log(t + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) -
                         (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A)  \\
                 & y_1 \le \log \hat{k} .
   \end{array}
@@ -218,8 +209,6 @@ Now assume that $\hat{\alpha}$ and $\hat{\beta}$ vary $\bar{\alpha} \pm e_1$ and
     $\beta = \bar{\beta} + e_2$
 
 For more complicated problems, affine arithmetic could be used\ [@liu2007robust].
-
-
 
 Parametric Network Potential Problem
 ------------------------------------
@@ -249,24 +238,23 @@ $$
 
 ### Negative Cycle Detection Algorithm
 
-The negative cycle detection is the most time-consuming part in the
-proposed method, so it is very important to choose the proper negative
+The negative cycle detection is the most time-consuming part of the proposed method, so it is very important to choose the proper negative
 cycle detection algorithm. There are lots of methods to detect negative
 cycles in a weighted graph [@cherkassky1999negative], in which Tarjan’s
 algorithm [@Tarjan1981negcycle] is one of the fastest algorithms in
 practice  @alg:dasdan_mcr [@cherkassky1999negative].
 
-The oracle only needs to determine:
+The separation oracle only needs to determine:
 
-- If there exists a negative cycle $C_k$ under $x_0$, then
+-   If there exists a negative cycle $C_k$ under $x_0$, then
 
-- the cut $(g, \beta)$ = $(-\partial W_k(x_0), -W_k(x_0))$
+-   the cut $(g, \beta)$ = $(-\partial W_k(x_0), -W_k(x_0))$
 
-- If $f_0(x_0) \geq t$, then the cut $(g, \beta)$ = $(\partial f_0(x_0), f_0(x_0) - t)$.
+-   If $f_0(x_0) \geq t$, then the cut $(g, \beta)$ = $(\partial f_0(x_0), f_0(x_0) - t)$.
 
-- Otherwise, $x_0$ is feasible, then
-  - $t := f_0(x_0)$.
-  - The cut $(g, \beta)$ = $(\partial f_0(x_0), 0)$
+-   Otherwise, $x_0$ is feasible, then
+    -   $t := f_0(x_0)$.
+    -   The cut $(g, \beta)$ = $(\partial f_0(x_0), 0)$
 
 ### Example: Optimal Matrix Scaling
 
@@ -278,7 +266,7 @@ absolute value is as close to one as possible.
 Let $U = \mathrm{diag}([u_1, u_2, \ldots, u_N])$. Under the min-max-ratio criterion, the problem can be formulated as:
 $$\begin{array}{ll}
     \text{minimize}   &  \pi/\psi  \\
-    \text{subject to} &  \psi \leq u_i |a_{ij}| u_j^{-1} \leq \pi, \; 
+    \text{subject to} &  \psi \leq u_i |a_{ij}| u_j^{-1} \leq \pi, \;
                                             \forall a_{ij} \neq 0 , \\
                       &  \pi, \, \psi, u, \text{positive} \\
     \text{variables}  &  \pi, \psi, u \, .
@@ -307,7 +295,6 @@ $$
 Fast algorithms for finding negative cycle can be found
 in\ [@dasdan1998faster; @dasdan2004experimental].
 More application in clock skew scheduling can be found in\ [@zhou2015multi].
-
 
 Matrix Inequalities
 -------------------
@@ -388,7 +375,6 @@ def witness(self):
     return v, -self.T[p, p]
 ```
 
-
 The oracle only needs to:
 
 -   Perform a *row-based* Cholesky factorization such that
@@ -438,8 +424,7 @@ A random field has several key properties that are useful in practical
 problems. The field is *stationary* under translations, or
 *homogeneous*, if the distribution is unchanged when the point set is
 translated. The field is *isotropic* if the distribution is invariant
-under any rotation of the whole points in the parameter space. We study
-homogeneous isotropic field in this paper.
+under any rotation of the whole points in the parameter space. We study the homogeneous isotropic field in this paper.
 
 The *covariance* $C$ and *correlation* $R$ of a stochastic process are
 defined by
@@ -476,7 +461,6 @@ Let $\rho(h) = \sum_i^n p_i \Psi_i(h)$, where $p_i$'s are the unknown coefficien
 $$\Omega(p) = p_1 F_1 + \cdots + p_n F_n, $$
 where $\{F_k\}_{i,j} =\Psi_k( \| s_j - s_i \|_2)$.
 
-
 Ellipsoid Method Revisited
 ==========================
 
@@ -495,7 +479,7 @@ where $x_c$ is the center of the ellipsoid.
  \draw[top color=lightgray, bottom color=lightgray] plot[smooth, tension=.7] coordinates {(-3,2) (-5,2) (-6,4) (-5,5) (-3,4) (-3,2)};
  \node at (-5,4) {$\mathcal{K}$};
 \draw (0,8) -- (-3,-2);
-\draw [fill=qqqqff] (-1,3) circle (1.5pt) 
+\draw [fill=qqqqff] (-1,3) circle (1.5pt)
    node [above right] {$x_c$};
 \draw  (-1,3) ellipse (7 and 3);
   \node at (5,4) {$\mathcal{E}$};
@@ -511,9 +495,9 @@ $$\mathcal{E} \cap \{z \mid g^\mathsf{T} (z - x_c) + \beta \leq 0 \}
 $$
 Let $\tilde{g} = P\,g$, $\tau^2 = g^\mathsf{T} P g$.
 
-- If $n \cdot \beta < -\tau$ (shallow cut), no smaller ellipsoid can be found.
+-   If $n \cdot \beta < -\tau$ (shallow cut), no smaller ellipsoid can be found.
 
-- If $\beta > \tau$, intersection is empty.
+-   If $\beta > \tau$, intersection is empty.
 
 Otherwise,
 
@@ -535,9 +519,9 @@ $$
 Reduce $n^2$ multiplications per iteration.
 Note that:
 
-- The determinant of $Q$ decreases monotonically.
+-   The determinant of $Q$ decreases monotonically.
 
-- The range of $\delta$ is $(0, \frac{n^2}{n^2 - 1})$
+-   The range of $\delta$ is $(0, \frac{n^2}{n^2 - 1})$
 
 Central Cut
 -----------
@@ -573,11 +557,11 @@ Updating the ellipsoid.
 
 Let $\tilde{g} = Q\,g$, $\tau^2 = \kappa\cdot\omega$.
 
-- If $\beta_1 > \beta_2$, intersection is empty.
+-   If $\beta_1 > \beta_2$, intersection is empty.
 
-- If $\beta_1 \beta_2 < -\tau^2/n$, no smaller ellipsoid can be found.
+-   If $\beta_1 \beta_2 < -\tau^2/n$, no smaller ellipsoid can be found.
 
-- If $\beta_2^2 > \tau^2$, it reduces to deep-cut with $\alpha = \alpha_1$.
+-   If $\beta_2^2 > \tau^2$, it reduces to deep-cut with $\alpha = \alpha_1$.
 
 Otherwise,
 $$x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
@@ -596,18 +580,22 @@ $$
 
 ### Example: FIR filter design
 
-A typical structure of digital Finite Impulse Response (FIR) filters is shown in @fig:fir-strctr, where the coefficients $h[0], h[1], \ldots, h[n-1]$ must be determined to meet given specifications. Usually, they can be manually designed using windowing or frequency-sampling techniques [@oppenheim1989discrete]. However, the experience and knowledge of designers are highly demanded in this kind of design methods. Moreover, there is no guarantee about design’s quality. Therefore, the optimization-based techniques (e.g. [@wu1999fir], more reference) have attracted tons of research effort. In this kind of methods, facilitated with growing computing resource and efficient optimization algorithms, the solution space can be effectively explored.
+A typical structure of digital Finite Impulse Response (FIR) filter is shown in @fig:fir-structure, where the coefficients $h[0], h[1], \ldots, h[n-1]$ must be determined to meet given specifications. Usually, they can be manually designed using windowing or frequency-sampling techniques [@oppenheim1989discrete].
+
+However, the experience and knowledge of designers are highly demanded in this kind of design methods. Moreover, there is no guarantee about the design’s quality. Therefore, the optimization-based techniques (e.g. [@wu1999fir], more reference) have attracted tons of research effort. In this kind of methods, facilitated with growing computing resource and efficient optimization algorithms, the solution space can be effectively explored.
 
 ![A typical structure of an FIR filter\ @mitra2006digital.](ellipsoid.files/fir_strctr.pdf){#fig:fir-strctr}
 
-In the area of optimization algorithms, what is particularly interesting is convex optimization. If a problem is in a convex form, it can be efficiently and optimally solved. Convex optimization techniques are also implementable in designing FIR filters, including Parks-McClellan algorithm [@park1972chebyshev], METEOR [@steiglitz1992meteor] and peak-constrained least-squares (PCLS) [@selesnick1996constrained; @adams1998peak]. In the mentioned articles, with the help of exchange algorithms (e.g. Remez exchange algorithm), certain FIR filter design problems can be formed as linear or quadratic programs. They are two simple form of convex optimization problems, which can be optimally solved with existing algorithms, such as the interior-point method [@boyd2009convex]. Tempted by the optimality, more efforts were devoted to form the problem convex. Particularly, in [@wu1999fir], via spectral factorization [@goodman1997spectral], the problem of designing an FIR filter with magnitude constraints on frequency-domain is formulated as a convex optimization problem. More examples are provided in [@davidson2010enriching].
+In the area of optimization algorithms, what is particularly interesting is convex optimization. If a problem is in a convex form, it can be efficiently and optimally solved. Convex optimization techniques are also implementable in designing FIR filters, including Parks-McClellan algorithm [@park1972chebyshev], METEOR [@steiglitz1992meteor] and peak-constrained least-squares (PCLS) [@selesnick1996constrained; @adams1998peak].
+In the mentioned articles, with the help of exchange algorithms (e.g. Remez exchange algorithm), certain FIR filter design problems can be formed as linear or quadratic programs. They are two simple forms of convex optimization problems, which can be optimally solved with existing algorithms, such as the interior-point method [@boyd2009convex].
+Tempted by the optimality, more efforts were devoted to form the problem convex. Particularly, in [@wu1999fir], via spectral factorization [@goodman1997spectral], the problem of designing an FIR filter with magnitude constraints on frequency-domain is formulated as a convex optimization problem. More examples are provided in [@davidson2010enriching].
 
 Its time response is
 $$y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]}
 $${#eq:t_res}
-where $\mathbf{h} = (h(0), h(1),..., h(n-1))$ is the filter coefficients. Its frequency response $H: [0,\pi] \rightarrow \mathbb{C}$ is 
+where $\mathbf{h} = (h(0), h(1),..., h(n-1))$ is the filter coefficients. Its frequency response $H: [0,\pi] \rightarrow \mathbb{C}$ is
 $$H(\omega) = \sum_{m=0}^{n-1}{h(m)e^{-jm\omega}}
-$${#eq:f_res} 
+$$ {#eq:f_res}
 where $j = \sqrt{-1}$, $n$ is the order of the filter.
 The design of a filter with magnitude constraints is often formulated as a constraint optimization problem as the form
 $$\begin{aligned}
@@ -615,18 +603,17 @@ $$\begin{aligned}
   \mathrm{s.t.}   &  f(\mathbf{x}) \leq \gamma \\
                   &  g(\mathbf{x}) \leq 0.\end{aligned}
 $$ {#eq:ori}
-where $\mathbf{x}$ is the vector of design variables, $g(\mathbf{x})$ represents the characteristics of the desirable filter and $f(\mathbf{x})$ is the performance metric to be optimized. For example, the magnitude constraints on frequency domain are expressed as 
+where $\mathbf{x}$ is the vector of design variables, $g(\mathbf{x})$ represents the characteristics of the desirable filter and $f(\mathbf{x})$ is the performance metric to be optimized. For example, the magnitude constraints on frequency domain are expressed as
 $$L(\omega) \leq |H(\omega)| \leq U(\omega), \forall \omega\in(-\infty,+\infty)
 $$ {#eq:mag_cons}
 where $L(\omega)$ and $U(\omega)$ are the lower and upper (nonnegative) bounds at frequency $\omega$ respectively. Note that $H(\omega)$ is $2\pi$ periodic and $H(\omega)=\overline{H(-\omega)}$. Therefore, we can only consider the magnitude constraint on $[0,\pi]$\ [@wu1999fir].
 
-Generally, the problem  might be quite difficult to solve, since the global optimal solution can only be obtained with resource consuming methods, such as branch-and-bound [@davidson2010enriching]. However, the situation is totally different if the problem is convex, where $f(\mathbf{x})$ and $g(\mathbf{x})$ are convex functions. In such case, the problem can be optimally solved with many efficient algorithms.
+Generally, the problem might be quite difficult to solve, since the global optimal solution can only be obtained with resource consuming methods, such as branch-and-bound [@davidson2010enriching]. However, the situation is totally different if the problem is convex, where $f(\mathbf{x})$ and $g(\mathbf{x})$ are convex functions. In such a case, the problem can be optimally solved with many efficient algorithms.
 
-Attracted by the benefits, the authors of\ [@wu1999fir] transformed , originally non-convex, into a convex form via spectral factorization: 
+Attracted by the benefits, the authors of\ [@wu1999fir] transformed , originally non-convex, into a convex form via spectral factorization:
 
 $$L^2(\omega) \leq R(\omega) \leq U^2(\omega), \forall \omega\in(0,\pi)$$ {#eq:r_con}
-
-where $R(\omega)=\sum_{i=-n+1}^{n-1}{r(t)e^{-j{\omega}t}}=|H(\omega)|^2$ and $\mathbf{r}=(r(-n+1),r(-n+2),\ldots,r(n-1))$ are the autocorrelation coefficients. Especially, $\mathbf{r}$ can be determined by $\mathbf{h}$, with the following equation vice versa\ [@wu1999fir]: 
+where $R(\omega)=\sum_{i=-n+1}^{n-1}{r(t)e^{-j{\omega}t}}=|H(\omega)|^2$ and $\mathbf{r}=(r(-n+1),r(-n+2),\ldots,r(n-1))$ are the autocorrelation coefficients. Especially, $\mathbf{r}$ can be determined by $\mathbf{h}$, with the following equation vice versa\ [@wu1999fir]:
 
 $$r(t) = \sum_{i=-n+1}^{n-1}{h(i)h(i+t)}, t\in\mathbb{Z}.$$ {#eq:h_r}
 where $h(t)=0$ for $t<0$ or $t>n-1$.
@@ -672,10 +659,13 @@ Note that the cut may be a shallow cut. Suggestion: use different cuts as possib
 
 ### Example: Multiplierless FIR Filter Design
 
-However, there are still many filter design problems that are non-convex, such as multiplierless FIR filter design problems. Note that in [@fig:fir-strctr], each coefficient associates with a multiplier unit, which makes the filter power and area hungry, especially in Application Specific Integrated Circuits (ASIC). Fortunately, it can be implemented multiplierless if each coefficient is quantized and represented as a sum of Singed Power-of-Two (SPT). Such a coefficient can be uniquely represented by a Canonic Signed-Digit (CSD) code [@george1960csd] with the smallest number of non-zero digits. In such case, the multiplication is confined to add and shift operations. An example is shown in @fig:multi-shift. A coefficient 0.65625 = 21/32 can be written as $2^{-1}+2^{-3}+2^{-5}$. Consequently, as shown in @fig:shift, the multiplier can be replaced with three shifters and two adders which are with much lower cost. However, the coefficient quantization constraint, which is non-convex, makes convex optimization algorithm can not be directly applied. A similar scenario is considering the finite wordlength effect [@lim1982finite].
+However, there are still many filter design problems that are non-convex, such as multiplierless FIR filter design problems. Note that in [@fig:fir-structure], each coefficient associated with a multiplier unit makes the filter power hungry, especially in Application Specific Integrated Circuits (ASIC).
+Fortunately, it can be implemented multiplierless if each coefficient is quantized and represented as a sum of Singed Power-of-Two (SPT). Such a coefficient can be uniquely represented by a Canonic Signed-Digit (CSD) code [@george1960csd] with the smallest number of non-zero digits. In such a case, the multiplication is confined to add and shift operations.
+An example is shown in @fig:multi-shift. A coefficient 0.65625 = 21/32 can be written as $2^{-1}+2^{-3}+2^{-5}$. Consequently, as shown in @fig:shift, the multiplier can be replaced with three shifters and two adders which are with much lower cost. However, the coefficient quantization constraint, which is non-convex, makes the convex optimization algorithm cannot be directly applied. A similar scenario is considering the finite wordlength effect [@lim1982finite].
 
-Attracted by the benefits of the multiplierlessness, many efforts have been devoted to its design techniques. For its general problems, integer programming (e.g. [@kodek1980design; @lim1982finite; @lim1983fir; @lim1999signed]) can be implemented to achieve the optimal solution. However, it demands excessive computing resources. Other heuristic techniques, such as genetic algorithm [@xu1995design] and dynamic-programming-like method [@chen1999trellis], are also with low efficiency. Furthermore, if the quantization constraint is the only non-convex constraint in the design problem, a lower bound can be efficiently obtained by solving the relaxed problem [@davidson2010enriching]. Then to make the solution feasible, it can be either rounded to the nearest CSD codes or treated as a starting point of a local search algorithm for a better solution [@kodek1981comparison]. However, both of the methods can not guarantee the feasibility of the final solution. Besides, the local search problem is still non-convex. Therefore, the adopted algorithm could also be inefficient, such as branch-and-bound in [@kodek1981comparison].
-
+Attracted by the benefits of the multiplierlessness, many efforts have been devoted to its design techniques. For its general problems, integer programming (e.g. [@kodek1980design; @lim1982finite; @lim1983fir; @lim1999signed]) can be implemented to achieve the optimal solution. However, it demands excessive computing resources. Other heuristic techniques, such as genetic algorithm [@xu1995design] and dynamic-programming-like method [@chen1999trellis], are also with low efficiency.
+Furthermore, if the quantization constraint is the only non-convex constraint in the design problem, a lower bound can be efficiently obtained by solving the relaxed problem [@davidson2010enriching]. Then to make the solution feasible, it can be either rounded to the nearest CSD codes or treated as a starting point of a local search algorithm for a better solution [@kodek1981comparison].
+However, both of the methods can not guarantee the feasibility of the final solution. Besides, the local search problem is still non-convex. Therefore, the adopted algorithm could also be inefficient, such as branch-and-bound in [@kodek1981comparison].
 
 References {#references .unnumbered}
-==========
+====================================
