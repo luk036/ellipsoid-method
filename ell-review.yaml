@@ -1,0 +1,14 @@
+---
+author:
+  - 'Wai-Shing Luk\thanks{Fudan University}'
+documentclass: siamltex
+classoption:
+  - final
+  - leqno
+keywords:
+  - Ellipsoid method
+  - Cutting plane method
+  - Separation oracle
+  - Cholesky Factorization
+thanks: This work was supported by the Society for Industrial and Applied Mathematics
+...
