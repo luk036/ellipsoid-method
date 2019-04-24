@@ -2,12 +2,12 @@
 title: Ellipsoid Method and the Amazing Oracles
 bibliography: ['ellipsoid.bib', 'fir-ref.bib', 'Geostatistics.bib', 'mpcss1.bib', 'mpcss2.bib']
 abstract: 'Ellipsoid method is revisited. Besides that, three separation oracles are investigated for applications. They are robust optimization, semidefinite programming, and network optimization. Discuss the stability issue. Finally, the parallel cut is described.'
-...
+---
 
 Introduction
 ============
 
-The bad reputation of the ellipsoid method is not good. And that is not fair. It is commonly believed that the method is inefficient in practice for large-scale convex problems. The convergent rate is slow. It cannot exploits sparsity. It was supplanted by the interior-point methods. It can be treated as a theoretical tool for proving the polynomial-time solvability of combinatorial optimization problems.
+The reputation of the ellipsoid method is not good. And that is not fair. It is commonly believed that the method is inefficient in practice for large-scale convex problems. The convergent rate is slow. It cannot exploits sparsity. It was supplanted by the interior-point methods. It can be treated as a theoretical tool for proving the polynomial-time solvability of combinatorial optimization problems.
 
 However, the ellipsoid method works very differently compared with the interior point method. Also, it only requires a separation oracle. Thus, it can play nicely with other techniques. Consider Ellipsoid Method When the number of optimization variables is moderate, e.g. ECO flow, analog circuit sizing, parametric problems. The number of constraints is large, or even infinite. Whenever separation oracle can be implemented efficiently.
 
@@ -99,7 +99,7 @@ Generic Cutting-plane method (Optim)
 Example: Profit Maximization Problem {#sec:profit}
 --------------------------------------------------
 
-This example is taken from\ [@profit].
+This example is taken from [@profit].
 Consider the following profit maxization problme:
 $$\begin{array}{ll}
    \text{maximize}   & p(A x_1^\alpha x_2^\beta) - v_1 x_1 - v_2 x_2, \\
@@ -208,10 +208,10 @@ Now assume that $\hat{\alpha}$ and $\hat{\beta}$ vary $\bar{\alpha} \pm e_1$ and
 -   if $y_2 > 0$, $\beta = \bar{\beta} - e_2$, else
     $\beta = \bar{\beta} + e_2$
 
-For more complicated problems, affine arithmetic could be used\ [@liu2007robust].
+For more complicated problems, affine arithmetic could be used [@liu2007robust].
 
-Parametric Network Potential Problem
-------------------------------------
+Parametric Network Problems
+---------------------------
 
 Given a network represented by a directed graph $G = (V, E)$.
 Consider :
@@ -258,22 +258,21 @@ The separation oracle only needs to determine:
 
 ### Example: Optimal Matrix Scaling
 
-This example is taken from\ [@orlin1985computing].
-Given a matrix $A = [a_{ij}] \in \mathbb{R}^{N\times N}$, we would like
-to find another matrix $B = X A X^{-1}$ where $X$ is a nonnegative
-diagonal matrix, such that the ratio of any two elements of $B$ in
-absolute value is as close to one as possible.
-Let $U = \mathrm{diag}([u_1, u_2, \ldots, u_N])$. Under the min-max-ratio criterion, the problem can be formulated as:
+This example is taken from [@orlin1985computing].
+Given a matrix $A = [a_{ij}] \in \mathbb{R}^{N\times N}$.
+A *symmetric scaling* of $A$ is a matrix $B$ of the form $U A U^{-1}$ where $U$ is a nonnegative diagonal matrix having the same dimension. Under the *min-max criterion*, the objective is to minimize the largest absolute value of the element of $B$. The symmetric scaling problem under such criterion can be reformulated as a single-parameter monotropic linear network optimization problem. 
+
+Another possible criterion is to minimize the ratio of largest absolute value of the element $B$ to the smallest. The motivation for using this criterion is that high ratios cause difficulties in performing the simplex method. Under this *min-max-ratio* criterion, the symmetric scaling problem can be formulated as:
 $$\begin{array}{ll}
     \text{minimize}   &  \pi/\psi  \\
     \text{subject to} &  \psi \leq u_i |a_{ij}| u_j^{-1} \leq \pi, \;
                                             \forall a_{ij} \neq 0 , \\
-                      &  \pi, \, \psi, u, \text{positive} \\
+                      &  \pi, \, \psi, u \text{positive} \\
     \text{variables}  &  \pi, \psi, u \, .
   \end{array}
 $$
 
-By taking the logarithms of variables, the above problem can be transformed into:
+Let $k'$ denotes $\log( | k | )$. By taking the logarithms of variables, the above programming can be transformed into a two-parameter network optimization problem:
 $$\begin{array}{ll}
     \text{minimize}   &  t \\
     \text{subject to} &  \pi' - \psi' \leq t \\
@@ -282,7 +281,11 @@ $$\begin{array}{ll}
     \text{variables}  &  \pi', \psi', u' \, .
   \end{array}
 $$
-where $k'$ denotes $\log( | k | )$ and $x = (\pi', \psi' )^\mathsf{T}$.
+where $x = (\pi', \psi' )^\mathsf{T}$.
+
+The authors of [@orlin1985computing] claimed that efficient algorithms had been developed for solving such multi-parameter problem, but we cannot find any follow-up publications about this.
+
+Interestingly, by using the cutting-plane method, one can easily extend the single-parameter network algorithm to the multi-parameter one.
 
 In this application, $h_{ij}(x)$ is:
 
@@ -293,8 +296,8 @@ $${h}_{ij}(x) = \left\{ \begin{array}{cll}
 $$
 
 Fast algorithms for finding negative cycle can be found
-in\ [@dasdan1998faster; @dasdan2004experimental].
-More application in clock skew scheduling can be found in\ [@zhou2015multi].
+in [@dasdan1998faster; @dasdan2004experimental].
+More application in clock skew scheduling can be found in [@zhou2015multi].
 
 Matrix Inequalities
 -------------------
@@ -464,7 +467,7 @@ where $\{F_k\}_{i,j} =\Psi_k( \| s_j - s_i \|_2)$.
 Ellipsoid Method Revisited
 ==========================
 
-Some History of Ellipsoid Method\ [@BGT81]. Introduced by Shor and Yudin and Nemirovskii in 1976. Used to show that linear programming (LP) is polynomial-time solvable (Kachiyan 1979), settled the long-standing problem of determining the theoretical complexity of LP. In practice, however, the simplex method runs much faster than the method, although its worst-case complexity is exponential.
+Some History of Ellipsoid Method [@BGT81]. Introduced by Shor and Yudin and Nemirovskii in 1976. Used to show that linear programming (LP) is polynomial-time solvable (Kachiyan 1979), settled the long-standing problem of determining the theoretical complexity of LP. In practice, however, the simplex method runs much faster than the method, although its worst-case complexity is exponential.
 
 Basic Ellipsoid Method
 ----------------------
@@ -606,7 +609,7 @@ $$ {#eq:ori}
 where $\mathbf{x}$ is the vector of design variables, $g(\mathbf{x})$ represents the characteristics of the desirable filter and $f(\mathbf{x})$ is the performance metric to be optimized. For example, the magnitude constraints on frequency domain are expressed as
 $$L(\omega) \leq |H(\omega)| \leq U(\omega), \forall \omega\in(-\infty,+\infty)
 $$ {#eq:mag_cons}
-where $L(\omega)$ and $U(\omega)$ are the lower and upper (nonnegative) bounds at frequency $\omega$ respectively. Note that $H(\omega)$ is $2\pi$ periodic and $H(\omega)=\overline{H(-\omega)}$. Therefore, we can only consider the magnitude constraint on $[0,\pi]$\ [@wu1999fir].
+where $L(\omega)$ and $U(\omega)$ are the lower and upper (nonnegative) bounds at frequency $\omega$ respectively. Note that $H(\omega)$ is $2\pi$ periodic and $H(\omega)=\overline{H(-\omega)}$. Therefore, we can only consider the magnitude constraint on $[0,\pi]$ [@wu1999fir].
 
 Generally, the problem might be quite difficult to solve, since the global optimal solution can only be obtained with resource consuming methods, such as branch-and-bound [@davidson2010enriching]. However, the situation is totally different if the problem is convex, where $f(\mathbf{x})$ and $g(\mathbf{x})$ are convex functions. In such a case, the problem can be optimally solved with many efficient algorithms.
 
