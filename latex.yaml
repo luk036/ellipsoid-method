@@ -1,5 +1,9 @@
 ---
+fontsize: 10pt
+institute: Fudan University
 date: \today
+link-citations: true
+colorlinks: true
 header-includes:
   - '\ifxetex \usepackage[UTF8]{ctex} \fi'
   - \usepackage{tikz,pgf,pgfplots}
