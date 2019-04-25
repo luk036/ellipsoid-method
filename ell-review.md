@@ -2,7 +2,7 @@
 title: Ellipsoid Method and the Amazing Oracles
 bibliography: ['ellipsoid.bib', 'fir-ref.bib', 'Geostatistics.bib', 'mpcss1.bib', 'mpcss2.bib']
 abstract: 'Ellipsoid method is revisited. Besides that, three separation oracles are investigated for applications. They are robust optimization, semidefinite programming, and network optimization. Discuss the stability issue. Finally, the parallel cut is described.'
----
+...
 
 Introduction
 ============
@@ -99,7 +99,7 @@ Generic Cutting-plane method (Optim)
 Example: Profit Maximization Problem {#sec:profit}
 --------------------------------------------------
 
-This example is taken from [@profit].
+This example is taken from [Aliabadi2013Robust].
 Consider the following profit maxization problme:
 $$\begin{array}{ll}
    \text{maximize}   & p(A x_1^\alpha x_2^\beta) - v_1 x_1 - v_2 x_2, \\
@@ -150,9 +150,9 @@ Robust Convex Optimization
 
 Consider:
 $$\begin{array}{ll}
-    \text{minimize}   & \sup_{q \in \mathbb Q} f_0(x,q), \\
+    \text{minimize}   & \sup_{q \in \mathcal Q} f_0(x,q), \\
     \text{subject to} & f_j(x,q) \leq 0, \;
-            \forall q \in {\mathbb Q}, \; j = 1,2,\cdots,m,
+            \forall q \in \mathcal{Q}, \; j = 1,2,\cdots, m,
   \end{array}
 $$ {#eq:robust-optim}
 where $q$ represents a set of varying parameters. The problem can be reformulated as:
@@ -160,7 +160,7 @@ $$\begin{array}{ll}
     \text{minimize}   & t, \\
     \text{subject to} & f_0(x,q) < t,  \\
                       & f_j(x,q) \leq 0, \;
-            \forall q \in {\mathbb Q}, \; j = 1,2,\cdots,m.
+            \forall q \in \mathcal{Q}, \; j = 1,2,\cdots,m.
   \end{array}
 $$
 
@@ -178,7 +178,7 @@ The oracle only needs to determine:
 
 -   Otherwise, $x_0$ is feasible, then
 
--   Let $q_{\max} = \text{argmax}_{q \in \mathbb Q} f_0(x_0, q)$.
+-   Let $q_{\max} = \text{argmax}_{q \in \mathcal Q} f_0(x_0, q)$.
 
 -   $t := f_0(x_0, q_{\max})$.
 
@@ -210,8 +210,8 @@ Now assume that $\hat{\alpha}$ and $\hat{\beta}$ vary $\bar{\alpha} \pm e_1$ and
 
 For more complicated problems, affine arithmetic could be used [@liu2007robust].
 
-Parametric Network Problems
----------------------------
+Multi-parameter Network Problems
+---------------------------------
 
 Given a network represented by a directed graph $G = (V, E)$.
 Consider :
@@ -242,7 +242,7 @@ The negative cycle detection is the most time-consuming part of the proposed met
 cycle detection algorithm. There are lots of methods to detect negative
 cycles in a weighted graph [@cherkassky1999negative], in which Tarjan’s
 algorithm [@Tarjan1981negcycle] is one of the fastest algorithms in
-practice  @alg:dasdan_mcr [@cherkassky1999negative].
+practice [@alg:dasdan_mcr; @cherkassky1999negative].
 
 The separation oracle only needs to determine:
 
@@ -260,7 +260,8 @@ The separation oracle only needs to determine:
 
 This example is taken from [@orlin1985computing].
 Given a matrix $A = [a_{ij}] \in \mathbb{R}^{N\times N}$.
-A *symmetric scaling* of $A$ is a matrix $B$ of the form $U A U^{-1}$ where $U$ is a nonnegative diagonal matrix having the same dimension. Under the *min-max criterion*, the objective is to minimize the largest absolute value of the element of $B$. The symmetric scaling problem under such criterion can be reformulated as a single-parameter monotropic linear network optimization problem. 
+A *symmetric scaling* of $A$ is a matrix $B$ of the form $U A U^{-1}$ where $U$ is a nonnegative diagonal matrix having the same dimension.
+Under the *min-max criterion*, the objective is to minimize the largest absolute value of the element of $B$. The symmetric scaling problem under such a criterion can be reformulated as a single-parameter monotropic linear network optimization problem.
 
 Another possible criterion is to minimize the ratio of largest absolute value of the element $B$ to the smallest. The motivation for using this criterion is that high ratios cause difficulties in performing the simplex method. Under this *min-max-ratio* criterion, the symmetric scaling problem can be formulated as:
 $$\begin{array}{ll}

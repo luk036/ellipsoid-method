@@ -1,12 +1,25 @@
 ---
+title: 'Ellipsoid Method and the Amazing Oracles (II)'
 author: 'Wai-Shing Luk'
-bibliography:
-- 'fir-ref.bib'
-title: 'Cutting-plane Method and the Amazing Oracles (II)'
+bibliography: ['ellipsoid', 'fir-ref', 'Geostatistics', 'mpcss1', 'mpcss2']
 ...
 
 Ellipsoid Method Revisited
 ==========================
+
+---
+
+Some History of Ellipsoid Method [@BGT81]
+--------------------------------
+
+-   Introduced by Shor and Yudin and Nemirovskii in 1976
+
+-   Used to show that linear programming (LP) is polynomial-time
+    solvable (Kachiyan 1979), settled the long-standing problem of
+    determining the theoretical complexity of LP.
+
+-   In practice, however, the simplex method runs much faster than the
+    method, although its worst-case complexity is exponential.
 
 ---
 
@@ -19,7 +32,7 @@ Basic Ellipsoid Method
 
 \begin{figure}
 \begin{tikzpicture}[scale=0.4]
- \draw[top color=white, bottom color=cyan] plot[smooth, tension=.7] coordinates {(-3,2) (-5,2) (-6,4) (-5,5) (-3,4) (-3,2)};
+ \draw[top color=lightgray, bottom color=lightgray] plot[smooth, tension=.7] coordinates {(-3,2) (-5,2) (-6,4) (-5,5) (-3,4) (-3,2)};
  \node at (-5,4) {$\mathcal{K}$};
 \draw (0,8) -- (-3,-2);
 \draw [fill=qqqqff] (-1,3) circle (1.5pt)
@@ -149,7 +162,7 @@ Central Cut
 
 -   Deserve a separate implement because it is much simplier.
 
-Let $\tilde{g} = Q\,g$, $\tau = \sqrt{\kappa\cdot\omega}$,
+-   Let $\tilde{g} = Q\,g$, $\tau = \sqrt{\kappa\cdot\omega}$,
 
 $$\rho = {\tau \over n+1}, \qquad
   \sigma = {2 \over n+1}, \qquad
@@ -196,7 +209,7 @@ Parallel Cuts
 Parallel Cuts
 -------------
 
-![](ellipsoid.files/parallel_cut.pdf)
+![Parallel Cut](ellipsoid.files/parallel_cut.pdf){width="80%"}
 
 ---
 
@@ -261,7 +274,7 @@ def calc_ll_core(self, b0, b1, tsq):
 Example: FIR filter design
 --------------------------
 
-![img](ellipsoid.files/fir_strctr.pdf)
+![A typical structure of an FIR filter @mitra2006digital.](ellipsoid.files/fir_strctr.pdf){width="80%"}
 
 -   The time response is:
     $$y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]}. $$
@@ -285,10 +298,10 @@ Example: FIR filter design (cont'd)
 
 ---
 
-Example: FIR filter design (cont'd)
+Example: FIR filter design (II)
 -----------------------------------
 
--   However, via *spectral factorization*, it can transform into a convex one\ [@wu1999fir]:
+-   However, via *spectral factorization* [@goodman1997spectral], it can transform into a convex one\ [@wu1999fir]:
     $$L^2(\omega)~\leq~R(\omega)~\leq~U^2(\omega),~\forall~\omega\in(0,\pi). $$
 
     where
@@ -298,7 +311,7 @@ Example: FIR filter design (cont'd)
 
 ---
 
-Example: FIR filter design (cont'd)
+Example: FIR filter design (III)
 -----------------------------------
 
 -   $\mathbf{r}$ can be determined by $\mathbf{h}$:
@@ -320,7 +333,7 @@ $$\begin{array}{ll}
 Experiment
 ----------
 
-![Result](ellipsoid.files/lowpass.pdf){width="50%"}
+![Result](ellipsoid.files/lowpass.pdf){width="80%"}
 
 ---
 
@@ -398,6 +411,7 @@ $$\begin{array}{ll}
 \end{array}$$
 
 where
+
 -   $f_0(x)$ and $f_j(x)$ are "convex"
 -   Some design variables are discrete.
 
@@ -420,8 +434,7 @@ Oracle Requirement
 Example: FIR filter design
 --------------------------
 
-![](ellipsoid.files/lowpass_ripple.pdf){width="90%"}
-
+![Lowpass](ellipsoid.files/lowpass_ripple.pdf){width="80%"}
 
 Reference
 =========
