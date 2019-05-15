@@ -40,7 +40,11 @@ A function $f$ is considered to be *convex* if there exists a vector function $g
 for all $z, u \in \text{dom} f$.
 The vector $g(u)$ is called a $subgradient$ of $f(u)$.
 The set $\mathcal{K} = \{ x \mid f(x) \leq 0 \}$ is called a convex set.
-The affine function $g(u)^\mathsf{T} (x - u) + \beta, \beta \gt 0$ separate $u$ and the convex set $\mathcal{K}$.
+The affine function
+  $$g(u)^\mathsf{T} (x - u) + \beta, \beta \gt 0$$
+is called a *cutting-plane* because it separates $u$ and $\mathcal{K}$.
+In the cutting-plane method, the function do not need to be explicitly known.
+Instead, the cutting-plane for each queried point is provided.
 
 Convex Feasibility Problem
 --------------------------
@@ -114,6 +118,9 @@ $$\begin{array}{ll}
   \end{array}
 $$ {#eq:cvx-in-feasibility-form}
 where $\Phi(x, t) < 0$ is the $t$-sublevel set of $f_0(x)$.
+
+For each $x$, $\Phi(x, t)$ is a nonincreasing function of $t$, *i.e.*,
+$\Phi(x, t') \leq \Phi(x, t) whenever t' \geq t$.
 Note that $\mathcal{K}_t \subseteq \mathcal{K}_u$ if and only if $t \leq u$ (monotonicity).
 One easy way to solve the optimization problem is to apply the binary search on $t$.
 
