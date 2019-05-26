@@ -1,7 +1,7 @@
 ---
 title: 'Ellipsoid Method and the Amazing Oracles (II)'
 author: 'Wai-Shing Luk'
-bibliography: ['ellipsoid', 'fir-ref', 'Geostatistics', 'mpcss1', 'mpcss2']
+bibliography: ['ellipsoid.bib', 'fir-ref.bib', 'Geostatistics.bib', 'mpcss1.bib', 'mpcss2.bib']
 ...
 
 Ellipsoid Method Revisited

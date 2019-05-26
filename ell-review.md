@@ -11,40 +11,39 @@ Finally, the parallel cut is described.'
 Introduction
 ============
 
-The reputation of the ellipsoid method is not good.
-And that is not fair.
-It is commonly believed that the method is inefficient in practice for large-scale convex problems.
-The convergent rate is slow.
-It cannot exploits sparsity.
-It was supplanted by the interior-point methods.
-It can be treated as a theoretical tool for proving the polynomial-time solvability of combinatorial optimization problems.
+The reputation of the ellipsoid method is bad. And it is not fair.
+It is commonly believed that the method is slow for large-scale convex problems [@unknown].
+However, the ellipsoid method works very differently compared with the pupular interior point method.
 
-However, the ellipsoid method works very differently compared with the interior point method.
-Also, it only requires a separation oracle.
-Thus, it can play nicely with other techniques.
-Consider Ellipsoid Method When the number of optimization variables is moderate, e.g. ECO flow, analog circuit sizing, parametric problems.
-The number of constraints is large, or even infinite.
-Whenever separation oracle can be implemented efficiently.
+It does not need to know all the constaint inequalities explicitly.
+All it needs is a *separation oracle* that provides a *cutting-plane* for each iteration.
+Thus, the method can be powerful if the oracles can perform efficiently. It desires to be known.
 
-Discrete.
+First, the ellipsoid method does not require evaluation of all the constraint functions at each iteration.
+This can make the method attractive for certain problems in which the number of constraints is large or infinite.
+For example, in robust convex optimization, some parameters are variant with uncertainty so that the number of constraints is infinite.
+
+Although the ellipsoid method cannot exploit the sparsity of the problem, the separation oracle can exploit certain types of structure in large and complex problems.
+
+In Section 3.2, problems involving matrix inequalities are discussed.
+We determine if a symmetric matrix is positive definite.
+Recall that the verification of the positive definiteness can be done efficiently using *Cholesky factorization*.
+Moreover, if the matrix is not positive definite, a vector $v$ can be found as a cutting plane during the factorization process.
+
+In Section 3.3, we show the network parametric problem, where the cut can be obtained by finding the negative cycle of a directed graph.
+Efficient algorithms exists, in which the locality of network and the associativity of data are exploited.
+
+We also discuss the correct implementation of the ellipsoid method.
+The parallel-cut is reviewed.
+Parallel cut can be applied when a pair of linear constraints is given by:
+$$l \leq a^\mathsf{T} x \leq u$$.
+In Section 4, we show that, for some cases when the upper and lower bounds of the constraints are tight, such as those for in the filter designs, the use of parallel cuts could improved the performance dramatically.
+
+In many practice engineering problems, some design variables may be restricted in discrete forms.
+Since all the cutting-plane method request is separation oracle, it works for discretized problems also.
 
 Cutting-plane Method Revisited
 ==============================
-
-Convex Function and Convex Set
-------------------------------
-
-Strict convexity is not required for the cutting-plane method.
-A function $f$ is considered to be *convex* if there exists a vector function $g$ such that
-  $$f(z) \geq f(u) + g(u)^\mathsf{T} (z - u)$$
-for all $z, u \in \text{dom} f$.
-The vector $g(u)$ is called a $subgradient$ of $f(u)$.
-The set $\mathcal{K} = \{ x \mid f(x) \leq 0 \}$ is called a convex set.
-The affine function
-  $$g(u)^\mathsf{T} (x - u) + \beta, \beta \gt 0$$
-is called a *cutting-plane* because it separates $u$ and $\mathcal{K}$.
-In the cutting-plane method, the function do not need to be explicitly known.
-Instead, the cutting-plane for each queried point is provided.
 
 Convex Feasibility Problem
 --------------------------
@@ -63,9 +62,10 @@ When a *separation oracle* $\Omega$ is *queried* at $x_0$, it either
 2.  Returns a separating hyperplane between $x_0$ and $\mathcal{K}$:
     $$g^\mathsf{T} (x - x_0) + \beta \leq 0, \beta \geq 0, g \neq 0, \; \forall x \in \mathcal{K}.$$ {#eq:cut}
 
-The pair $(g, \beta)$ is called a *cutting-plane*, or cut, since it eliminates the halfspace $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from our search.
+The pair $(g, \beta)$ is called a *cutting-plane*, since it eliminates the halfspace $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from our search.
 If $\beta=0$ ($x_0$ is on the boundary of halfspace that is cut), cutting-plane is called *neutral cut*.
 If $\beta>0$ ($x_0$ lies in the interior of halfspace that is cut), cutting-plane is called *deep cut*.
+If $\beta<0$ ($x_0$ lies in the exterior of halfspace that is cut), cutting-plane is called *shadow cut*.
 
 The $\mathcal{K}$ is usually given by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1 \cdots m$, where $f_j(x)$ is a convex function.
 A vector $g \equiv \partial f(x_0)$ is called a *subgradient* of a convex function $f$ at $x_0$ if $f(z) \geq f(x_0) + g^\mathrm{T} (z - x_0)$.
@@ -97,6 +97,8 @@ Generic Cutting-plane method:
         $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \leq 0\}.$$
 
     5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
+
+Todo: What if the seach space is large enough?
 
 Convex Optimization Problem
 ---------------------------
@@ -349,7 +351,7 @@ In this application, $h_{ij}(x)$ is:
 
 $${h}_{ij}(x) = \left\{ \begin{array}{cll}
      -\pi' + a_{ij}', & \forall a_{ij} \neq 0 \, ,\\
-     \psi' -a_{ji}'  ,  & \forall a_{ji} \neq 0 \, ,\\
+     \psi' -a_{ji}',  & \forall a_{ji} \neq 0 \, ,\\
 \end{array} \right.
 $$
 
@@ -357,8 +359,8 @@ Fast algorithms for finding negative cycle can be found
 in [@dasdan1998faster; @dasdan2004experimental].
 More application in clock skew scheduling can be found in [@zhou2015multi].
 
-Matrix Inequalities
--------------------
+Problems Involving Matrix Inequalities
+--------------------------------------
 
 Consider the following problem:
 $$\begin{array}{ll}
@@ -750,7 +752,11 @@ The discrete version can be formulated as Mixed-Integer Convex programming (MICP
 What's wrong with the existing methods? Mostly based on relaxation.
 Then use the relaxed solution as a lower bound and use the branch--and--bound method for the discrete optimal solution.
 Note that the branch-and-bound method does not utilize the convexity of the problem.
-What if I can only evaluate constraints on discrete data?Workaround: convex fitting?
+What if I can only evaluate constraints on discrete data? 
+
+Usually a relaxed optimal solution (convex) is obtained first.
+Then the optimized discrete solution is obtained by searching exhaustively the neigbourhood.
+However, sometimes the constraints are tight so that the relaxed continuous optimal solution is far from the discrete one. Enumeration of the discrete domain is difficult.
 
 Consider:
 $$\begin{array}{ll}
