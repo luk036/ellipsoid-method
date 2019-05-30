@@ -6,38 +6,40 @@ Besides that, three separation oracles are investigated for applications.
 They are robust optimization, semidefinite programming, and network optimization.
 Discuss the stability issue.
 Finally, the parallel cut is described.'
-...
+---
 
 Introduction
 ============
 
-The reputation of the ellipsoid method is bad. And it is not fair.
+The reputation of the ellipsoid method is bad.
+And it is unfair.
 It is commonly believed that the method is slow for large-scale convex problems [@unknown].
-However, the ellipsoid method works very differently compared with the pupular interior point method.
+However, the ellipsoid method works very differently compared with the popular interior point method.
 
-It does not need to know all the constaint inequalities explicitly.
-All it needs is a *separation oracle* that provides a *cutting-plane* for each iteration.
-Thus, the method can be powerful if the oracles can perform efficiently. It desires to be known.
-
-First, the ellipsoid method does not require evaluation of all the constraint functions at each iteration.
+Firstly, the ellipsoid method does not require evaluation of all the constraint functions explicitly at each iteration.
+All it needs is a *separation oracle* that provides a *cutting-plane*.
 This can make the method attractive for certain problems in which the number of constraints is large or infinite.
-For example, in robust convex optimization, some parameters are variant with uncertainty so that the number of constraints is infinite.
 
-Although the ellipsoid method cannot exploit the sparsity of the problem, the separation oracle can exploit certain types of structure in large and complex problems.
+Secondly, although the ellipsoid method cannot exploit the sparsity of the problem, the separation oracle can exploit certain types of structure in large and complex problems.
+
+It desires to be known.
 
 In Section 3.2, problems involving matrix inequalities are discussed.
-We determine if a symmetric matrix is positive definite.
-Recall that the verification of the positive definiteness can be done efficiently using *Cholesky factorization*.
-Moreover, if the matrix is not positive definite, a vector $v$ can be found as a cutting plane during the factorization process.
+Recall that the checking of the positive definiteness of a symmetry matrix can be done efficiently using Cholesky or more precisely $LDL^T$ factorization*.
+Moreover, if the matrix is not positive definite, a vector $v$ can be found as a cutting plane during the factorization process. Thus, it can be used for efficient oracle implementation.
 
 In Section 3.3, we show the network parametric problem, where the cut can be obtained by finding the negative cycle of a directed graph.
 Efficient algorithms exists, in which the locality of network and the associativity of data are exploited.
 
-We also discuss the correct implementation of the ellipsoid method.
-The parallel-cut is reviewed.
-Parallel cut can be applied when a pair of linear constraints is given by:
-$$l \leq a^\mathsf{T} x \leq u$$.
-In Section 4, we show that, for some cases when the upper and lower bounds of the constraints are tight, such as those for in the filter designs, the use of parallel cuts could improved the performance dramatically.
+The implementation of the ellipsoid method is described in Section 4.
+Where the search space is an ellispoid, usually specfied as:
+$$\{ x \mid (x-x_c)P^{-1}(x-x_c) \leq 1 \},$$
+where $x_c$ is the center of the ellipsoid, and $P$ is a symmetric positive matrix. At each iteration, $x_c$ and $P$ are updated according to the cut.
+Although the updating of the ellipsoid is simple and the implementation has been found for decades, we show that one can reduce $n^2$ flops (floating point operations) by splitting $P$ into $\alpha$ times $Q$.
+
+Furthermore, the use of parallel cuts is discussed in Section 4.2.
+When a pair of parallel inequalities, one of which is violated, it is possible to use both constraints simultaneously to update the ellipsoid. Some papers reported that this technique did not provided signifancant improvement.
+We show that, for some cases when the upper and lower bounds of the constraints are tight, such as those for the filter designs, the use of parallel cuts could in fact improve the run time dramatically.
 
 In many practice engineering problems, some design variables may be restricted in discrete forms.
 Since all the cutting-plane method request is separation oracle, it works for discretized problems also.
@@ -89,7 +91,7 @@ Generic Cutting-plane method:
 
     1.  Choose a point $x_0$ in $\mathcal{S}$.
 
-    2.  Query the cutting-plane oracle at $x_0$.
+    2.  Query the separation oracle at $x_0$.
 
     3.  **If** $x_0 \in \mathcal{K}$, quit.
 
@@ -100,8 +102,8 @@ Generic Cutting-plane method:
 
 Todo: What if the seach space is large enough?
 
-Convex Optimization Problem
----------------------------
+From Feasibility to Optimization
+--------------------------------
 
 Consider:
 $$\begin{array}{ll}
@@ -146,11 +148,11 @@ Generic Cutting-plane method (Optim)
 
     5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
 
-Example: Profit Maximization Problem {#sec:profit}
---------------------------------------------------
+Example: Profit Maximization {#sec:profit}
+------------------------------------------
 
-This example is taken from [Aliabadi2013Robust].
-Consider the following profit maxization problme:
+This example is taken from [@Aliabadi2013Robust].
+Consider the following short-run profit maximization problem:
 $$\begin{array}{ll}
    \text{maximize}   & p(A x_1^\alpha x_2^\beta) - v_1 x_1 - v_2 x_2, \\
    \text{subject to} & x_1 \le k, \\
@@ -161,28 +163,33 @@ where
 $p$ is the market price per unit,
 $A$ is the scale of production,
 $\alpha and \beta$ are the output elasticities,
+$x_i$ and $v_i$ are $i$th input quantity and output price,
 $A x_1^\alpha x_2^\beta)$ is the Cobb-Douglas production function,
-$x_i$ and $v_i$ are $i$th input quantity and output price respectively,
 and $k$ is a given constant that restricts the quantity of $x_1$.
 
 The above formulation is not in a convex form.
-Rewrite the problem as follows:
+Firstly, we rewrite the problem as follows:
 $$\begin{array}{ll}
     \text{maximize}   & t, \\
-    \text{subject to} & t  + v_1 x_1  + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}, \\
+    \text{subject to} & t  + v_1 x_1  + v_2 x_2 \leq p A x_1^{\alpha} x_2^{\beta}, \\
                       & x_1 \le k, \\
                       & x_1, x_2 positive.
   \end{array}
 $$
-By taking the logarithm of each constraint and the change of variables, we reformulate the problem in the following convex form:
+
+By the change of variables, we have the following convex form of\ @eq-profit-max-in-orginal-form:
+
 $$\begin{array}{ll}
-    \text{max}  & t, \\
-    \text{s.t.} & \log(t + v_1 e^{y_1} + v_2 e^{y_2}) -
-                    (\alpha y_1 + \beta y_2) < \log(pA), \\
-                & y_1 \le \log k,
+    \text{maximize}   & t, \\
+    \text{subject to} & \log(t + v_1 e^{y_1} + v_2 e^{y_2}) -
+                    (\alpha y_1 + \beta y_2) \leq \log(p\,A), \\
+                      & y_1 \le \log k,
   \end{array}
 $$ {#eq:profit-in-cvx-form}
 where $y_1 = \log x_1$ and $y_2 = \log x_2$.
+
+Some readers may recognize that the problem can also be written in a geometric program by introducing one additional variable [@Aliabadi2013Robust].
+
 
 Area of Applications
 ====================
@@ -236,22 +243,37 @@ The oracle only needs to determine:
 
 -   The cut $(g, \beta)$ = $(\partial f_0(x_0, q_{\max}), 0)$
 
+
 Random sampling trick.
 
-### Example: Profit Maximization Problem {#sec:profit-rb}
+### Example: Robust Profit Maximization {#sec:profit-rb}
 
-Consider the previous profit maximization in\ @sec:profit, with interval uncertainties on parameters of the model:
+Consider again the profit maximization problem in\ @sec:profit.
+Now suppose the parameters $\{\alpha, \beta, p, v_1, v_2, k\}$ 
+are subject to interval uncertainties:
+$$\begin{array}{rcl}
+\alpha - \varepsilon_1 \leq & \hat{\alpha} & \leq \alpha + \varepsilon_1 \\
+\beta  - \varepsilon_2 \leq & \hat{\beta}  & \leq \beta  + \varepsilon_2 \\
+p   - \varepsilon_3 \leq  & \hat{p}    & \leq p   + \varepsilon_3 \\
+v_1 - \varepsilon_4 \leq  & \hat{v}_1  & \leq v_1 + \varepsilon_4 \\
+v_2 - \varepsilon_5 \leq  & \hat{v}_2  & \leq v_2 + \varepsilon_5 \\
+k   - \varepsilon_6 \leq  & \hat{k}    & \leq k   + \varepsilon_6
+\end{array}
+$$
+The robust counterpart considering the worst-case scenario is given by:
 $$\begin{array}{ll}
     \text{max}  & t \\
     \text{s.t.} & \log(t + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) -
                         (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A)  \\
-                & y_1 \le \log \hat{k} .
+                & y_1 \le \log \hat{k}.
   \end{array}
 $$
-Now assume that $\hat{\alpha}$ and $\hat{\beta}$ vary $\bar{\alpha} \pm e_1$ and $\bar{\beta} \pm e_2$ respectively, where $\hat{p}$, $\hat{k}$, $\hat{v}_1$, and $\hat{v}_2$ all vary $\pm e_3$.
-By detail analysis, the worst case happens when:
+In [@Aliabadi2013Robust], the aurthors proposed a *piecewise linear approximation* approach.
+It involves a lot of programming effort but the result is inaccurate.
+However, this can easily be done using the cutting-plane method.
+Note that in this simple example, the worst case happens when:
 
--   $p = \bar{p} + e_3$, $k = \bar{k} + e_3$
+-   $\hat{p} = p + e_3$, $k = \bar{k} + e_3$
 
 -   $v_1 = \bar{v}_1 - e_3$, $v_2 = \bar{v}_2 - e_3$,
 
@@ -261,6 +283,30 @@ By detail analysis, the worst case happens when:
 -   if $y_2 > 0$, $\beta = \bar{\beta} - e_2$, else
     $\beta = \bar{\beta} + e_2$
 
+We can even reuse the original oracle to compose the robust counterpart.
+
+```python
+class profit_rb_oracle:
+    def __init__(self, params, a, v, vparams):
+        p, A, k = params
+        e1, e2, e3, e4, e5 = vparams
+        params_rb = p - e3, A, k - e4
+        self.a = a
+        self.e = [e1, e2]
+        self.P = profit_oracle(params_rb, a, v + e5)
+
+    def __call__(self, y, t):
+        a_rb = self.a.copy()
+        for i in [0, 1]:
+            if y[i] <= 0:
+                a_rb[i] += self.e[i]
+            else:
+                a_rb[i] -= self.e[i]
+        self.P.a = a_rb
+        return self.P(y, t)
+```
+
+Note that the `argmax' in general can be non-convex and hence difficult to solved.
 For more complicated problems, affine arithmetic could be used [@liu2007robust].
 
 Multi-parameter Network Problems
@@ -665,7 +711,7 @@ $$
 
 ### Example: FIR filter design
 
-A typical structure of digital Finite Impulse Response (FIR) filter is shown in @fig:fir-structure, where the coefficients $h[0], h[1], \ldots, h[n-1]$ must be determined to meet given specifications.
+A typical structure of digital Finite Impulse Response (FIR) filter is shown in @fig:fir-strctr, where the coefficients $h[0], h[1], \ldots, h[n-1]$ must be determined to meet given specifications.
 Usually, they can be manually designed using windowing or frequency-sampling techniques [@oppenheim1989discrete].
 
 However, the experience and knowledge of designers are highly demanded in this kind of design methods.
@@ -777,7 +823,7 @@ Suggestion: use different cuts as possible for each iteration (e.g. round-robin
 ### Example: Multiplierless FIR Filter Design
 
 However, there are still many filter design problems that are non-convex, such as multiplierless FIR filter design problems.
-Note that in [@fig:fir-structure], each coefficient associated with a multiplier unit makes the filter power hungry, especially in Application Specific Integrated Circuits (ASIC).
+Note that in [@fig:fir-strctr], each coefficient associated with a multiplier unit makes the filter power hungry, especially in Application Specific Integrated Circuits (ASIC).
 Fortunately, it can be implemented multiplierless if each coefficient is quantized and represented as a sum of Singed Power-of-Two (SPT).
 Such a coefficient can be uniquely represented by a Canonic Signed-Digit (CSD) code [@george1960csd] with the smallest number of non-zero digits.
 In such a case, the multiplication is confined to add and shift operations.
