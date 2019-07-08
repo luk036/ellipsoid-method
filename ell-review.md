@@ -1,12 +1,13 @@
 ---
 title: Ellipsoid Method and the Amazing Oracles
 bibliography: ['ellipsoid.bib', 'fir-ref.bib', 'Geostatistics.bib', 'mpcss1.bib', 'mpcss2.bib']
-abstract: 'Ellipsoid method is revisited.
-Besides that, three separation oracles are investigated for applications.
-They are robust optimization, semidefinite programming, and network optimization.
-Discuss the stability issue.
-Finally, the parallel cut is described.'
----
+abstract: |
+  Ellipsoid method is revisited.
+  Besides that, three separation oracles are investigated for applications.
+  They are robust optimization, semidefinite programming, and network optimization.
+  Discuss the stability issue.
+  Finally, the parallel cut is described.
+...
 
 Introduction
 ============

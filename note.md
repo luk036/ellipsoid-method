@@ -1,3 +1,10 @@
+Note
+======
+
+pandoc -F pandoc-crossref -F pandoc-citeproc -s -t latex -N --reference-links --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml ell-review.md -o temp.pdf
+
+pandoc -s -t beamer --toc  --natbib --reference-links --csl=applied-mathematics-letters.csl beamer.yaml .\cutting_plane.md -o temp.tex
+
 pandoc -s --wrap=preserve ell-review.md -o temp.md
 
 pandoc -s -t beamer --natbib --toc -o temp.tex beamer.yaml ellipsoid.md
