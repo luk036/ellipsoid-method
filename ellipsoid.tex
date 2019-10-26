@@ -1,48 +1,91 @@
-\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
 \PassOptionsToPackage{hyphens}{url}
 \PassOptionsToPackage{dvipsnames,svgnames*,x11names*}{xcolor}
 %
-\documentclass[10pt,ignorenonframetext,serif,onlymath]{beamer}
+\documentclass[
+  ignorenonframetext,
+  aspectratio=169,
+  serif,onlymath]{beamer}
+\usepackage{pgfpages}
 \setbeamertemplate{caption}[numbered]
 \setbeamertemplate{caption label separator}{: }
 \setbeamercolor{caption name}{fg=normal text.fg}
 \beamertemplatenavigationsymbolsempty
+% Prevent slide breaks in the middle of a paragraph
+\widowpenalties 1 10000
+\raggedbottom
+\setbeamertemplate{part page}{
+  \centering
+  \begin{beamercolorbox}[sep=16pt,center]{part title}
+    \usebeamerfont{part title}\insertpart\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{section page}{
+  \centering
+  \begin{beamercolorbox}[sep=12pt,center]{part title}
+    \usebeamerfont{section title}\insertsection\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{subsection page}{
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center]{part title}
+    \usebeamerfont{subsection title}\insertsubsection\par
+  \end{beamercolorbox}
+}
+\AtBeginPart{
+  \frame{\partpage}
+}
+\AtBeginSection{
+  \ifbibliography
+  \else
+    \frame{\sectionpage}
+  \fi
+}
+\AtBeginSubsection{
+  \frame{\subsectionpage}
+}
 \usepackage{lmodern}
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
-\usepackage{fixltx2e} % provides \textsubscript
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
-  \usepackage{textcomp} % provides euro and other symbols
-\else % if luatex or xelatex
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
   \usepackage{unicode-math}
-  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
 \fi
-% use upquote if available, for straight quotes in verbatim environments
+% Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-% use microtype if available
-\IfFileExists{microtype.sty}{%
-\usepackage[]{microtype}
-\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
-\IfFileExists{parskip.sty}{%
-\usepackage{parskip}
-}{% else
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{6pt plus 2pt minus 1pt}
-}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
 \usepackage{xcolor}
-\usepackage{hyperref}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-            pdftitle={Cutting-plane Method and the Amazing Oracles (II)},
-            pdfauthor={Wai-Shing Luk},
-            colorlinks=true,
-            linkcolor=Maroon,
-            citecolor=Blue,
-            urlcolor=Blue,
-            breaklinks=true}
-\urlstyle{same}  % don't use monospace font for urls
+  pdftitle={Ellipsoid Method and the Amazing Oracles (II)},
+  pdfauthor={Wai-Shing Luk},
+  colorlinks=true,
+  linkcolor=Maroon,
+  filecolor=Maroon,
+  citecolor=Blue,
+  urlcolor=Blue,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
 \newif\ifbibliography
 \usepackage{color}
 \usepackage{fancyvrb}
@@ -91,49 +134,14 @@
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
-% Prevent slide breaks in the middle of a paragraph:
-\widowpenalties 1 10000
-\raggedbottom
-\setbeamertemplate{part page}{
-\centering
-\begin{beamercolorbox}[sep=16pt,center]{part title}
-  \usebeamerfont{part title}\insertpart\par
-\end{beamercolorbox}
-}
-\setbeamertemplate{section page}{
-\centering
-\begin{beamercolorbox}[sep=12pt,center]{part title}
-  \usebeamerfont{section title}\insertsection\par
-\end{beamercolorbox}
-}
-\setbeamertemplate{subsection page}{
-\centering
-\begin{beamercolorbox}[sep=8pt,center]{part title}
-  \usebeamerfont{subsection title}\insertsubsection\par
-\end{beamercolorbox}
-}
-\AtBeginPart{
-  \frame{\partpage}
-}
-\AtBeginSection{
-  \ifbibliography
-  \else
-    \frame{\sectionpage}
-  \fi
-}
-\AtBeginSubsection{
-  \frame{\subsectionpage}
-}
-\setlength{\emergencystretch}{3em}  % prevent overfull lines
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\setcounter{secnumdepth}{0}
-
-% set default figure placement to htbp
+% Set default figure placement to htbp
 \makeatletter
 \def\fps@figure{htbp}
 \makeatother
-
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
 \usetheme{default}
 \usepackage{tikz,pgf,pgfplots}
 \usetikzlibrary{arrows}
@@ -143,21 +151,57 @@
 \newcommand{\col}[1]{\column{#1}}
 \pgfdeclareimage[height=0.5cm]{fudan-logo}{fudan-logo.jpg}
 \logo{\pgfuseimage{fudan-logo}}
+\makeatletter
+\@ifpackageloaded{subfig}{}{\usepackage{subfig}}
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\captionsetup[subfloat]{margin=0.5em}
+\AtBeginDocument{%
+\renewcommand*\figurename{Figure}
+\renewcommand*\tablename{Table}
+}
+\AtBeginDocument{%
+\renewcommand*\listfigurename{List of Figures}
+\renewcommand*\listtablename{List of Tables}
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\usepackage[]{natbib}
+\bibliographystyle{plainnat}
 
-\title{Cutting-plane Method and the Amazing Oracles (II)}
+\title{Ellipsoid Method and the Amazing Oracles (II)}
 \author{Wai-Shing Luk}
-\providecommand{\institute}[1]{}
-\institute{Fudan University}
 \date{\today}
+\institute{Fudan University}
 
 \begin{document}
 \frame{\titlepage}
 
 \begin{frame}
-\tableofcontents[hideallsubsections]
+  \tableofcontents[hideallsubsections]
 \end{frame}
 \hypertarget{ellipsoid-method-revisited}{%
 \section{Ellipsoid Method Revisited}\label{ellipsoid-method-revisited}}
+
+\begin{frame}{Some History of Ellipsoid Method \citep{BGT81}}
+\protect\hypertarget{some-history-of-ellipsoid-method-bgt81}{}
+
+\begin{itemize}
+\item
+  Introduced by Shor and Yudin and Nemirovskii in 1976
+\item
+  Used to show that linear programming (LP) is polynomial-time solvable
+  (Kachiyan 1979), settled the long-standing problem of determining the
+  theoretical complexity of LP.
+\item
+  In practice, however, the simplex method runs much faster than the
+  method, although its worst-case complexity is exponential.
+\end{itemize}
+
+\end{frame}
 
 \begin{frame}{Basic Ellipsoid Method}
 \protect\hypertarget{basic-ellipsoid-method}{}
@@ -170,7 +214,17 @@
   center of the ellipsoid.
 \end{itemize}
 
-\includegraphics[width=0.6\textwidth,height=\textheight]{ellipsoid.files/ellipsoid.pdf}
+\begin{figure}
+\begin{tikzpicture}[scale=0.4]
+ \draw[top color=lightgray, bottom color=lightgray] plot[smooth, tension=.7] coordinates {(-3,2) (-5,2) (-6,4) (-5,5) (-3,4) (-3,2)};
+ \node at (-5,4) {$\mathcal{K}$};
+\draw (0,8) -- (-3,-2);
+\draw [fill=qqqqff] (-1,3) circle (1.5pt)
+   node [above right] {$x_c$};
+\draw  (-1,3) ellipse (7 and 3);
+  \node at (5,4) {$\mathcal{E}$};
+\end{tikzpicture}
+\end{figure}
 
 \end{frame}
 
@@ -204,11 +258,10 @@
 \begin{frame}{Updating the ellipsoid (deep-cut)}
 \protect\hypertarget{updating-the-ellipsoid-deep-cut}{}
 
+Calculation of minimum volume ellipsoid covering:
+\[ \mathcal{E} \cap \{z \mid g^\mathsf{T} (z - x_c) + h \leq 0 \}. \]
+
 \begin{itemize}
-\tightlist
-\item
-  Calculation of minimum volume ellipsoid covering:
-  \[\mathcal{E} \cap \{z \mid g^\mathsf{T} (z - x_c) + h \leq 0 \}\]
 \item
   Let \(\tilde{g} = P\,g\), \(\tau^2 = g^\mathsf{T} P g\).
 \item
@@ -216,22 +269,20 @@
   found.
 \item
   If \(h > \tau\), intersection is empty.
-\item
-  Otherwise, \[x_c^+ = x_c - \frac{\rho}{ \tau^2 } \tilde{g}, \qquad
-  P^+ = {\color{orange}\delta\cdot}\left(P - \frac{\sigma}{ \tau^2 } \tilde{g}\tilde{g}^\mathsf{T}\right)\]
 \end{itemize}
 
+Otherwise, \[x_c^+ = x_c - \frac{\rho}{ \tau^2 } \tilde{g}, \qquad
+  P^+ = {\color{orange}\delta\cdot}\left(P - \frac{\sigma}{\tau^2} \tilde{g}\tilde{g}^\mathsf{T}\right). \]
 where \[\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
   \sigma = \frac{2\rho}{ {\color{red}\tau}+h}, \qquad
-  \delta = \frac{n^2(\tau^2 - h^2)}{(n^2 - 1)\tau^2}\]
+  \delta = \frac{n^2(\tau^2 - h^2)}{(n^2 - 1)\tau^2}. \]
 
 \end{frame}
 
-\begin{frame}{Updating the ellipsoid (cont’d)}
+\begin{frame}{Updating the ellipsoid (cont'd)}
 \protect\hypertarget{updating-the-ellipsoid-contd}{}
 
 \begin{itemize}
-\tightlist
 \item
   Even better, split \(P\) into two variables \(\kappa \cdot Q\)
 \item
@@ -239,8 +290,7 @@ where \[\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
   \(\tau = \sqrt{\kappa\cdot\omega}\).
   \[x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
   Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad
-  \kappa^+ =  \delta\cdot\kappa
-   \]
+  \kappa^+ =  \delta\cdot\kappa. \]
 \item
   Reduce \(n^2\) multiplications per iteration.
 \item
@@ -251,7 +301,7 @@ where \[\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
   \item
     The determinant of \(Q\) decreases monotonically.
   \item
-    The range of \(\delta\) is \((0, \frac{n^2}{n^2 - 1})\)
+    The range of \(\delta\) is \((0, \frac{n^2}{n^2 - 1})\).
   \end{itemize}
 \end{itemize}
 
@@ -311,7 +361,6 @@ where \[\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
 \protect\hypertarget{central-cut}{}
 
 \begin{itemize}
-\tightlist
 \item
   A Special case of deep cut when \(\beta = 0\)
 \item
@@ -322,7 +371,7 @@ where \[\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
 
 \[\rho = {\tau \over n+1}, \qquad
   \sigma = {2 \over n+1}, \qquad
-  \delta = {n^2 \over n^2 - 1}\]
+  \delta = {n^2 \over n^2 - 1}. \]
 
 \end{frame}
 
@@ -343,8 +392,11 @@ where \[\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
 
 \end{frame}
 
+\hypertarget{parallel-cuts}{%
+\section{Parallel Cuts}\label{parallel-cuts}}
+
 \begin{frame}{Parallel Cuts}
-\protect\hypertarget{parallel-cuts}{}
+\protect\hypertarget{parallel-cuts-1}{}
 
 \begin{itemize}
 \item
@@ -357,7 +409,7 @@ where \[\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
   \end{array}\] for all \(x \in \mathcal{K}\).
 \item
   Only linear inequality constraint can produce such parallel cut:
-  \[ l \leq a^\mathsf{T} x + b \leq u, \qquad L \preceq F(x) \preceq U \]
+  \[ l \leq a^\mathsf{T} x + b \leq u, \qquad L \preceq F(x) \preceq U. \]
 \item
   Usually provide faster convergence.
 \end{itemize}
@@ -365,9 +417,13 @@ where \[\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
 \end{frame}
 
 \begin{frame}{Parallel Cuts}
-\protect\hypertarget{parallel-cuts-1}{}
+\protect\hypertarget{parallel-cuts-2}{}
 
-\includegraphics{ellipsoid.files/parallel_cut.pdf}
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth,height=\textheight]{ellipsoid.files/parallel_cut.pdf}
+\caption{Parallel Cut}
+\end{figure}
 
 \end{frame}
 
@@ -387,15 +443,14 @@ where \[\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
 \item
   Otherwise, \[x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
   Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad
-  \kappa^+ =  \delta \kappa
-   \]
+  \kappa^+ =  \delta \kappa. \]
 
   where \[\begin{array}{lll}
-    \bar{\beta} &=& (\beta_1 + \beta_2)/2 \\
+    \bar{\beta} &=& (\beta_1 + \beta_2)/2, \\
     \xi^2 &=& (\tau^2 - \beta_1^2)(\tau^2 - \beta_2^2) + (n(\beta_2 - \beta_1)\bar{\beta})^2, \\
     \sigma &=& (n + (\tau^2 - \beta_1\beta_2 - \xi)/(2\bar{\beta}^2)) / (n + 1), \\
     \rho &=& \bar{\beta}\cdot\sigma, \\
-    \delta &=& (n^2/(n^2-1)) (\tau^2 - (\beta_1^2 + \beta_2^2)/2 + \xi/n) / \tau^2
+    \delta &=& (n^2/(n^2-1)) (\tau^2 - (\beta_1^2 + \beta_2^2)/2 + \xi/n) / \tau^2 .
    \end{array}\]
 \end{itemize}
 
@@ -439,29 +494,29 @@ where \[\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
 
 \begin{figure}
 \centering
-\includegraphics{ellipsoid.files/fir_strctr.pdf}
-\caption{img}
+\includegraphics[width=0.8\textwidth,height=\textheight]{ellipsoid.files/fir_strctr.pdf}
+\caption{A typical structure of an FIR filter \citet{mitra2006digital}.}
 \end{figure}
 
 \begin{itemize}
 \tightlist
 \item
-  The time response is: \[y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]}\]
+  The time response is: \[y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]}. \]
 \end{itemize}
 
 \end{frame}
 
-\begin{frame}{Example: FIR filter design (cont’d)}
+\begin{frame}{Example: FIR filter design (cont'd)}
 \protect\hypertarget{example-fir-filter-design-contd}{}
 
 \begin{itemize}
 \item
   The frequency response:
-  \[H(\omega)~=~\sum_{m=0}^{n-1}{h(m)e^{-jm\omega}}\]
+  \[H(\omega)~=~\sum_{m=0}^{n-1}{h(m)e^{-jm\omega}}. \]
 \item
   The magnitude constraints on frequency domain are expressed as
 
-  \[L(\omega)~\leq~|H(\omega)|~\leq~U(\omega),~\forall~\omega\in(-\infty,+\infty)\]
+  \[L(\omega)~\leq~|H(\omega)|~\leq~U(\omega),~\forall~\omega\in(-\infty,+\infty. \]
 
   where \(L(\omega)\) and \(U(\omega)\) are the lower and upper
   (nonnegative) bounds at frequency \(\omega\) respectively.
@@ -471,15 +526,16 @@ where \[\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
 
 \end{frame}
 
-\begin{frame}{Example: FIR filter design (cont’d)}
-\protect\hypertarget{example-fir-filter-design-contd-1}{}
+\begin{frame}{Example: FIR filter design (II)}
+\protect\hypertarget{example-fir-filter-design-ii}{}
 
 \begin{itemize}
-\tightlist
 \item
-  However, via \emph{spectral factorization}, it can transform into a
-  convex one:
-  \[L^2(\omega)~\leq~R(\omega)~\leq~U^2(\omega),~\forall~\omega\in(0,\pi)\]
+  However, via \emph{spectral
+  factorization}~\citep{goodman1997spectral}, it can transform into a
+  convex one~\citep{wu1999fir}:
+  \[L^2(\omega)~\leq~R(\omega)~\leq~U^2(\omega),~\forall~\omega\in(0,\pi). \]
+
   where
 
   \begin{itemize}
@@ -494,8 +550,8 @@ where \[\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
 
 \end{frame}
 
-\begin{frame}{Example: FIR filter design (cont’d)}
-\protect\hypertarget{example-fir-filter-design-contd-2}{}
+\begin{frame}{Example: FIR filter design (III)}
+\protect\hypertarget{example-fir-filter-design-iii}{}
 
 \begin{itemize}
 \item
@@ -521,7 +577,7 @@ where \[\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
 
 \begin{figure}
 \centering
-\includegraphics[width=0.5\textwidth,height=\textheight]{ellipsoid.files/lowpass.pdf}
+\includegraphics[width=0.8\textwidth,height=\textheight]{ellipsoid.files/lowpass.pdf}
 \caption{Result}
 \end{figure}
 
@@ -547,7 +603,7 @@ Note: the 1st term is concave, the 2nd term is convex
 
 \end{frame}
 
-\begin{frame}{Example: Maximum Likelihood estimation (cont’d)}
+\begin{frame}{Example: Maximum Likelihood estimation (cont'd)}
 \protect\hypertarget{example-maximum-likelihood-estimation-contd}{}
 
 \begin{itemize}
@@ -585,7 +641,7 @@ Note: the 1st term is concave, the 2nd term is convex
 
 \end{frame}
 
-\begin{frame}{What’s Wrong w/ Existing Methods?}
+\begin{frame}{What's Wrong w/ Existing Methods?}
 \protect\hypertarget{whats-wrong-w-existing-methods}{}
 
 \begin{itemize}
@@ -593,7 +649,7 @@ Note: the 1st term is concave, the 2nd term is convex
   Mostly based on relaxation.
 \item
   Then use the relaxed solution as a lower bound and use the
-  branch–and–bound method for the discrete optimal solution.
+  branch--and--bound method for the discrete optimal solution.
 
   \begin{itemize}
   \tightlist
@@ -622,7 +678,7 @@ where
 \begin{itemize}
 \tightlist
 \item
-  \(f_0(x)\) and \(f_j(x)\) are “convex”
+  \(f_0(x)\) and \(f_j(x)\) are ``convex''
 \item
   Some design variables are discrete.
 \end{itemize}
@@ -649,11 +705,18 @@ where
 \begin{frame}{Example: FIR filter design}
 \protect\hypertarget{example-fir-filter-design-1}{}
 
-\includegraphics[width=0.9\textwidth,height=\textheight]{ellipsoid.files/lowpass_ripple.pdf}
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth,height=\textheight]{ellipsoid.files/lowpass_ripple.pdf}
+\caption{Lowpass}
+\end{figure}
 
 \end{frame}
 
-\hypertarget{q-a}{%
-\section{Q \& A}\label{q-a}}
+\renewcommand\refname{Reference}
+\begin{frame}[allowframebreaks]{Reference}
+  \bibliographytrue
+  \bibliography{ellipsoid.bib,fir-ref.bib,Geostatistics.bib,mpcss1.bib,mpcss2.bib}
+\end{frame}
 
 \end{document}

@@ -93,7 +93,7 @@ Separation Oracle
 -   When a separation oracle $\Omega$ is *queried* at $x_0$, it either
     -   asserts that $x_0 \in \mathcal{K}$, or
     -   returns a separating hyperplane between $x_0$ and $\mathcal{K}$:
-        $$g^\mathsf{T} (x - x_0) + \beta \leq 0, \beta \geq 0, g \neq 0, \;
+        $$g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \geq 0, g \neq 0, \;
               \forall x \in \mathcal{K}$$
 
 \col{0.4\textwidth}
@@ -154,7 +154,7 @@ Key components of Cutting-plane method
     -   Polyhedron $\mathcal{P}$ = $\{z \mid C z \preceq d \}$
     -   Interval $\mathcal{I}$ = $[l, u]$ (for one-dimensional problem)
     -   Ellipsoid $\mathcal{E}$ =
-        $\{z \mid (z-x_c)P^{-1}(z-x_c) \leq 1 \}$
+        $\{z \mid (z-x_c)P^{-1}(z-x_c) \le 1 \}$
 
 ---
 
@@ -167,13 +167,15 @@ Generic Cutting-plane method
     2.  Query the cutting-plane oracle at $x_0$
     3.  **If** $x_0 \in \mathcal{K}$, quit
     4.  **Else**, update $\mathcal{S}$ to a smaller set that covers:
-        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \leq 0\}$$
+        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\}$$
     5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
 
 ---
 
 Corresponding Python code
 -------------------------
+
+\scriptsize
 
 ```python
 def cutting_plane_feas(evaluate, S, options=Options()):
@@ -203,7 +205,7 @@ $$\begin{array}{ll}
 \end{array}$$
 
 -   The optimization problem is treated as a feasibility problem with an
-    additional constraint $f_0({\color{blue}x}) < {\color{purple}t}$
+    additional constraint $f_0({\color{blue}x}) \le {\color{purple}t}$
 
 -   $f_0({\color{blue}x})$ could be a convex function or a quasiconvex
     function.
@@ -218,17 +220,19 @@ Convex Optimization Problem (II)
 
 -   Problem can be reformulated as: $$\begin{array}{ll}
                 \text{minimize}         & {\color{purple}t}, \\
-                \text{subject to}   & \Phi({\color{blue}x}, {\color{purple}t}) < 0 \\
+                \text{subject to}   & \Phi({\color{blue}x}, {\color{purple}t}) \le 0 \\
                                     & {\color{blue}x} \in \mathcal{K}
-      \end{array}$$ where $\Phi({\color{blue}x}, {\color{purple}t}) < 0$
+      \end{array}$$ where $\Phi({\color{blue}x}, {\color{purple}t}) \le 0$
     is the ${\color{purple}t}$-sublevel set of $f_0({\color{blue}x})$.
 -   Note: $\mathcal{K}_t \subseteq \mathcal{K}_u$ if and only if
-    $t \leq u$ (monotonicity)
+    $t \le u$ (monotonicity)
 
 -   One easy way to solve the optimization problem is to apply the
     binary search on ${\color{purple}t}$.
 
 ---
+
+\scriptsize
 
 ```python
 def bsearch(evaluate, I, options=Options()):
@@ -249,6 +253,8 @@ def bsearch(evaluate, I, options=Options()):
 ```
 
 ---
+
+\scriptsize
 
 ```python
 class bsearch_adaptor:
@@ -297,10 +303,12 @@ Generic Cutting-plane method (Optim)
         ${\color{purple}t}$ such that
         $\Phi({\color{blue}x_0}, {\color{purple}t}) = 0$.
     4.  Update $\mathcal{S}$ to a smaller set that covers:
-        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \leq 0\} $$
+        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\} $$
     5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
 
 ---
+
+\scriptsize
 
 ```python
 def cutting_plane_dc(evaluate, S, t, options=Options()):
@@ -407,6 +415,8 @@ class profit_oracle:
 Python code (Main program) {#python-code-main-program .allowframebreaks}
 --------------------------
 
+\scriptsize
+
 ```python
 import numpy as np
 from profit_oracle import *
@@ -447,14 +457,14 @@ Robust Optimization Formulation
 
 -   Consider: $$\begin{array}{ll}
         \text{minimize}   & \sup_{q \in \mathbb Q} f_0({\color{blue}x},q) \\
-        \text{subject to} & f_j({\color{blue}x},q) \leq 0, \;
+        \text{subject to} & f_j({\color{blue}x},q) \le 0, \;
          \forall q \in {\mathbb Q}, \; j = 1,2,\cdots,m,
       \end{array}$$ where $q$ represents a set of varying parameters.
 
 -   The problem can be reformulated as: $$\begin{array}{ll}
         \text{minimize}   & {\color{purple}t} \\
-        \text{subject to} & f_0({\color{blue}x},q) < {\color{purple}t}  \\
-        & f_j({\color{blue}x},q) \leq 0, \;
+        \text{subject to} & f_0({\color{blue}x},q) \le {\color{purple}t}  \\
+        & f_j({\color{blue}x},q) \le 0, \;
          \forall q \in {\mathbb Q}, \; j = 1,2,\cdots,m,
       \end{array}$$
 
@@ -511,13 +521,16 @@ By detail analysis, the worst case happens when:
 -   if ${\color{blue}y}_2 > 0$, $\beta = \bar{\beta} - e_2$, else
     $\beta = \bar{\beta} + e_2$
 
-> **Remark**: for more complicated problems, affine arithmetic could be
-> used [@liu2007robust].
+Remark:
+
+-   for more complicated problems, affine arithmetic could be used [@liu2007robust].
 
 ---
 
 `profit_rb_oracle`
 ------------------
+
+\scriptsize
 
 ```python
 class profit_rb_oracle:
@@ -554,12 +567,11 @@ Given a network represented by a directed graph $G = (V, E)$.
 Consider:
 
 $$\begin{array}{ll}
-    \text{minimize} & {\color{purple}t} \\
-    \text{subject to} & {\color{red}u_i} - {\color{red}u_j} \le h_{ij}({\color{blue}x}, {\color{blue}t}), \; \forall (i, j) \in E ,\\
-    \text{variables} &{\color{blue}x}, {\color{red}u} ,
+    \text{find} & {\color{blue}x}, {\color{red}u} \\
+    \text{subject to} & {\color{red}u_j} - {\color{red}u_i} \le h_{ij}({\color{blue}x}), \; \forall (i, j) \in E ,
    \end{array}$$
 
--   $h_{ij}({\color{blue}x}, {\color{blue}t})$ is the weight function of
+-   $h_{ij}({\color{blue}x})$ is the concave function of
     edge $(i,j)$,
 
 -   Assume: network is large but the number of parameters is small.
@@ -569,19 +581,18 @@ $$\begin{array}{ll}
 Network Potential Problem (cont'd)
 ----------------------------------
 
-Given $x$ and $t$, the problem has a feasible solution if and only if
+Given $x$, the problem has a feasible solution if and only if
 $G$ contains no negative cycle. Let $\mathcal{C}$ be a set of all cycles
 of $G$.
 
 $$\begin{array}{ll}
-    \text{minimize} & {\color{purple}t} \\
-    \text{subject to} & W_k({\color{blue}x}, {\color{purple}t}) \ge 0, \forall C_k \in C ,\\
-       \text{variables} & x
+    \text{find} & {\color{blue}x} \\
+    \text{subject to} & w_k({\color{blue}x}) \ge 0, \forall C_k \in \mathcal{C} ,
 \end{array}$$
 
 -   $C_k$ is a cycle of $G$
 
--   $W_k({\color{blue}x}, {\color{purple}t}) = \sum_{ (i,j)\in C_k} h_{ij}({\color{blue}x}, {\color{purple}t})$.
+-   $w_k({\color{blue}x}) = \sum_{ (i,j)\in C_k} h_{ij}({\color{blue}x})$.
 
 ---
 
@@ -600,18 +611,15 @@ Oracle in Network Potential Problem
 
 -   The oracle only needs to determine:
     -   If there exists a negative cycle $C_k$ under $x_0$, then
-        -   the cut $(g, \beta)$ = $(-\partial W_k(x_0), -W_k(x_0))$
-    -   If $f_0(x_0) \geq {\color{purple}t}$, then
-        -   the cut $(g, \beta)$ =
-            $(\partial f_0(x_0), f_0(x_0) - {\color{purple}t})$
-    -   Otherwise, $x_0$ is feasible, then
-        -   ${\color{purple}t} := f_0(x_0)$.
-        -   The cut $(g, \beta)$ = $(\partial f_0(x_0), 0)$
+        -   the cut $(g, \beta)$ = $(-\partial w_k(x_0), -w_k(x_0))$
+    -   Otherwise, the shortest path solution is u
 
 ---
 
 Python Code
 -----------
+
+\scriptsize
 
 ```python
 class network_oracle:
@@ -650,8 +658,8 @@ Example: Optimal Matrix Scaling [@orlin1985computing]
 
 $$\begin{array}{ll}
   \text{minimize}   &   \pi/\psi  \\
-  \text{subject to} &   \psi \leq u_i |a_{ij}| u_j^{-1} \leq \pi, \; \forall a_{ij} \neq 0 , \\
-                    &   \pi, \, \psi, u, \text{positive} \\
+  \text{subject to} &   \psi \le u_i |a_{ij}| u_j^{-1} \le \pi, \; \forall a_{ij} \neq 0 , \\
+                    &   \pi, \psi, u, \, \text{positive} \\
   \text{variables}  &   \pi, \psi, u \, .
   \end{array}$$
 
@@ -665,9 +673,9 @@ transformed into:
 
 $$\begin{array}{ll}
   \text{minimize}   &   {\color{purple}t} \\
-  \text{subject to} &   {\color{blue}\pi'} - {\color{blue}\psi'} \leq {\color{purple}t} \\
-                    &   {\color{red}u_i'} - {\color{red}u_j'}  \leq {\color{blue}\pi'} - a_{ij}', \; \forall a_{ij} \neq 0 \,, \\
-                    &   {\color{red}u_j'} - {\color{red}u_i'} \leq a_{ij}' - {\color{blue}\psi'}, \; \forall a_{ij} \neq 0 \,, \\
+  \text{subject to} &   {\color{blue}\pi'} - {\color{blue}\psi'} \le {\color{purple}t} \\
+                    &   {\color{red}u_i'} - {\color{red}u_j'}  \le {\color{blue}\pi'} - a_{ij}', \; \forall a_{ij} \neq 0 \,, \\
+                    &   {\color{red}u_j'} - {\color{red}u_i'} \le a_{ij}' - {\color{blue}\psi'}, \; \forall a_{ij} \neq 0 \,, \\
   \text{variables}  &   {\color{blue}\pi'}, {\color{blue}\psi'}, {\color{red}u'} \, .
   \end{array}$$
 
@@ -717,7 +725,7 @@ Example: clock period & yield-driven co-optimization
 
 $$\begin{array}{cll}
    \text{minimize} &T_{CP} - w_{\color{blue}\beta} {\color{blue}\beta} \\
-   \text{subject to} & u_i - u_j \le T_{CP} + F_{ij}^{-1}(1 - {\color{blue}\beta}), & \forall (i,j) \in E_s \,,\\
+   \text{subject to} & u_i - u_j \le T_{CP} - F_{ij}^{-1}({\color{blue}\beta}), & \forall (i,j) \in E_s \,,\\
                      & u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), & \forall (j,i) \in E_h \,, \\
                      & T_{CP} \ge 0, \, 0 \le {\color{blue}\beta} \le 1 \, , \\
     \text{variables} &T_{CP}, {\color{blue}\beta}, u.
@@ -728,13 +736,6 @@ $$\begin{array}{cll}
     for high yield rather than the low one in practice.
 -   Therefore, by imposing an additional constraint to $\beta$, say
     $\beta \geq 0.8$, the problem becomes convex.
-
----
-
-Inverse CDF
------------
-
-![img](ellipsoid.files/Fig2-b-invcdf.pdf)
 
 Matrix Inequalities
 ===================
@@ -747,11 +748,11 @@ Problems With Matrix Inequalities
 Consider the following problem:
 
 $$\begin{array}{ll}
-    \text{minimize}    & {\color{purple}t}, \\
-    \text{subject to}  & F({\color{blue}x}, {\color{purple}t}) \succeq 0,
+    \text{find}    & {\color{blue}x}, \\
+    \text{subject to}  & F({\color{blue}x}) \succeq 0,
 \end{array}$$
 
--   $F({\color{blue}x}, {\color{purple}t})$: a matrix-valued function
+-   $F({\color{blue}x})$: a matrix-valued function
 -   $A \succeq 0$ denotes $A$ is positive semidefinite.
 
 ---
@@ -762,14 +763,14 @@ Problems With Matrix Inequalities
 -   Recall that a matrix $A$ is positive semidefinite if and only if
     $v^\mathsf{T} A v \ge 0$ for all $v \in \mathbb{R}^N$.
 -   The problem can be transformed into: $$\begin{array}{ll}
-              \text{minimize}      & {\color{purple}t}, \\
-              \text{subject to}    & v^\mathsf{T} F({\color{blue}x}, {\color{purple}t}) v \ge 0, \; \forall v \in \mathbb{R}^N
+              \text{find}      & {\color{blue}x}, \\
+              \text{subject to}    & v^\mathsf{T} F({\color{blue}x}) v \ge 0, \; \forall v \in \mathbb{R}^N
       \end{array}$$
--   Consider $v^\mathsf{T} F({\color{blue}x}, {\color{purple}t}) v$ is
+-   Consider $v^\mathsf{T} F({\color{blue}x}) v$ is
     concave for all $v \in \mathbb{R}^N$ w. r. t. ${\color{blue}x}$,
     then the above problem is a convex programming.
 -   Reduce to *semidefinite programming* if
-    $F({\color{blue}x}, {\color{purple}t})$ is linear w.r.t.
+    $F({\color{blue}x})$ is linear w.r.t.
     ${\color{blue}x}$, i.e.,
     $F({\color{blue}x}) = F_0 + x_1 F_1 + \cdots + x_n F_n$
 
@@ -780,11 +781,11 @@ Oracle in Matrix Inequalities
 
 The oracle only needs to:
 
--   Perform a *row-based* Cholesky factorization such that
-    $F(x_0, t) = R^\mathsf{T} R$.
+-   Perform a *row-based* LDLT factorization such that
+    $F(x_0) = L \cdot D \cdot L^\mathsf{T}$.
 -   Let $A_{:p,:p}$ denotes a submatrix
     $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$.
--   If Cholesky factorization fails at row $p$,
+-   If the process fails at row $p$,
     -   there exists a vector
         $e_p = (0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p$, such
         that

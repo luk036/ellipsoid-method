@@ -27,7 +27,7 @@ Basic Ellipsoid Method
 ----------------------
 
 -   An ellipsoid $\mathcal{E}(x_c, P)$ is specified as a set
-    $$\{x \mid (x-x_c)P^{-1}(x-x_c) \leq 1 \},$$
+    $$\{x \mid (x-x_c)P^{-1}(x-x_c) \le 1 \},$$
     where $x_c$ is the center of the ellipsoid.
 
 \begin{figure}
@@ -46,6 +46,8 @@ Basic Ellipsoid Method
 
 Python code
 -----------
+
+\scriptsize
 
 ```python
 import numpy as np
@@ -73,7 +75,7 @@ Updating the ellipsoid (deep-cut)
 ---------------------------------
 
 Calculation of minimum volume ellipsoid covering:
-$$ \mathcal{E} \cap \{z \mid g^\mathsf{T} (z - x_c) + h \leq 0 \}. $$
+$$ \mathcal{E} \cap \{z \mid g^\mathsf{T} (z - x_c) + h \le 0 \}. $$
 
 -   Let $\tilde{g} = P\,g$, $\tau^2 = g^\mathsf{T} P g$.
 
@@ -112,6 +114,8 @@ Updating the ellipsoid (cont'd)
 Python code (updating)
 ----------------------
 
+\scriptsize
+
 ```python
 def update_core(self, calc_ell, cut):
     g, beta = cut
@@ -134,6 +138,8 @@ def update_core(self, calc_ell, cut):
 
 Python code (deep cut)
 ----------------------
+
+\scriptsize
 
 ```python
 def calc_dc(self, beta, tsq):
@@ -173,6 +179,8 @@ $$\rho = {\tau \over n+1}, \qquad
 Python code (deep cut)
 ----------------------
 
+\scriptsize
+
 ```python
 def calc_cc(self, tau):
     '''central cut'''
@@ -195,12 +203,12 @@ Parallel Cuts
 
 -   The pair of cuts is given by $g$ and $(\beta_1, \beta_2)$ such that:
     $$\begin{array}{l}
-    g^\mathsf{T} (x - x_c) + \beta_1 \leq 0,  \\
+    g^\mathsf{T} (x - x_c) + \beta_1 \le 0,  \\
     g^\mathsf{T} (x - x_c) + \beta_2 \geq 0,
     \end{array}$$ for all $x \in \mathcal{K}$.
 
 -   Only linear inequality constraint can produce such parallel cut:
-    $$ l \leq a^\mathsf{T} x + b \leq u, \qquad L \preceq F(x) \preceq U. $$
+    $$ l \le a^\mathsf{T} x + b \le u, \qquad L \preceq F(x) \preceq U. $$
 
 -   Usually provide faster convergence.
 
@@ -209,7 +217,7 @@ Parallel Cuts
 Parallel Cuts
 -------------
 
-![Parallel Cut](ellipsoid.files/parallel_cut.pdf){width="80%"}
+![Parallel Cut](ellipsoid.files/parallel_cut.pdf){width="60%"}
 
 ---
 
@@ -324,7 +332,7 @@ Example: FIR filter design (III)
 
 $$\begin{array}{ll}
   \text{min}  & \gamma \\
-  \text{s.t.} & L^2(\omega) \leq R(\omega) \leq U^2(\omega), \; \forall \omega \in [0,\pi]   \\
+  \text{s.t.} & L^2(\omega) \le R(\omega) \le U^2(\omega), \; \forall \omega \in [0,\pi]   \\
               & R(\omega) > 0, \forall \omega \in [0,\pi]
 \end{array}$$
 
@@ -333,7 +341,7 @@ $$\begin{array}{ll}
 Experiment
 ----------
 
-![Result](ellipsoid.files/lowpass.pdf){width="80%"}
+![Result](ellipsoid.files/lowpass.pdf){width="60%"}
 
 ---
 
@@ -406,8 +414,8 @@ Mixed-Integer Convex Programming
 Consider:
 $$\begin{array}{ll}
         \text{minimize}      & f_0(x), \\
-        \text{subject to}    & f_j(x) \leq 0, \; \forall j=1,2,\ldots \\
-                             & x \in \mathbb{D} 
+        \text{subject to}    & f_j(x) \le 0, \; \forall j=1,2,\ldots \\
+                             & x \in \mathbb{D}
 \end{array}$$
 
 where
@@ -422,7 +430,7 @@ Oracle Requirement
 
 -   The oracle looks for the nearby discrete solution $x_d$ of $x_c$
     with the cutting-plane:
-    $$g^\mathsf{T} (x - x_d) + \beta \leq 0, \beta \geq 0, g \neq 0$$
+    $$g^\mathsf{T} (x - x_d) + \beta \le 0, \beta \geq 0, g \neq 0$$
 
 -   Note: the cut may be a shallow cut.
 
@@ -434,7 +442,7 @@ Oracle Requirement
 Example: FIR filter design
 --------------------------
 
-![Lowpass](ellipsoid.files/lowpass_ripple.pdf){width="80%"}
+![Lowpass](ellipsoid.files/lowpass_ripple.pdf){width="60%"}
 
 Reference
 =========
