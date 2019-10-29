@@ -12,32 +12,29 @@ abstract: |
 Introduction
 ============
 
-The reputation of the ellipsoid method is bad,
-it is commonly believed that the method is slow for large-scale convex problems compared with the interior point methods [@unknown].
-And it is unfair.
-
-$$\begin{aligned}
-a & = b + c \\
-d & = 5 + 4 + 8
-\end{aligned}$$
+The reputation of the ellipsoid method is bad.
+It is commonly believed that the method is slow for large-scale convex problems compared with the interior point methods [@unknown].
+And this is unfair.
 
 First, unlike the interior point methods, the ellipsode method does not require evaluation of all the constraint functions explicitly at each iteration.
 All it needs is a *separation oracle* that provides a *cutting-plane* (@sec:cutting-plane).
-This can make the method attractive for certain problems in which the number of constraints is large.
-In Section 3.1, we show that in robust optimization,
+This can make the method attractive for certain problems in which the number of constraints is large or even infinite.
 
-Second, although the ellipsoid method cannot exploit the sparsity of the problem, the separation oracle can exploit certain types of structure in large and complex problems.
-In Section 3.3, we show the network parametric problem, where the cut can be obtained by finding the negative cycle of a directed graph.
-Efficient algorithms exists, in which the locality of network and the associativity of data are exploited.
+Second, although the ellipsoid method itself cannot exploit the sparsity of the problem, the separation oracle can exploit certain types of structure of them...
 
-In Section 3.2, problems involving matrix inequalities are discussed.
-Recall that the checking of the positive definiteness of a symmetry matrix can be done efficiently using Cholesky or more precisely $LDL^T$ factorization*.
+In @sec:robust, robust optimization...
+
+In @sec:network, we show for the network parametric problems, the cutting-plane can be obtained by finding the negative cycle of a directed graph.
+Efficient algorithms exist, in which the locality of network and the associativity of variables are utilized.
+
+In @sec:lmi, problems involving matrix inequalities are discussed.
+Recall that the checking of the positive definiteness of a symmetry matrix can be done efficiently using Cholesky or more precisely $LDL^\mathsf{T}$ factorization*.
 Let a symmetric matrix $A \in \mathbb{R}^{m \times m}$.
 Recall that if the factorization stops at row $p$ while a negative diagonal entry is encountered, then $A$ is not positive definite.
-In addition, one can construct a cutting plane in $O(p^2 n)$,
+In addition, with lazy evalution technique, one can construct a cutting plane in $O(p^2)$,
 no matter how large the value of $m$ is. Thus, it can be used for efficient oracle implementation.
 
-Implemention issues of the ellipsoid method is discussed in Section 4.
+Implemention issues of the ellipsoid method is discussed in @sec:ellipsoid.
 The method is a kind of cutting-plane methods,
 where the search space is an ellipsoid, usually represented by:
 $$\{ x \mid (x-x_c)P^{-1}(x-x_c) \le 1 \},$$
@@ -86,7 +83,7 @@ The pair $(g, \beta)$ is called a *cutting-plane*, since it eliminates the half-
 -   If $\beta<0$ ($x_0$ lies in the exterior of half-space that is cut), cutting-plane is called *shadow-cut*.
 
 The $\mathcal{K}$ is usually given by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1 \cdots m$, where $f_j(x)$ is a convex function.
-A vector $g \equiv \partial f(x_0)$ is called a *sub-gradient* of a convex function $f$ at $x_0$ if $f(z) \geq f(x_0) + g^\mathrm{T} (z - x_0)$.
+A vector $g \equiv \partial f(x_0)$ is called a *sub-gradient* of a convex function $f$ at $x_0$ if $f(z) \geq f(x_0) + g^\mathsf{T} (z - x_0)$.
 Hence, the cut $(g, \beta)$ is given by $(\partial f(x_0), f(x_0))$.
 
 Note that if $f(x)$ is differentiable, we can simply take $\partial f(x_0) = \nabla f(x_0)$.
@@ -133,11 +130,11 @@ $t$ is the best-so-far value of $f_0(x)$.
 We can reformulate the problem as:
 $$\begin{array}{ll}
     \text{minimize}   & t, \\
-    \text{subject to} & \Phi(x, t) < 0, \\
+    \text{subject to} & \Phi(x, t) \le 0, \\
                       & x \in \mathcal{K},
   \end{array}
 $$ {#eq:cvx-in-feasibility-form}
-where $\Phi(x, t) < 0$ is the $t$-sublevel set of $f_0(x)$.
+where $\Phi(x, t) \le 0$ is the $t$-sublevel set of $f_0(x)$.
 
 For each $x$, $\Phi(x, t)$ is a nonincreasing function of $t$, *i.e.*,
 $\Phi(x, t’) \le \Phi(x, t) whenever t’ \geq t$.
@@ -167,7 +164,7 @@ Generic Cutting-plane method (Optim)
 Example: Profit Maximization {#sec:profit}
 ------------------------------------------
 
-We take this example from [@Aliabadi2013Robust].
+This example is taken from [@Aliabadi2013Robust].
 Consider the following short-run profit maximization problem:
 $$\begin{array}{ll}
    \text{maximize}   & p(A x_1^\alpha x_2^\beta) - v_1 x_1 - v_2 x_2, \\
@@ -218,13 +215,13 @@ Amazing Oracles {#sec:oracles}
 -   Semidefinite programming
     -   oracle technique: Cholesky factorization
 
-Robust Convex Optimization
+Robust Convex Optimization {#sec:robust}
 --------------------------
 
 Consider:
 $$\begin{array}{ll}
-    \text{minimize}   & \sup_{q \in \mathcal Q} f_0(x,q), \\
-    \text{subject to} & f_j(x,q) \le 0, \;
+    \text{minimize}   & \sup_{q \in \mathcal Q} f_0(x, q), \\
+    \text{subject to} & f_j(x, q) \le 0, \;
             \forall q \in \mathcal{Q}, \; j = 1,2,\cdots, m,
   \end{array}
 $$ {#eq:robust-optim}
@@ -232,8 +229,8 @@ where $q$ represents a set of varying parameters.
 We can reformulate the problem as:
 $$\begin{array}{ll}
     \text{minimize}   & t, \\
-    \text{subject to} & f_0(x,q) \le t,  \\
-                      & f_j(x,q) \le 0, \;
+    \text{subject to} & f_0(x, q) \le t,  \\
+                      & f_j(x, q) \le 0, \;
             \forall q \in \mathcal{Q}, \; j = 1,2,\cdots,m.
   \end{array}
 $$
@@ -258,8 +255,6 @@ The oracle only needs to determine:
 
 -   The cut $(g, \beta)$ = $(\partial f_0(x_0, q_{\max}), 0)$
 
-
-Random sampling trick.
 
 ### Example: Robust Profit Maximization {#sec:profit-rb}
 
@@ -287,9 +282,9 @@ It involves a lot of programming effort but the result is inaccurate.
 However, this can easily be done using the cutting-plane method.
 Note that in this simple example, the worst case happens when:
 
--   $\hat{p} = p + e_3$, $k = \bar{k} + e_3$
+-   $\hat{p} = p - e_3$, $k = \bar{k} - e_3$
 
--   $v_1 = \bar{v}_1 - e_3$, $v_2 = \bar{v}_2 - e_3$,
+-   $v_1 = \bar{v}_1 + e_3$, $v_2 = \bar{v}_2 + e_3$,
 
 -   if $y_1 > 0$, $\alpha = \bar{\alpha} - e_1$, else
     $\alpha = \bar{\alpha} + e_1$
@@ -323,7 +318,7 @@ class profit_rb_oracle:
 Note that the `argmax’ can be non-convex and hence difficult to solved.
 For more complicated problems, affine arithmetic could be used [@liu2007robust].
 
-Multi-parameter Network Problems
+Multi-parameter Network Problems {#sec:network}
 ---------------------------------
 
 Given a network represented by a directed graph $G = (V, E)$.
@@ -418,26 +413,26 @@ We can find fast algorithms for finding negative cycle
 in [@dasdan1998faster; @dasdan2004experimental].
 It can find more application in clock skew scheduling in [@zhou2015multi].
 
-Problems Involving Matrix Inequalities
+Problems Involving Matrix Inequalities {#sec:lmi}
 --------------------------------------
 
 Consider the following problem:
 $$\begin{array}{ll}
-    \text{minimize}    & t, \\
-    \text{subject to}  & F(x, t) \succeq 0,
+    \text{find}        & x, \\
+    \text{subject to}  & F(x) \succeq 0,
   \end{array}
 $$
-where $F(x, t)$ is a matrix-valued function, $A \succeq 0$ denotes $A$ is positive semidefinite.
+where $F(x)$ is a matrix-valued function, $A \succeq 0$ denotes $A$ is positive semidefinite.
 Recall that a matrix $A$ is positive semidefinite if and only if $v^\mathsf{T} A v \ge 0$ for all $v \in \mathbb{R}^N$.
 We can transform the problem into:
 $$\begin{array}{ll}
-        \text{minimize}      & t, \\
-        \text{subject to}    & v^\mathsf{T} F(x, t) v \ge 0, \; \forall v \in \mathbb{R}^N.
+        \text{find}          & x, \\
+        \text{subject to}    & v^\mathsf{T} F(x) v \ge 0, \; \forall v \in \mathbb{R}^N.
   \end{array}
 $$
-Consider $v^\mathsf{T} F(x, t) v$ is concave for all $v \in \mathbb{R}^N$ w.r.t.
+Consider $v^\mathsf{T} F(x) v$ is concave for all $v \in \mathbb{R}^N$ w.r.t.
 $x$, then the above problem is a convex programming.
-Reduce to *semidefinite programming* if $F(x, t)$ is linear w.r.t.
+Reduce to *semidefinite programming* if $F(x)$ is linear w.r.t.
 $x$, i.e., $F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n$.
 
 ### Cholesky Factorization Algorithm
@@ -445,7 +440,7 @@ $x$, i.e., $F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n$.
 An alternative form, eliminating the need to take square roots, is the symmetric indefinite factorization:
 
 $$\begin{aligned}
-\mathbf{A} = \mathbf{LDL}^\mathrm{T} & =
+\mathbf{A} = \mathbf{LDL}^\mathsf{T} & =
 \begin{pmatrix}   1 & 0 & 0 \\
    L_{21} & 1 & 0 \\
    L_{31} & L_{32} & 1\\
@@ -507,7 +502,7 @@ def witness(self):
 The oracle only needs to:
 
 -   Perform a *row-based* Cholesky factorization such that
-    $F(x_0, t) = R^\mathsf{T} R$.
+    $F(x_0) = R^\mathsf{T} R$.
 
 -   Let $A_{:p,:p}$ denotes a submatrix
     $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$.
@@ -526,11 +521,10 @@ Let $A(x) = A_0 + x_1 A_1 + \cdots + x_n A_n$.
 Problem $\min_x \| A(x) \|$ can be reformulated as
 $$\begin{array}{ll}
     \text{minimize}      & t, \\
-    \text{subject to}    & \left(
-                            \begin{array}{cc}
-                             t\,I   & A(x) \\
-                             A^\mathsf{T}(x) & t\,I
-                            \end{array} \right) \succeq 0.
+    \text{subject to}    & \begin{pmatrix}
+                             t\,I_m   & A(x) \\
+                             A^\mathsf{T}(x) & t\,I_n
+                            \end{pmatrix} \succeq 0.
   \end{array}
 $$
 Binary search on $t$ can be used for this problem.
@@ -598,8 +592,8 @@ The covariance matrix $\Omega(p)$ can be recast as:
 $$\Omega(p) = p_1 F_1 + \cdots + p_n F_n, $$
 where $\{F_k\}_{i,j} =\Psi_k( \| s_j - s_i \|_2)$.
 
-Ellipsoid Method Revisited
-==========================
+Ellipsoid Method Revisited {#sec:ellipsoid}
+===========================================
 
 Some History of Ellipsoid Method [@BGT81].
 Introduced by Shor and Yudin and Nemirovskii in 1976.
@@ -607,7 +601,7 @@ Used to show that linear programming (LP) is polynomial-time solvable (Kachiyan 
 In practice, however, the simplex method runs much faster than the method, although its worst-case complexity is exponential.
 
 Basic Ellipsoid Method
---------------------—
+-----------------------
 
 An ellipsoid $\mathcal{E}_k(x_k, P_k)$ is specified as a set
 $$\{x \mid (x-x_k) P^{-1}_k (x - x_k) \le 1 \}, $$
@@ -616,7 +610,7 @@ and $P_k \in \mathbb{R}^{n \times n}$ is a positive definite matrix.
 
 \begin{figure}
 \centering
-\begin{tikzpicture}[scale=0.4]
+\begin{tikzpicture}[scale=0.6]
  \draw[top color=lightgray, bottom color=lightgray] plot[smooth, tension=.7] coordinates {(-3,2) (-5,2) (-6,4) (-5,5) (-3,4) (-3,2)};
  \node at (-5,4) {$\mathcal{K}$};
 \draw (0,8) -- (-3,-2);
@@ -694,7 +688,7 @@ $$
 
 Usually, provide faster convergence.
 
-![Parallel cuts](ellipsoid.files/parallel_cut.pdf){#fig:parallel_cut}
+![Parallel cuts](ellipsoid.files/parallel_cut.pdf){#fig:parallel_cut width="80%"}
 
 Updating the ellipsoid.
 
@@ -731,7 +725,7 @@ Moreover, there is no guarantee about the design’s quality.
 Therefore, the optimization-based techniques (e.g. [@wu1999fir], more reference) have attracted tons of research effort.
 In this kind of methods, facilitated with growing computing resource and efficient optimization algorithms, the solution space can be effectively explored.
 
-![A typical structure of an FIR filter\ @mitra2006digital.](ellipsoid.files/fir_strctr.pdf){#fig:fir-strctr}
+![A typical structure of an FIR filter\ @mitra2006digital.](ellipsoid.files/fir_strctr.pdf){#fig:fir-strctr width="80%"}
 
 In optimization algorithms, what is particularly interesting is the convex optimization.
 If a problem is in a convex form, it can be efficiently and optimally solved.
@@ -777,7 +771,7 @@ Especially, $\mathbf{r}$ can be determined by $\mathbf{h}$, with the following e
 $$r(t) = \sum_{i=-n+1}^{n-1}{h(i)h(i+t)}, t\in\mathbb{Z}.$$ {#eq:h_r}
 where $h(t)=0$ for $t<0$ or $t>n-1$.
 
-![Result](ellipsoid.files/lowpass.pdf){#fig:lowpass}
+![Result](ellipsoid.files/lowpass.pdf){#fig:lowpass width="80%"}
 
 ### Example: Maximum Likelihood estimation
 
@@ -830,8 +824,6 @@ $$
 Note that the cut may be a shallow cut.
 Suggestion: use different cuts as possible for each iteration (e.g. round-robin the evaluation of constraints).
 
-![Lowpass ripple](ellipsoid.files/lowpass_ripple.pdf){#fig:lowpass_ripple}
-
 ### Example: Multiplier-less FIR Filter Design
 
 However, there are still many filter design problems that are non-convex, such as multiplier-less FIR filter design problems.
@@ -840,7 +832,7 @@ Fortunately, it can be implemented multiplier-less if each coefficient is quanti
 Such a coefficient can be uniquely represented by a Canonic Signed-Digit (CSD) code [@george1960csd] with the smallest number of non-zero digits.
 In such a case, it confines the multiplication to add and shift operations.
 An example is shown in @fig:multi-shift.
-A coefficient 0.65625 = 21/32 can be written as $2^{-1}+2^{-3}+2^{-5}$.
+A coefficient 0.40625 = 13/32 can be written as $2^{-1} - 2^{-3} + 2^{-5}$.
 Consequently, as shown in @fig:shift, the multiplier can be replaced with three shifters and two adders, which are with much lower cost.
 However, the coefficient quantization constraint, which is non-convex, makes the convex optimization algorithm cannot be directly applied.
 A similar scenario is considering the finite word-length effect [@lim1982finite].
@@ -855,6 +847,8 @@ However, both of the methods can not guarantee the feasibility of the final solu
 Besides, the local search problem is still non-convex.
 Therefore, the adopted algorithm could also be inefficient, such as branch-and-bound in [@kodek1981comparison].
 
+![Result](ellipsoid.files/csdlowpass.pdf){#fig:lowpass width="80%"}
+
 Concluding Remarks
 ==================
 
@@ -863,5 +857,8 @@ Ellipsoid method is not competitor but companion of interior point methods.
 
 TBD.
 
-References
+References {-}
 ==========
+
+\ 
+

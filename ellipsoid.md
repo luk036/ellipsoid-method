@@ -176,7 +176,7 @@ $$\rho = {\tau \over n+1}, \qquad
 
 ---
 
-Python code (deep cut)
+Python code (central cut)
 ----------------------
 
 \scriptsize
@@ -208,7 +208,7 @@ Parallel Cuts
     \end{array}$$ for all $x \in \mathcal{K}$.
 
 -   Only linear inequality constraint can produce such parallel cut:
-    $$ l \le a^\mathsf{T} x + b \le u, \qquad L \preceq F(x) \preceq U. $$
+    $$ l \le a^\mathsf{T} x + b \le u, \qquad L \preceq F_0 + x_1 F_1 + \cdots + x_n F_n \preceq U. $$
 
 -   Usually provide faster convergence.
 
@@ -345,6 +345,20 @@ Experiment
 
 ---
 
+Google Benchmark Result
+-----------------------
+
+```terminal
+3: ------------------------------------------------------------------
+3: Benchmark                        Time             CPU   Iterations
+3: ------------------------------------------------------------------
+3: BM_Lowpass_single_cut    627743505 ns    621639313 ns            1
+3: BM_Lowpass_parallel_cut   30497546 ns     30469134 ns           24
+3/4 Test #3: Bench_BM_lowpass .................   Passed    1.72 sec
+```
+
+---
+
 Example: Maximum Likelihood estimation
 --------------------------------------
 
@@ -439,10 +453,10 @@ Oracle Requirement
 
 ---
 
-Example: FIR filter design
---------------------------
+Example: Multiplierless FIR filter design
+------------------------------------------
 
-![Lowpass](ellipsoid.files/lowpass_ripple.pdf){width="60%"}
+![Result](ellipsoid.files/csdlowpass.pdf){width="60%"}
 
 Reference
 =========
