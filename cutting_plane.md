@@ -293,7 +293,7 @@ Shrinking
 
 -   If the equation is difficuit to solve
     but $t$ is also convex w.r.t. $\Phi$,
-    then we may create a new varaible, $say x_{n+1}$
+    then we may create a new varaible, say $x_{n+1}$
     and let $x_{n+1} \le t'$.
 
 ---
@@ -746,8 +746,8 @@ Example - clock period & yield-driven co-optimization
 The problem can be reformulated as:
 
 $$\begin{array}{cll}
-   \text{minimize} & t
-   \text{subject to} &T_\text{CP} - {\color{blue}\beta} t \le 0\\
+   \text{minimize}   & t \\
+   \text{subject to} & T_\text{CP} - {\color{blue}\beta} t \le 0\\
                      & u_i - u_j \le T_\text{CP} - F_{ij}^{-1}({\color{blue}\beta}), & \forall (i,j) \in E_s \,,\\
                      & u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), & \forall (j,i) \in E_h \,, \\
                      & T_\text{CP} \ge 0, \, 0 \le {\color{blue}\beta} \le 1 \, , \\
