@@ -182,12 +182,12 @@ When a \emph{separation oracle} \(\Omega\) is \emph{queried} at \(x_0\), it eith
   Asserts that \(x_0 \in \mathcal{K}\), or
 \item
   Returns a separating hyperplane between \(x_0\) and \(\mathcal{K}\):
-  \begin{equation}g^\mathsf{T} (x - x_0) + \beta \leq 0, \beta \geq 0, g \neq 0, \; \forall x \in \mathcal{K}.\label{eq:cut}\end{equation}
+  \begin{equation}g^\mathsf{T} (x - x_0) + \beta \leq 0, \beta \ge 0, g \neq 0, \; \forall x \in \mathcal{K}.\label{eq:cut}\end{equation}
 \end{enumerate}
 
 The pair \((g, \beta)\) is called a \emph{cutting-plane}, or cut, since it eliminates the halfspace \(\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}\) from our search. If \(\beta=0\) (\(x_0\) is on the boundary of halfspace that is cut), cutting-plane is called \emph{neutral cut}. If \(\beta>0\) (\(x_0\) lies in the interior of halfspace that is cut), cutting-plane is called \emph{deep cut}.
 
-The \(\mathcal{K}\) is usually given by a set of inequalities \(f_j(x) \le 0\) or \(f_j(x) < 0\) for \(j = 1 \cdots m\), where \(f_j(x)\) is a convex function. A vector \(g \equiv \partial f(x_0)\) is called a \emph{subgradient} of a convex function \(f\) at \(x_0\) if \(f(z) \geq f(x_0) + g^\mathrm{T} (z - x_0)\). Hence, the cut \((g, \beta)\) is given by \((\partial f(x_0), f(x_0))\).
+The \(\mathcal{K}\) is usually given by a set of inequalities \(f_j(x) \le 0\) or \(f_j(x) < 0\) for \(j = 1 \cdots m\), where \(f_j(x)\) is a convex function. A vector \(g \equiv \partial f(x_0)\) is called a \emph{subgradient} of a convex function \(f\) at \(x_0\) if \(f(z) \ge f(x_0) + g^\mathrm{T} (z - x_0)\). Hence, the cut \((g, \beta)\) is given by \((\partial f(x_0), f(x_0))\).
 
 Note that if \(f(x)\) is differentiable, we can simply take \(\partial f(x_0) = \nabla f(x_0)\). Cutting-plane method consists of two key components: separation oracle \(\Omega\) and a search space \(\mathcal{S}\) initially big enough to cover \(\mathcal{K}\). For example,
 
@@ -368,7 +368,7 @@ The oracle only needs to determine:
 \item
   the cut \((g, \beta)\) = \((\partial f_j(x_0, q_0), f_j(x_0, q_0))\)
 \item
-  If \(f_0(x_0, q) \geq t\) for some \(q = q_0\), then
+  If \(f_0(x_0, q) \ge t\) for some \(q = q_0\), then
 \item
   the cut \((g, \beta)\) = \((\partial f_0(x_0, q_0), f_0(x_0, q_0) - t)\)
 \item
@@ -450,7 +450,7 @@ The oracle only needs to determine:
 \item
   the cut \((g, \beta)\) = \((-\partial W_k(x_0), -W_k(x_0))\)
 \item
-  If \(f_0(x_0) \geq t\), then
+  If \(f_0(x_0) \ge t\), then
 \item
   the cut \((g, \beta)\) = \((\partial f_0(x_0), f_0(x_0) - t)\)
 \item
@@ -555,7 +555,7 @@ Binary search on \(t\) can be used for this problem.
 
 \[\begin{array}{ll}
    \min_{\kappa, p}   & \| \Omega(p) + \kappa I - Y \| \\
-   \text{s. t.} & \Omega(p) \succcurlyeq 0,  \kappa \geq 0 \; .\\
+   \text{s. t.} & \Omega(p) \succcurlyeq 0,  \kappa \ge 0 \; .\\
   \end{array}
 \]
 Let \(\rho(h) = \sum_i^n p_i \Psi_i(h)\), where \(p_i\)'s are the unknown coefficients to be fitted \(\Psi_i\)'s are a family of basis functions. The covariance matrix \(\Omega(p)\) can be recast as:
@@ -649,7 +649,7 @@ Oracle returns a pair of cuts instead of just one.
 The pair of cuts is given by \(g\) and \((\beta_1, \beta_2)\) such that:
 \[\begin{array}{l}
     g^\mathsf{T} (x - x_c) + \beta_1 \leq 0,  \\
-    g^\mathsf{T} (x - x_c) + \beta_2 \geq 0,
+    g^\mathsf{T} (x - x_c) + \beta_2 \ge 0,
   \end{array}
 \]
 for all \(x \in \mathcal{K}\).
@@ -746,7 +746,7 @@ Consider
 \[\begin{array}{ll}
     \min_{\kappa, p}  & \log\det(\Omega(p) + \kappa\cdot I) +
                 \mathrm{Tr}((\Omega(p) + \kappa\cdot I)^{-1}Y), \\
-    \text{s.t.}       & \Omega(p) \succeq 0, \kappa \geq 0 . \\
+    \text{s.t.}       & \Omega(p) \succeq 0, \kappa \ge 0 . \\
   \end{array}
 \]
 Note that the 1st term is concave, the 2nd term is convex. However, if there are enough samples such that \(Y\) is a positive definite matrix, then the function is convex within \([0, 2Y]\).
@@ -773,7 +773,7 @@ Consider:
   \end{array}
 \]
 where \(f_0(x)\) and \(f_j(x)\) are ``convex''. Note that some design variables are discrete. The oracle looks for the nearby discrete solution \(x_d\) of \(x_c\) with the cutting-plane:
-\[ g^\mathsf{T} (x - x_d) + \beta \leq 0, \beta \geq 0, g \neq 0.
+\[ g^\mathsf{T} (x - x_d) + \beta \leq 0, \beta \ge 0, g \neq 0.
 \]
 Note that the cut may be a shallow cut. Suggestion: use different cuts as possible for each iteration (e.g.~round-robin the evaluation of constraints).
 

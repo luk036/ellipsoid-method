@@ -1,9 +1,13 @@
 Note
 ======
 
-pandoc -F pandoc-crossref -F pandoc-citeproc -s -t latex -N --reference-links --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml ell-review.md -o temp.pdf
+pandoc -F pandoc-crossref -F pandoc-citeproc -s -t latex -N --reference-links --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.pdf
 
-pandoc -s -t beamer --toc  --natbib --reference-links --csl=applied-mathematics-letters.csl beamer.yaml .\cutting_plane.md -o temp.tex
+pandoc -F pandoc-crossref -F pandoc-citeproc -s -t html -N --katex=katex/ --reference-links --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.html
+
+pandoc -F pandoc-crossref -s -t beamer --toc --natbib --reference-links --csl=applied-mathematics-letters.csl beamer.yaml cutting_plane.md -o temp.tex
+
+pandoc -F pandoc-crossref -s -t html --katex=katex/ --toc --natbib --reference-links --csl=applied-mathematics-letters.csl beamer.yaml cutting_plane.md -o cutting_plane.html
 
 pandoc -s --wrap=preserve ell-review.md -o temp.md
 

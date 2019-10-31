@@ -93,7 +93,7 @@ Separation Oracle
 -   When a separation oracle $\Omega$ is *queried* at $x_0$, it either
     -   asserts that $x_0 \in \mathcal{K}$, or
     -   returns a separating hyperplane between $x_0$ and $\mathcal{K}$:
-        $$g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \geq 0, g \neq 0, \;
+        $$g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \ge 0, g \neq 0, \;
               \forall x \in \mathcal{K}$$
 
 \col{0.4\textwidth}
@@ -137,7 +137,7 @@ Subgradient
 
 -   A vector $g \equiv \partial f(x_0)$ is called a subgradient of a
     convex function $f$ at $x_0$ if
-    $f(z) \geq f(x_0) + g^\mathsf{T} (z - x_0)$.
+    $f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)$.
 
 -   Hence, the cut $(g, \beta)$ is given by $(\partial f(x_0), f(x_0))$
 
@@ -540,7 +540,7 @@ Oracle in Robust Optimization Formulation
         then
         -   the cut $(g, \beta)$ =
             $(\partial f_j(x_0, q_0), f_j(x_0, q_0))$
-    -   If $f_0(x_0, q) \geq t$ for some
+    -   If $f_0(x_0, q) \ge t$ for some
         $q = q_0$, then
         -   the cut $(g, \beta)$ =
             $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - t)$
@@ -726,8 +726,8 @@ Example - clock period & yield-driven co-optimization
 
 $$\begin{array}{cll}
    \text{minimize} &T_\text{CP} / {\color{blue}\beta} \\
-   \text{subject to} & u_i - u_j \le T_\text{CP} - F_{ij}^{-1}({\color{blue}\beta}), & \forall (i,j) \in E_s \,,\\
-                     & u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), & \forall (j,i) \in E_h \,, \\
+   \text{subject to} & u_i - u_j \le T_\text{CP} - F_{ij}^{-1}({\color{blue}\beta}), & \forall (j, i) \in E_s \,,\\
+                     & u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), & \forall (i, j) \in E_h \,, \\
                      & T_\text{CP} \ge 0, \, 0 \le {\color{blue}\beta} \le 1 \, , \\
     \text{variables} &T_\text{CP}, {\color{blue}\beta}, u.
    \end{array}$$
@@ -736,7 +736,7 @@ $$\begin{array}{cll}
 -   Fortunately, we are most likely interested in optimizing circuits
     for high yield rather than the low one in practice.
 -   Therefore, by imposing an additional constraint to $\beta$, say
-    $\beta \geq 0.8$, the problem becomes convex.
+    $\beta \ge 0.8$, the problem becomes convex.
 
 ---
 
@@ -748,8 +748,8 @@ The problem can be reformulated as:
 $$\begin{array}{cll}
    \text{minimize}   & t \\
    \text{subject to} & T_\text{CP} - {\color{blue}\beta} t \le 0\\
-                     & u_i - u_j \le T_\text{CP} - F_{ij}^{-1}({\color{blue}\beta}), & \forall (i,j) \in E_s \,,\\
-                     & u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), & \forall (j,i) \in E_h \,, \\
+                     & u_i - u_j \le T_\text{CP} - F_{ij}^{-1}({\color{blue}\beta}), & \forall (j, i) \in E_s \,,\\
+                     & u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), & \forall (i, j) \in E_h \,, \\
                      & T_\text{CP} \ge 0, \, 0 \le {\color{blue}\beta} \le 1 \, , \\
     \text{variables} &T_\text{CP}, {\color{blue}\beta}, u.
    \end{array}$$
@@ -887,7 +887,7 @@ Example - Estimation of Correlation Function
 
 $$\begin{array}{ll}
    \min_{{\color{blue}\kappa}, p}   & \| \Sigma({\color{blue}p}) + {\color{blue}\kappa} I - Y \| \\
-   \text{s. t.} & \Sigma({\color{blue}p}) \succcurlyeq 0,  {\color{blue}\kappa} \geq 0 \; .\\
+   \text{s. t.} & \Sigma({\color{blue}p}) \succcurlyeq 0,  {\color{blue}\kappa} \ge 0 \; .\\
  \end{array}$$
 
 -   Let $\rho(h) = \sum_i^n {\color{blue}p}_i \Psi_i(h)$, where

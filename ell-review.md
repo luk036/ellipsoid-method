@@ -72,7 +72,7 @@ When a *separation oracle* $\Omega$ is *queried* at $x_0$, it either
 1.  Asserts that $x_0 \in \mathcal{K}$, or
 
 2.  Returns a separating hyperplane between $x_0$ and $\mathcal{K}$:
-    $$g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \geq 0, g \neq 0, \; \forall x \in \mathcal{K}.$$ {#eq:cut}
+    $$g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \ge 0, g \neq 0, \; \forall x \in \mathcal{K}.$$ {#eq:cut}
 
 The pair $(g, \beta)$ is called a *cutting-plane*, since it eliminates the half-space $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from our search. We have the following observations:
 
@@ -83,7 +83,7 @@ The pair $(g, \beta)$ is called a *cutting-plane*, since it eliminates the half-
 -   If $\beta<0$ ($x_0$ lies in the exterior of half-space that is cut), cutting-plane is called *shadow-cut*.
 
 The $\mathcal{K}$ is usually given by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1 \cdots m$, where $f_j(x)$ is a convex function.
-A vector $g \equiv \partial f(x_0)$ is called a *sub-gradient* of a convex function $f$ at $x_0$ if $f(z) \geq f(x_0) + g^\mathsf{T} (z - x_0)$.
+A vector $g \equiv \partial f(x_0)$ is called a *sub-gradient* of a convex function $f$ at $x_0$ if $f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)$.
 Hence, the cut $(g, \beta)$ is given by $(\partial f(x_0), f(x_0))$.
 
 Note that if $f(x)$ is differentiable, we can simply take $\partial f(x_0) = \nabla f(x_0)$.
@@ -137,7 +137,7 @@ $$ {#eq:cvx-in-feasibility-form}
 where $\Phi(x, t) \le 0$ is the $t$-sublevel set of $f_0(x)$.
 
 For each $x$, $\Phi(x, t)$ is a nonincreasing function of $t$, *i.e.*,
-$\Phi(x, t’) \le \Phi(x, t) whenever t’ \geq t$.
+$\Phi(x, t’) \le \Phi(x, t)$ whenever $t’ \ge t$.
 Note that $\mathcal{K}_t \subseteq \mathcal{K}_u$ if and only if $t \le u$ (monotonicity).
 One easy way to solve the optimization problem is to apply the binary search on $t$.
 
@@ -243,7 +243,7 @@ The oracle only needs to determine:
 
 -   the cut $(g, \beta)$ = $(\partial f_j(x_0, q_0), f_j(x_0, q_0))$
 
--   If $f_0(x_0, q) \geq t$ for some $q = q_0$, then
+-   If $f_0(x_0, q) \ge t$ for some $q = q_0$, then
 
 -   the cut $(g, \beta)$ = $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - t)$
 
@@ -360,7 +360,7 @@ The separation oracle only needs to determine:
 
 -   the cut $(g, \beta)$ = $(-\partial W_k(x_0), -W_k(x_0))$
 
--   If $f_0(x_0) \geq t$, then the cut $(g, \beta)$ = $(\partial f_0(x_0), f_0(x_0) - t)$.
+-   If $f_0(x_0) \ge t$, then the cut $(g, \beta)$ = $(\partial f_0(x_0), f_0(x_0) - t)$.
 
 -   Otherwise, $x_0$ is feasible, then
     -   $t := f_0(x_0)$.
@@ -584,7 +584,7 @@ We call this phenomenon
 $$\begin{array}{ll}
    \min_{\kappa, p}   & \| \Omega(p) + \kappa I - Y \| \\
    \text{s.
-t.} & \Omega(p) \succcurlyeq 0,  \kappa \geq 0 \; .\\
+t.} & \Omega(p) \succcurlyeq 0,  \kappa \ge 0 \; .\\
   \end{array}
 $$
 Let $\rho(h) = \sum_i^n p_i \Psi_i(h)$, where $p_i$’s are the unknown coefficients to be fitted $\Psi_i$’s are a family of basis functions.
@@ -677,7 +677,7 @@ Oracle returns a pair of cuts instead of just one.
 The pair of cuts is given by $g$ and $(\beta_1, \beta_2)$ such that:
 $$\begin{array}{l}
     g^\mathsf{T} (x - x_c) + \beta_1 \le 0,  \\
-    g^\mathsf{T} (x - x_c) + \beta_2 \geq 0,
+    g^\mathsf{T} (x - x_c) + \beta_2 \ge 0,
   \end{array}
 $$
 for all $x \in \mathcal{K}$.
@@ -779,7 +779,7 @@ Consider
 $$\begin{array}{ll}
     \min_{\kappa, p}  & \log\det(\Omega(p) + \kappa\cdot I) +
                 \mathrm{Tr}((\Omega(p) + \kappa\cdot I)^{-1}Y), \\
-    \text{s.t.}       & \Omega(p) \succeq 0, \kappa \geq 0 .
+    \text{s.t.}       & \Omega(p) \succeq 0, \kappa \ge 0 .
 \\
   \end{array}
 $$
@@ -819,7 +819,7 @@ $$\begin{array}{ll}
 where $f_0(x)$ and $f_j(x)$ are “convex”.
 Note that some design variables are discrete.
 The oracle looks for the nearby discrete solution $x_d$ of $x_c$ with the cutting-plane:
-$$ g^\mathsf{T} (x - x_d) + \beta \le 0, \beta \geq 0, g \neq 0.
+$$ g^\mathsf{T} (x - x_d) + \beta \le 0, \beta \ge 0, g \neq 0.
 $$
 Note that the cut may be a shallow cut.
 Suggestion: use different cuts as possible for each iteration (e.g. round-robin the evaluation of constraints).
@@ -847,7 +847,7 @@ However, both of the methods can not guarantee the feasibility of the final solu
 Besides, the local search problem is still non-convex.
 Therefore, the adopted algorithm could also be inefficient, such as branch-and-bound in [@kodek1981comparison].
 
-![Result](ellipsoid.files/csdlowpass.pdf){#fig:lowpass width="80%"}
+![Result](ellipsoid.files/csdlowpass.pdf){#fig:csdlowpass width="80%"}
 
 Concluding Remarks
 ==================

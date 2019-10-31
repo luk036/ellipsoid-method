@@ -204,7 +204,7 @@ Parallel Cuts
 -   The pair of cuts is given by $g$ and $(\beta_1, \beta_2)$ such that:
     $$\begin{array}{l}
     g^\mathsf{T} (x - x_c) + \beta_1 \le 0,  \\
-    g^\mathsf{T} (x - x_c) + \beta_2 \geq 0,
+    g^\mathsf{T} (x - x_c) + \beta_2 \ge 0,
     \end{array}$$ for all $x \in \mathcal{K}$.
 
 -   Only linear inequality constraint can produce such parallel cut:
@@ -365,7 +365,7 @@ Example: Maximum Likelihood estimation
 $$\begin{array}{ll}
       \min_{\color{blue}\kappa, p}   &      \log \det (\Omega({\color{blue}p}) + {\color{blue}\kappa}
        \cdot I) + \mathrm{Tr}((\Omega({\color{blue}p}) + {\color{blue}\kappa} \cdot I)^{-1}Y) \\\\
-      \text{s.t.} & \Omega({\color{blue}p}) {\color{red}\succeq} 0, {\color{blue}\kappa} {\color{red}\geq} 0 \\\\
+      \text{s.t.} & \Omega({\color{blue}p}) {\color{red}\succeq} 0, {\color{blue}\kappa} {\color{red}\ge} 0 \\\\
  \end{array}$$
 
 Note: the 1st term is concave, the 2nd term is convex
@@ -444,7 +444,7 @@ Oracle Requirement
 
 -   The oracle looks for the nearby discrete solution $x_d$ of $x_c$
     with the cutting-plane:
-    $$g^\mathsf{T} (x - x_d) + \beta \le 0, \beta \geq 0, g \neq 0$$
+    $$g^\mathsf{T} (x - x_d) + \beta \le 0, \beta \ge 0, g \neq 0$$
 
 -   Note: the cut may be a shallow cut.
 
