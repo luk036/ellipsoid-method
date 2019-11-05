@@ -680,8 +680,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 id="example---clock-period-yield-driven-co-optimization">Example - clock period &amp; yield-driven co-optimization</h2>
 <p><span class="math display">\begin{array}{cll}
    \text{minimize} &amp;T_\text{CP} / {\color{blue}\beta} \\
-   \text{subject to} &amp; u_i - u_j \le T_\text{CP} - F_{ij}^{-1}({\color{blue}\beta}), &amp; \forall (i,j) \in E_s \,,\\
-                     &amp; u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), &amp; \forall (j,i) \in E_h \,, \\
+   \text{subject to} &amp; u_i - u_j \le T_\text{CP} - F_{ij}^{-1}({\color{blue}\beta}), &amp; \forall (j, i) \in E_s \,,\\
+                     &amp; u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), &amp; \forall (i, j) \in E_h \,, \\
                      &amp; T_\text{CP} \ge 0, \, 0 \le {\color{blue}\beta} \le 1 \, , \\
     \text{variables} &amp;T_\text{CP}, {\color{blue}\beta}, u.
    \end{array}</span></p>
@@ -696,8 +696,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p><span class="math display">\begin{array}{cll}
    \text{minimize}   &amp; t \\
    \text{subject to} &amp; T_\text{CP} - {\color{blue}\beta} t \le 0\\
-                     &amp; u_i - u_j \le T_\text{CP} - F_{ij}^{-1}({\color{blue}\beta}), &amp; \forall (i,j) \in E_s \,,\\
-                     &amp; u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), &amp; \forall (j,i) \in E_h \,, \\
+                     &amp; u_i - u_j \le T_\text{CP} - F_{ij}^{-1}({\color{blue}\beta}), &amp; \forall (j, i) \in E_s \,,\\
+                     &amp; u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), &amp; \forall (i, j) \in E_h \,, \\
                      &amp; T_\text{CP} \ge 0, \, 0 \le {\color{blue}\beta} \le 1 \, , \\
     \text{variables} &amp;T_\text{CP}, {\color{blue}\beta}, u.
    \end{array}</span></p>
@@ -728,7 +728,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 id="oracle-in-matrix-inequalities">Oracle in Matrix Inequalities</h2>
 <p>The oracle only needs to:</p>
 <ul>
-<li>Perform a <em>row-based</em> LDLT factorization such that <span class="math inline">F(x_0) = L D L^\mathsf{T}</span>.</li>
+<li>Perform a <em>row-based</em> $LDL^\mathsf{T}$ factorization such that <span class="math inline">F(x_0) = L D L^\mathsf{T}</span>.</li>
 <li>Let <span class="math inline">A_{:p,:p}</span> denotes a submatrix <span class="math inline">A(1:p, 1:p) \in \mathbb{R}^{p\times p}</span>.</li>
 <li>If the process fails at row <span class="math inline">p</span>,
 <ul>
@@ -811,33 +811,33 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 id="experimental-result-i">Experimental Result (I)</h2>
 
 <figure>
-<img src="ellipsoid.files/iso050.svg" alt="" /><figcaption>Data Sample (kern=0.5)</figcaption>
+<embed src="ellipsoid.files/iso050.pdf" /><figcaption>Data Sample (kern=0.5)</figcaption>
 </figure>
 
 <figure>
-<img src="ellipsoid.files/result050.svg" alt="" /><figcaption>Least Square Result</figcaption>
+<embed src="ellipsoid.files/result050.pdf" /><figcaption>Least Square Result</figcaption>
 </figure>
 
 <hr />
 <h2 id="experimental-result-ii">Experimental Result (II)</h2>
 
 <figure>
-<img src="ellipsoid.files/iso100.svg" alt="" /><figcaption>Data Sample (kern=1.0)</figcaption>
+<embed src="ellipsoid.files/iso100.pdf" /><figcaption>Data Sample (kern=1.0)</figcaption>
 </figure>
 
 <figure>
-<img src="ellipsoid.files/result100.svg" alt="" /><figcaption>Least Square Result</figcaption>
+<embed src="ellipsoid.files/result100.pdf" /><figcaption>Least Square Result</figcaption>
 </figure>
 
 <hr />
 <h2 id="experimental-result-iii">Experimental Result (III)</h2>
 
 <figure>
-<img src="ellipsoid.files/iso200.svg" alt="" /><figcaption>Data Sample (kern=2.0)</figcaption>
+<embed src="ellipsoid.files/iso200.pdf" /><figcaption>Data Sample (kern=2.0)</figcaption>
 </figure>
 
 <figure>
-<img src="ellipsoid.files/result200.svg" alt="" /><figcaption>Least Square Result</figcaption>
+<embed src="ellipsoid.files/result200.pdf" /><figcaption>Least Square Result</figcaption>
 </figure>
 
 <h1 id="reference">Reference</h1>

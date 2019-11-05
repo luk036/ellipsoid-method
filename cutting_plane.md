@@ -42,7 +42,7 @@ But...
 -   Only require a *separtion oracle*. Can play nicely with other
     techniques.
 
--   The ellipsoid method itself cannot exploit sparsity, but the oracle can.
+-   While the ellipsoid method itself cannot exploit sparsity, the oracle can.
 
 ---
 
@@ -798,7 +798,7 @@ Oracle in Matrix Inequalities
 
 The oracle only needs to:
 
--   Perform a *row-based* LDLT factorization such that
+-   Perform a *row-based* $LDL^\mathsf{T}$ factorization such that
     $F(x_0) = L D L^\mathsf{T}$.
 -   Let $A_{:p,:p}$ denotes a submatrix
     $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$.
