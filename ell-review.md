@@ -366,23 +366,21 @@ The separation oracle only needs to determine:
     -   $t := f_0(x_0)$.
     -   The cut $(g, \beta)$ = $(\partial f_0(x_0), 0)$
 
-### Example: Optimal Matrix Scaling
+### Example: symmetric scalings under the min-max-ratio criterion
 
-We take this example from [@orlin1985computing].
-Given a matrix $A = [a_{ij}] \in \mathbb{R}^{N\times N}$.
+This example is taken from [@orlin1985computing].
+Given a matrix $A \in \mathbb{R}^{N\times N}$.
 A *symmetric scaling* of $A$ is a matrix $B$ of the form $U A U^{-1}$ where $U$ is a nonnegative diagonal matrix having the same dimension.
-Under the *min-max criterion*, the aim is to minimize the largest absolute value of the element of $B$.
-We can reformulate the symmetric scaling problem under such a criterion as a single-parameter monotropic linear network optimization problem.
+Under the *min-max criterion*, the aim is to minimize the largest absolute value of the element of $B$ [@orlin1985computing] (Program 3).
 
 Another possible criterion is to minimize the ratio of largest absolute value of the element $B$ to the smallest.
-The motivation for using this criterion is that high ratios cause difficulties in performing the simplex method.
-Under this *min-max-ratio* criterion, the symmetric scaling problem can be formulated as:
+One motivation for using this criterion is the fact that high ratios cause difficulties in performing the simplex method.
+Under this *min-max-ratio* criterion, the symmetric scaling problem can be formulated as [@orlin1985computing] (Program 8):
 $$\begin{array}{ll}
     \text{minimize}   &  \pi/\psi  \\
-    \text{subject to} &  \psi \le u_i |a_{ij}| u_j^{-1} \le \pi, \;
+    \text{subject to} &  \psi \le u_i |a_{ij}| u_j^{-1} \le \Pi, \;
                                             \forall a_{ij} \neq 0 , \\
-                      &  \pi, \psi, u \, \text{positive} \\
-    \text{variables}  &  \pi, \psi, u \, .
+                      &  \pi, \psi, u_1 \cdot u_N \, \text{positive}. \\
   \end{array}
 $$
 
@@ -398,7 +396,6 @@ $$
 where $x = (\pi’, \psi’ )^\mathsf{T}$.
 
 The authors of [@orlin1985computing] claimed that they had developed efficient algorithms for solving such multi-parameter problem, but we cannot find any follow-up publications about this.
-
 Interestingly, by using the cutting-plane method, one can easily extend the single-parameter network algorithm to the multi-parameter one.
 
 In this application, $h_{ij}(x)$ is:
