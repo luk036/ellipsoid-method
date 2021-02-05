@@ -170,9 +170,9 @@ Central Cut
 
 -   Let $\tilde{g} = Q\,g$, $\tau = \sqrt{\kappa\cdot\omega}$,
 
-$$\rho = {\tau \over n+1}, \qquad
-  \sigma = {2 \over n+1}, \qquad
-  \delta = {n^2 \over n^2 - 1}. $$
+$$\rho = \frac{\tau}{n+1}, \qquad
+  \sigma = \frac{2}{n+1}, \qquad
+  \delta = \frac{n^2}{n^2 - 1}. $$
 
 ---
 
