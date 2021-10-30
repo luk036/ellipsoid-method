@@ -1,30 +1,30 @@
 ---
-title: 'Ellipsoid Method and the Amazing Oracles (II)'
 author: 'Wai-Shing Luk'
-bibliography: ['ellipsoid.bib', 'fir-ref.bib', 'Geostatistics.bib', 'mpcss1.bib', 'mpcss2.bib']
+bibliography: ['ellipsoid', 'fir-ref', 'Geostatistics', 'mpcss1', 'mpcss2']
+title: 'Ellipsoid Method and the Amazing Oracles (II)'
 ...
 
-Ellipsoid Method Revisited
-==========================
+Revisiting the ellipsoid method
+===============================
 
 ---
 
-Some History of Ellipsoid Method [@BGT81]
---------------------------------
+Some history of the ellipsoid Method [@BGT81]
+-------------------------------------
 
--   Introduced by Shor and Yudin and Nemirovskii in 1976
+-   Proposed by Shor and Yudin and Nemirovskii in 1976.
 
--   Used to show that linear programming (LP) is polynomial-time
-    solvable (Kachiyan 1979), settled the long-standing problem of
+-   used to prove that linear programming (LP) is polynomial time
+    solvable (Kachiyan 1979), settling the long-standing problem of
     determining the theoretical complexity of LP.
 
--   In practice, however, the simplex method runs much faster than the
-    method, although its worst-case complexity is exponential.
+-   However, in practice, the simplex method runs much faster,
+    despite its exponential worst-case complexity.
 
 ---
 
-Basic Ellipsoid Method
-----------------------
+The basic ellipsoid method
+---------------------------
 
 -   An ellipsoid $\mathcal{E}(x_c, P)$ is specified as a set
     $$\{x \mid (x-x_c)P^{-1}(x-x_c) \le 1 \},$$
@@ -74,18 +74,18 @@ class ell:
 Updating the ellipsoid (deep-cut)
 ---------------------------------
 
-Calculation of minimum volume ellipsoid covering:
+Compte the minimum volume ellipsoid covering:
 $$ \mathcal{E} \cap \{z \mid g^\mathsf{T} (z - x_c) + h \le 0 \}. $$
 
--   Let $\tilde{g} = P\,g$, $\tau^2 = g^\mathsf{T} P g$.
+-   Let $\tilde{g} = P\,g$ and $\tau^2 = g^\mathsf{T} P g$.
 
 -   If $n \cdot h < -\tau$ (shallow cut), no smaller ellipsoid can be found.
 
--   If $h > \tau$, intersection is empty.
+-   If $h > \tau$, the intersection is empty.
 
 Otherwise,
 $$x_c^+ = x_c - \frac{\rho}{ \tau^2 } \tilde{g}, \qquad
-  P^+ = {\color{orange}\delta\cdot}\left(P - \frac{\sigma}{\tau^2} \tilde{g}\tilde{g}^\mathsf{T}\right). $$
+  P^+ = {\color{orange}\delta\cdot}\left(P - \frac{\sigma}{\tau^2} \tilde{g}\tilde{g}^\mathsf{T}\right), $$
 where
 $$\rho = \frac{ {\color{red}\tau}+nh}{n+1}, \qquad
   \sigma = \frac{2\rho}{ {\color{red}\tau}+h}, \qquad
@@ -98,7 +98,7 @@ Updating the ellipsoid (cont'd)
 
 -   Even better, split $P$ into two variables $\kappa \cdot Q$
 
--   Let $\tilde{g} = Q \cdot g$, $\omega = g^\mathsf{T}\tilde{g}$, $\tau = \sqrt{\kappa\cdot\omega}$.
+-   Let $\tilde{g} = Q \cdot g$, $\omega = g^\mathsf{T}\tilde{g}$, and $\tau = \sqrt{\kappa\cdot\omega}$.
     $$x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
     Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad
     \kappa^+ =  \delta\cdot\kappa. $$
@@ -164,9 +164,9 @@ def calc_dc(self, beta, tsq):
 Central Cut
 -----------
 
--   A Special case of deep cut when $\beta = 0$
+-   It is a special case of deep cut where $\beta = 0$
 
--   Deserve a separate implement because it is much simplier.
+-   It is worth implementing it separately, as it is much simpler.
 
 -   Let $\tilde{g} = Q\,g$, $\tau = \sqrt{\kappa\cdot\omega}$,
 
@@ -207,10 +207,10 @@ Parallel Cuts
     g^\mathsf{T} (x - x_c) + \beta_2 \ge 0,
     \end{array}$$ for all $x \in \mathcal{K}$.
 
--   Only linear inequality constraint can produce such parallel cut:
+-   Only linear inequality constraints can produce such a parallel cut:
     $$ l \le a^\mathsf{T} x + b \le u, \qquad L \preceq F_0 + x_1 F_1 + \cdots + x_n F_n \preceq U. $$
 
--   Usually provide faster convergence.
+-   usually provides faster convergence.
 
 ---
 
@@ -224,13 +224,13 @@ Parallel Cuts
 Updating the ellipsoid
 ----------------------
 
--   Let $\tilde{g} = Q\,g$, $\tau^2 = \kappa\cdot\omega$.
+-   Let $\tilde{g} = Q\,g$ and $\tau^2 = \kappa\cdot\omega$.
 
--   If $\beta_1 > \beta_2$, intersection is empty.
+-   If $\beta_1 > \beta_2$, the intersection is empty.
 
 -   If $\beta_1 \beta_2 < -\tau^2/n$, no smaller ellipsoid can be found.
 
--   If $\beta_2^2 > \tau^2$, it reduces to deep-cut with $\alpha = \alpha_1$.
+-   If $\beta_2^2 > \tau^2$, it reduces to a deep-cut with $\alpha = \alpha_1$.
 
 -   Otherwise,
     $$x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
@@ -295,21 +295,21 @@ Example: FIR filter design (cont'd)
 -   The frequency response:
     $$H(\omega)~=~\sum_{m=0}^{n-1}{h(m)e^{-jm\omega}}. $$
 
--   The magnitude constraints on frequency domain are expressed as
+-   The magnitude constraint on frequency domain is expressed as
 
     $$L(\omega)~\leq~|H(\omega)|~\leq~U(\omega),~\forall~\omega\in(-\infty,+\infty. $$
 
     where $L(\omega)$ and $U(\omega)$ are the lower and
-    upper (nonnegative) bounds at frequency $\omega$ respectively.
+    upper (non-negative) bounds at the frequency $\omega$, respectively.
 
--   The constraint is non-convex in general.
+-   The constraint is not convex in general.
 
 ---
 
 Example: FIR filter design (II)
 -----------------------------------
 
--   However, via *spectral factorization* [@goodman1997spectral], it can transform into a convex one\ [@wu1999fir]:
+-   However, via *spectral factorization* [@goodman1997spectral], it can be transformed into a convex one\ [@wu1999fir]:
     $$L^2(\omega)~\leq~R(\omega)~\leq~U^2(\omega),~\forall~\omega\in(0,\pi). $$
 
     where
@@ -348,6 +348,8 @@ Experiment
 Google Benchmark Result
 -----------------------
 
+\scriptsize
+
 ```terminal
 3: ------------------------------------------------------------------
 3: Benchmark                        Time             CPU   Iterations
@@ -368,17 +370,17 @@ $$\begin{array}{ll}
       \text{s.t.} & \Omega({\color{blue}p}) {\color{red}\succeq} 0, {\color{blue}\kappa} {\color{red}\ge} 0 \\\\
  \end{array}$$
 
-Note: the 1st term is concave, the 2nd term is convex
+Note that the 1st term is concave and the 2nd term is convex
 
 -   However, if there are enough samples such that $Y$ is a positive
-    definite matrix, then the function is convex within $[0, 2Y]$
+    definite matrix, then the function is convex in $[0, 2Y]$
 
 ---
 
-Example: Maximum Likelihood estimation (cont'd)
+Example: Maximum Likelihood Estimation (cont'd)
 -----------------------------------------------
 
--   Therefore, the following problem is convex:
+-   Thus, the following problem is convex:
 
 $$\begin{array}{ll}
       \min_{\color{blue}\kappa, p}   &   \log \det V({\color{blue}p}) + \mathrm{Tr}(V({\color{blue}p})^{-1}Y) \\\\
@@ -391,30 +393,30 @@ Discrete Optimization
 
 ---
 
-Why Discrete Convex Programming
+Why discrete convex programming
 -------------------------------
 
 -   Many engineering problems can be formulated as a convex/geometric
-    programming, e.g. digital circuit sizing
+    programming, such as digital circuit sizing
 
--   Yet in an ASIC design, often there is only a limited set of choices
-    from the cell library. In other words, some design variables
+-   Yet in ASIC design, there is usually only a limited set of choices
+    of cell in the library. In other words, some design variables
     are discrete.
 
--   The discrete version can be formulated as a Mixed-Integer Convex
-    programming (MICP) by mapping the design variables to integers.
+-   The discrete version can be formulated as mixed-integer convex
+    programming (MICP), which maps design variables to integers.
 
 ---
 
-What's Wrong w/ Existing Methods?
----------------------------------
+What's wrong with the existing approach?
+---------------------------------------
 
 -   Mostly based on relaxation.
 
 -   Then use the relaxed solution as a lower bound and use the
-    branch--and--bound method for the discrete optimal solution.
+    branch--and--bound method to find the discrete optimal solution.
 
-    -   Note: the branch-and-bound method does not utilize the convexity
+    -   Note: branch-and-bound methods do not exploit the convexity
         of the problem.
 
 -   What if I can only evaluate constraints on discrete data?
@@ -422,7 +424,7 @@ What's Wrong w/ Existing Methods?
 
 ---
 
-Mixed-Integer Convex Programming
+Mixed integer convex programming
 --------------------------------
 
 Consider:
@@ -442,18 +444,18 @@ where
 Oracle Requirement
 ------------------
 
--   The oracle looks for the nearby discrete solution $x_d$ of $x_c$
+-   Oracle looks for a nearby discrete solution $x_d$ of $x_c$
     with the cutting-plane:
     $$g^\mathsf{T} (x - x_d) + \beta \le 0, \beta \ge 0, g \neq 0$$
 
 -   Note: the cut may be a shallow cut.
 
--   Suggestion: use different cuts as possible for each iteration (
-    e.g. round-robin the evaluation of constraints)
+-   Suggestion: use various cuts as possible in each iteration (
+    e.g. round-robin the evaluation of the constraints)
 
 ---
 
-Example: Multiplierless FIR filter design
+Example: Multiplier-less FIR filter design
 ------------------------------------------
 
 ![Result](ellipsoid.files/csdlowpass.pdf){width="60%"}

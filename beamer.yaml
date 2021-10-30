@@ -3,7 +3,7 @@ classoption:
   - serif,onlymath
 institute: Fudan University
 date: \today
-aspectratio: 169
+aspectratio: 43
 link-citations: true
 colorlinks: true
 header-includes:

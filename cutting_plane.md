@@ -16,20 +16,20 @@ Introduction
 
 ---
 
-Common Perspective of Ellipsoid Method
+A common perspective of the ellipsoid method
 --------------------------------------
 
--   It is commonly believed that it is inefficient in practice for
+-   It is widely believed to be inefficient in practice for
     large-scale problems.
 
-    -   The convergent rate is slow, even with the use of deep cuts.
+    -   Convergent rate is slow, even when using deep cuts.
 
     -   Cannot exploit sparsity.
 
--   Since then, it was supplanted by interior-point methods.
+-   It has since then supplanted by the interior-point methods.
 
--   Only treated as a theoretical tool for proving the polynomial-time
-    solvability of combinatorial optimization problems.
+-   Used only as a theoretical tool to prove polynomial-time
+    solvability of some combinatorial optimization problems.
 
 ---
 
@@ -39,29 +39,30 @@ But...
 -   The ellipsoid method works very differently compared with the
     interior point method.
 
--   Only require a *separtion oracle*. Can play nicely with other
+-   Require only a *separtion oracle*. Can work nicely with other
     techniques.
 
--   While the ellipsoid method itself cannot exploit sparsity, the oracle can.
+-   While the ellipsoid method itself cannot take advantage of sparsity, the oracle can.
 
 ---
 
-Consider Ellipsoid Method When...
+Consider the ellipsoid Method When...
 ---------------------------------
 
--   The number of optimization variables is moderate, e.g. ECO flow,
+-   The number of design variables is moderate, e.g. ECO flow,
     analog circuit sizing, parametric problems
 
 -   The number of constraints is large, or even infinite
 
--   Oracle can be implemented efficiently.
+-   Oracle can be implemented effectively.
 
-Cutting-plane Method Revisited
+
+Revisit the cutting-plane method
 ==============================
 
 ---
 
-Basic Idea
+Basic idea
 ----------
 
 \columnsbegin
@@ -70,8 +71,7 @@ Basic Idea
 -   Let $\mathcal{K} \subseteq \mathbb{R}^n$ be a convex set.
 -   Consider the feasibility problem:
     -   Find a point $x^* \in \mathbb{R}^n$ in $\mathcal{K}$,
-    -   or determine that $\mathcal{K}$ is empty (i.e., no feasible
-        solution)
+    -   or determine that $\mathcal{K}$ is empty (i.e., there is no feasible solution)
 
 \col{0.4\textwidth}
 
@@ -113,18 +113,18 @@ Separation Oracle
 Separation oracle (cont'd)
 --------------------------
 
--   $(g, \beta)$ is called a *cutting-plane*, or cut, since it eliminates
-    the halfspace $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from
+-   $(g, \beta)$ is called a *cutting-plane*, or cut, because it eliminates
+    the half-space $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from
     our search.
 
--   If $\beta=0$ ($x_0$ is on the boundary of halfspace that is cut),
-    cutting-plane is called *neutral cut*.
+-   If $\beta=0$ ($x_0$ lies on the boundary of the half-space being cut),
+    the cutting-plane is called *neutral cut*.
 
--   If $\beta>0$ ($x_0$ lies in the interior of halfspace that is cut),
-    cutting-plane is called *deep cut*.
+-   If $\beta>0$ ($x_0$ lies in the interior of the half-space being cut),
+    the cutting-plane is called *deep cut*.
 
--   If $\beta<0$ ($x_0$ lies in the exterior of halfspace that is cut),
-    cutting-plane is called *shallow cut*.
+-   If $\beta<0$ ($x_0$ lies in the exterior of the half-space being cut),
+    the cutting-plane is called *shallow cut*.
 
 ---
 
@@ -136,12 +136,12 @@ Subgradient
     is a convex function.
 
 -   A vector $g \equiv \partial f(x_0)$ is called a subgradient of a
-    convex function $f$ at $x_0$ if
+    convex function $f$ at $x_0$ if 
     $f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)$.
 
 -   Hence, the cut $(g, \beta)$ is given by $(\partial f(x_0), f(x_0))$
 
-Remarks:
+Remark:
 
 -   If $f(x)$ is differentiable, we can simply take
     $\partial f(x_0) = \nabla f(x_0)$
@@ -151,11 +151,11 @@ Remarks:
 Key components of Cutting-plane method
 --------------------------------------
 
--   Cutting plane oracle $\Omega$
--   A search space $\mathcal{S}$ initially big enough to cover
+-   A cutting plane oracle $\Omega$
+-   A search space $\mathcal{S}$ initially large enough to cover
     $\mathcal{K}$, e.g.
     -   Polyhedron $\mathcal{P}$ = $\{z \mid C z \preceq d \}$
-    -   Interval $\mathcal{I}$ = $[l, u]$ (for one-dimensional problem)
+    -   Interval $\mathcal{I}$ = $[l, u]$ (for one-dimensional problems)
     -   Ellipsoid $\mathcal{E}$ =
         $\{z \mid (z-x_c)P^{-1}(z-x_c) \le 1 \}$
 
@@ -164,9 +164,9 @@ Key components of Cutting-plane method
 Generic Cutting-plane method
 ----------------------------
 
--   **Given** initial $\mathcal{S}$ known to contain $\mathcal{K}$.
+-   **Given** the initial $\mathcal{S}$ containing $\mathcal{K}$.
 -   **Repeat**
-    1.  Choose a point $x_0$ in $\mathcal{S}$
+    1.  Select a point $x_0$ in $\mathcal{S}$
     2.  Query the cutting-plane oracle at $x_0$
     3.  **If** $x_0 \in \mathcal{K}$, quit
     4.  **Else**, update $\mathcal{S}$ to a smaller set that covers:
@@ -210,10 +210,9 @@ $$\begin{array}{ll}
 -   The optimization problem is treated as a feasibility problem with an
     additional constraint $f_0(x) \le t$
 
--   $f_0(x)$ could be a convex function or a *quasiconvex
-    function*.
+-   $f_0(x)$ could be a convex function or a *quasiconvex* function.
 
--   $t$ is also called the *best-so-far* value of
+-   $t$ is also known as the *best-so-far* value of
     $f_0(x)$.
 
 ---
@@ -231,7 +230,7 @@ Convex Optimization Problem
 -   Note: $\mathcal{K'}_t \subseteq \mathcal{K'}_u$ if and only if
     $t \le u$ (monotonicity)
 
--   One easy way to solve the optimization problem is to apply the
+-   A simple way to solve the optimization problem is to perform a
     binary search on $t$.
 
 ---
@@ -287,8 +286,8 @@ class bsearch_adaptor:
 Shrinking
 ---------
 
--   Another possible way is, to update the best-so-far
-    $t$ whenever a feasible solution $x_0$ is found
+-   Another possible way is to update the best-so-far
+    $t$ whenever a feasible solution $x_0$ is found,
     by solving the equation $\Phi(x_0, t_\text{new}) = 0$.
 
 -   If the equation is difficuit to solve
@@ -301,14 +300,13 @@ Shrinking
 Generic Cutting-plane method (Optim)
 ------------------------------------
 
--   **Given** initial $\mathcal{S}$ known to contain
+-   **Given** the initial $\mathcal{S}$ containing
     $\mathcal{K}_t$.
 -   **Repeat**
-    1.  Choose a point $x_0$ in $\mathcal{S}$
+    1.  Select a point $x_0$ in $\mathcal{S}$
     2.  Query the separation oracle at $x_0$
     3.  **If** $x_0 \in \mathcal{K}_t$, update
-        $t$ such that
-        $\Phi(x_0, t) = 0$.
+        $t$ such that $\Phi(x_0, t) = 0$.
     4.  Update $\mathcal{S}$ to a smaller set that covers:
         $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\} $$
     5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
@@ -361,7 +359,7 @@ $$\begin{array}{ll}
 Example - Profit maximization (cont'd)
 -------------------------------------
 
--   The formulation is not in the convex form.
+-   The formulation is not in convex form.
 -   Rewrite the problem in the following form: $$\begin{array}{ll}
       \text{maximize} & t \\
       \text{subject to} & t  + v_1 x_1  + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}\\
@@ -377,7 +375,7 @@ Profit maximization in Convex Form
 
     -   $y_1 = \log x_1$, $y_2 = \log x_2$.
 
--   We have the problem in a convex form:
+-   We have the problem in convex form:
 
 $$\begin{array}{ll}
     \text{max}  & t \\
@@ -495,7 +493,7 @@ $$\begin{array}{ll}
 Example - Profit Maximization Problem (oracle)
 ---------------------------------------------
 
-By detail analysis, the worst case happens when:
+By detailed analysis, the worst-case scenario occurs as follows:
 
 -   $p = \bar{p} - e_3$, $k = \bar{k} - e_3$
 -   $v_1 = \bar{v}_1 + e_3$, $v_2 = \bar{v}_2 + e_3$,
@@ -572,10 +570,9 @@ $$\begin{array}{ll}
     \text{subject to} & {\color{red}u_j} - {\color{red}u_i} \le h_{ij}(x), \; \forall (i, j) \in E ,
    \end{array}$$
 
--   $h_{ij}(x)$ is the concave function of
-    edge $(i,j)$,
+-   $h_{ij}(x)$ is the concave function of the edge $(i,j)$,
 
--   Assume: network is large but the number of parameters is small.
+-   Assume: the network is large but the number of parameters is small.
 
 ---
 
@@ -583,7 +580,7 @@ Network Potential Problem (cont'd)
 ----------------------------------
 
 Given $x$, the problem has a feasible solution if and only if
-$G$ contains no negative cycle. Let $\mathcal{C}$ be a set of all cycles
+$G$ does not contain negative cycles. Let $\mathcal{C}$ be a set of all cycles
 of $G$.
 
 $$\begin{array}{ll}
@@ -600,9 +597,9 @@ $$\begin{array}{ll}
 Negative Cycle Finding
 ----------------------
 
-There are lots of methods to detect negative
-cycles in a weighted graph [@cherkassky1999negative], in which Tarjan’s
-algorithm [@Tarjan1981negcycle] is one of the fastest algorithms in
+There are many ways to detect negative
+cycles in a weighted graph [@cherkassky1999negative], among them Tarjan’s
+algorithm [@Tarjan1981negcycle] is one of the fastest in
 practice [@alg:dasdan_mcr; @cherkassky1999negative].
 
 ---
@@ -669,7 +666,7 @@ $$\begin{array}{ll}
 Optimal Matrix Scaling (cont'd)
 -------------------------------
 
-By taking the logarithms of variables, the above problem can be
+By taking logarithms of the variables, the above problem can be
 transformed into:
 
 $$\begin{array}{ll}
@@ -800,23 +797,23 @@ The oracle only needs to:
 
 -   Perform a *row-based* $LDL^\mathsf{T}$ factorization such that
     $F(x_0) = L D L^\mathsf{T}$.
--   Let $A_{:p,:p}$ denotes a submatrix
+-   Let $A_{p,p}$ denotes a submatrix
     $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$.
 -   If the process fails at row $p$,
     -   there exists a vector
         $e_p = (0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p$, such
         that
-        -   $v = R_{:p,:p}^{-1} e_p$, and
-        -   $v^\mathsf{T} F_{:p,:p}(x_0) v < 0$.
+        -   $v = R_{p,p}^{-1} e_p$, and
+        -   $v^\mathsf{T} F_{p,p}(x_0) v < 0$.
     -   The cut $(g, \beta)$ =
-        $(-v^\mathsf{T} \partial F_{:p,:p}(x_0) v, -v^\mathsf{T} F_{:p,:p}(x_0) v)$
+        $(-v^\mathsf{T} \partial F_{p,p}(x_0) v, -v^\mathsf{T} F_{p,p}(x_0) v)$
 
 ---
 
 Lazy evaluation
 ---------------
 
--   Don't construct the full matrix at each iteration!
+-   Don't construct the full matrix in each iteration!
 
 -   Only O($p^3$) per iteration, independent of $N$!
 
@@ -854,6 +851,8 @@ class lmi_oracle:
 Google Benchmark Comparison
 ---------------------------
 
+\scriptsize
+
 ```terminal
 2: ----------------------------------------------------------
 2: Benchmark                Time             CPU   Iterations
@@ -865,7 +864,7 @@ Google Benchmark Comparison
 
 ---
 
-Example - Matrix Norm Minimization
+Example - Matrix norm minimization
 ---------------------------------
 
 -   Let $A(x) = A_0 + x_1 A_1 + \cdots + x_n A_n$
@@ -878,7 +877,7 @@ Example - Matrix Norm Minimization
       A^\mathsf{T}(x) & t\,I
      \end{array} \right) \succeq 0,
      \end{array}$$
--   Binary search on $t$ can be used for this problem.
+-   A binary search on $t$ can be used for this problem.
 
 ---
 
