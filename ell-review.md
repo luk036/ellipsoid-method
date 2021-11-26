@@ -1,10 +1,11 @@
 ---
 title: Ellipsoid Method and the Amazing Oracles
 bibliography: ['ellipsoid.bib', 'fir-ref.bib', 'Geostatistics.bib', 'mpcss1.bib', 'mpcss2.bib']
+csl: 'applied-mathematics-letters.csl'
 abstract: |
   'The ellipsoid method is revisited. In addition to this, three separation oracles are investigated. They are robust optimization, semidefinite programming and network optimization. Stability issues are discussed. Finally, parallel-cut is introduced.'
 ---
-
+ 
 # Introduction
 
 The ellipsoid method has a bad reputation. The method is often considered slow for large-scale convex problems compared to the interior-point method [@unknown]. And this is not fair. First, unlike the interior-point method, the ellipsoid method does not require an explicit evaluation of all constraint functions at each iteration. All it needs is a *separation oracle* that provides a *cutting-plane* (@sec:cutting-plane). This can make the method attractive for problems with a large number or even an infinite number of constraints. Second, while the ellipsoid method itself cannot exploit the sparsity of the problem, the separation oracle can exploit certain types of structure of the problems...
