@@ -1,0 +1,7 @@
+## What is parametric network problem?
+
+A parametric network problem refers to a type of optimization problem that involves finding the optimal solution to a network flow problem as a function of one or more parameters 3. Specifically, the authors show that the problems of determining the best symmetric scalings under the min-max criterion and the best asymmetric scalings under the min-max-ratio criterion can be converted into a single parameter network optimization problem, while determining the best symmetric scalings under the rain-max-ratio criterion can be converted into a two-parameter network optimization problem 2. By solving these parametric network problems, the authors are able to compute optimal scalings for matrices under different criteria.
+
+## How to deal with multi-parameter problems?
+
+The authors of the paper mention that Orlin and Rothblum (1984) developed algorithms for solving multi-parameter network problems 9. These algorithms can be used to solve problems that involve multiple parameters, such as determining the best symmetric scalings under the rain-max-ratio criterion, which can be converted into a two-parameter network optimization problem 3. The paper also notes that Orlin and Rothblum (1984) provide explicit bounds on the computational complexity of these algorithms 3. Therefore, it seems that the approach developed by Orlin and Rothblum (1984) can be used to effectively deal with multi-parameter problems.
