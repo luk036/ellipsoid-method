@@ -1,11 +1,15 @@
 ---
-title: Ellipsoid Method and the Amazing Oracles
-bibliography: ['ellipsoid.bib', 'fir-ref.bib', 'Geostatistics.bib', 'mpcss1.bib', 'mpcss2.bib']
-csl: 'applied-mathematics-letters.csl'
 abstract: |
   'We will discuss the ellipsoid method and its application in different optimization problems. While it is commonly believed that the method is slower compared to interior point methods, we argue that the ellipsoid method offers distinct advantages. It does not necessitate the evaluation of all constraint functions and can leverage specific types of problem structures. Additionally, people often overlook the importance of the separation oracle. We explore three particular uses of the ellipsoid method: robust optimization, semidefinite programming, and network optimization. For each application, we discuss the utilization of separation oracles and their effectiveness in solving these problems. We also examine implementation issues surrounding the ellipsoid method, such as the use of parallel cuts to update the search space. We provide evidence that in certain cases, such as FIR design, parallel cuts greatly enhance computation speed. We also touch on the topic of discrete optimization and its importance in engineering problems. It is mentioned that the ellipsoid method can be applied to discrete problems, where some design variables are restricted to discrete forms. We present mixed-integer convex programming and the need for an oracle to locate adjacent discrete solutions.'
+bibliography:
+- ellipsoid.bib
+- fir-ref.bib
+- Geostatistics.bib
+- mpcss1.bib
+- mpcss2.bib
+csl: applied-mathematics-letters.csl
+title: Ellipsoid Method and the Amazing Oracles
 ---
- 
 
 # Introduction
 
@@ -13,28 +17,25 @@ The ellipsoid method has an unfavorable reputation due to its perceived slowness
 
 In @sec:robust, robust optimization is discussed...
 
-In @sec:network, we demonstrate that for network parametric problems, the cutting-plane can be found by identifying a negative cycle in a directed graph. Efficient algorithms exist that exploit network locality and other properties. 
+In @sec:network, we demonstrate that for network parametric problems, the cutting-plane can be found by identifying a negative cycle in a directed graph. Efficient algorithms exist that exploit network locality and other properties.
 
 Section @sec:lmi discusses problems involving matrix inequalities. Recall that positive definiteness of a symmetric matrix can be checked efficiently using Cholesky factorization, specifically $LDL^\mathsf{T}$ factorization. Let $A \in \mathbb{R}^{m \times m}$ be a symmetric matrix. If the factorization process stops at row $p$ because of encountering a non-positive diagonal entry of matrix $A$, then $A$ is not positive-definite. With the use of lazy evaluation techniques, it is possible to construct a cutting plane in $O(p^3)$ rather than $O(m^3)$. Consequently, it can be utilized for efficient oracle implementations.
 
-The ellipsoid method's implementation is discussed in Section @sec:ellipsoid. This technique is a cutting-plane approach wherein the *search space* is an ellipsoid, conventionally represented as: 
+The ellipsoid method's implementation is discussed in Section @sec:ellipsoid. This technique is a cutting-plane approach wherein the *search space* is an ellipsoid, conventionally represented as:
 
-  $$\{x \mid (x-x_c)P^{-1}(x-x_c) \le 1\},$$ 
+$$\{x \mid (x-x_c)P^{-1}(x-x_c) \le 1\},$$
 
-where $x_c \in \mathbb{R}^n$ is the center point of the ellipsoid. The matrix $P \in \mathbb{R}^{n \times n}$ is symmetric positive definite. During each iteration, the oracle updates $x_c$ and $P$. While updating ellipsoids can be simple and has been implemented for decades, we demonstrate that the cost can be further reduced by $n^2$ floating-point operations by multiplying $\alpha$ by $Q$ and splitting $P$, resulting in this form: 
+where $x_c \in \mathbb{R}^n$ is the center point of the ellipsoid. The matrix $P \in \mathbb{R}^{n \times n}$ is symmetric positive definite. During each iteration, the oracle updates $x_c$ and $P$. While updating ellipsoids can be simple and has been implemented for decades, we demonstrate that the cost can be further reduced by $n^2$ floating-point operations by multiplying $\alpha$ by $Q$ and splitting $P$, resulting in this form:
 
-  $$\{ x \mid (x-x_c)Q^{-1}(x-x_c) \le \alpha \}.$$
+$$\{ x \mid (x-x_c)Q^{-1}(x-x_c) \le \alpha \}.$$
 
 Additionally, Section 4.2 discusses the use of parallel cuts. Two constraints can be employed simultaneously to update the ellipsoid when a pair of parallel inequalities, one of which is violated, arise. Some articles suggest that this method does not lead to significant enhancements. However, we demonstrate that for situations where certain constraints have tight upper and lower bounds, such as in some filter designs, the implementation of parallel cuts can greatly expedite the runtime. Additionally, we illustrate that if the method is implemented carefully, each update, whether utilizing a deep cut or a parallel cut, results in at most one square root operation.
 
-
 In many practical engineering problems, some design variables may be restricted to discrete forms. Since the cutting-plane method requires only a separation oracle, it can also be used for discrete problems...
 
-Cutting-plane Method Revisited {#sec:cutting-plane}
-==============================
+# Cutting-plane Method Revisited {#sec:cutting-plane}
 
-Convex Feasibility Problem
---------------------------
+## Convex Feasibility Problem
 
 Let $\mathcal{K} \subseteq \mathbb{R}^n$ be a convex set. Consider the feasibility problem:
 
@@ -92,8 +93,7 @@ Generic cutting-plane method:
 
 Todo: What if the search space is not large enough?
 
-From Feasibility to Optimization
---------------------------------
+## From Feasibility to Optimization
 
 Consider:
 $$\begin{array}{ll}
@@ -134,8 +134,7 @@ Generic Cutting-plane method (Optim)
 
     5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, exit.
 
-Example: Profit Maximization {#sec:profit}
-------------------------------------------
+## Example: Profit Maximization {#sec:profit}
 
 This example is taken from [@Aliabadi2013Robust]. Consider the following *short-run* profit maximization problem:
 $$\begin{array}{ll}
@@ -151,7 +150,7 @@ $$\begin{array}{ll}
                       & x_1 \le k, \\
                       & x_1 > 0, x_2 > 0.
   \end{array} $$
-By the change of variables, we can obtain the following convex form of\ @eq-profit-max-in-orginal-form:
+By the change of variables, we can obtain the following convex form of @eq-profit-max-in-orginal-form:
 $$\begin{array}{ll}
     \text{maximize}   & t, \\
     \text{subject to} & \log(t + v_1 e^{y_1} + v_2 e^{y_2}) -
@@ -161,20 +160,16 @@ $$\begin{array}{ll}
 {#eq:profit-in-cvx-form}
 where $y_1 = \log x_1$ and $y_2 = \log x_2$. Some readers may recognize that we can also write the problem in a geometric program by introducing one additional variable [@Aliabadi2013Robust].
 
-Amazing Oracles {#sec:oracles}
-================
+# Amazing Oracles {#sec:oracles}
 
 -   Robust convex optimization
     -   oracle technique: affine arithmetic
-
 -   Parametric network potential problem
     -   oracle technique: negative cycle detection
-
 -   Semidefinite programming
     -   oracle technique: Cholesky factorization
 
-Robust Convex Optimization {#sec:robust}
---------------------------
+## Robust Convex Optimization {#sec:robust}
 
 Consider:
 $$\begin{array}{ll}
@@ -212,7 +207,6 @@ The oracle only needs to determine:
 
 -   The cut $(g, \beta)$ = $(\partial f_0(x_0, q_{\max}), 0)$
 
-
 ### Example: Robust Profit Maximization {#sec:profit-rb}
 
 Consider again the profit maximization problem in @sec:profit. Now suppose that the parameters $\{\alpha, \beta, p, v_1, v_2, k\}$ are subject to interval uncertainties:
@@ -245,7 +239,7 @@ In [@Aliabadi2013Robust], the authors present a *piecewise linear approximation*
 
 We can even reuse the original oracle to compose the robust counterpart.
 
-```python
+``` python
 class profit_rb_oracle:
     def __init__(self, params, a, v, vparams):
         p, A, k = params
@@ -268,8 +262,7 @@ class profit_rb_oracle:
 
 Note that the `argmax` may be non-convex and therefore difficult to solve. For more complex problems, one way is to use affine arithmetic for help [@liu2007robust].
 
-Multi-parameter Network Problems {#sec:network}
----------------------------------
+## Multi-parameter Network Problems {#sec:network}
 
 Given a network represented by a directed graph $G = (V, E)$.
 Consider :
@@ -291,7 +284,7 @@ $$W_k(x, t) = \sum_{ (i,j)\in C_k} h_{ij}(x, t).$$
 
 ### Negative Cycle Detection Algorithm
 
-The negative cycle detection is the most time-consuming part of the proposed method, so it is very important to choose the proper negative cycle detection algorithm. There are lots of methods to detect negative cycles in a weighted graph [@cherkassky1999negative], in which Tarjan’s algorithm [@Tarjan1981negcycle] is one of the fastest algorithms in practice [@alg:dasdan_mcr; @cherkassky1999negative].
+The negative cycle detection is the most time-consuming part of the proposed method, so it is very important to choose the proper negative cycle detection algorithm. There are lots of methods to detect negative cycles in a weighted graph [@cherkassky1999negative], in which Tarjan's algorithm [@Tarjan1981negcycle] is one of the fastest algorithms in practice [@alg:dasdan_mcr; @cherkassky1999negative].
 
 The separation oracle only needs to determine:
 
@@ -302,6 +295,7 @@ The separation oracle only needs to determine:
 -   If $f_0(x_0) \ge t$, then the cut $(g, \beta)$ = $(\partial f_0(x_0), f_0(x_0) - t)$.
 
 -   Otherwise, $x_0$ is feasible, then
+
     -   $t := f_0(x_0)$.
     -   The cut $(g, \beta)$ = $(\partial f_0(x_0), 0)$
 
@@ -332,8 +326,7 @@ $${h}_{ij}(x) = \left\{ \begin{array}{cll}
 \end{array} \right.$$
 We can find fast algorithms for finding a negative cycle in [@dasdan1998faster; @dasdan2004experimental]. More applications to clock skew scheduling can be found in [@zhou2015multi].
 
-Problems Involving Matrix Inequalities {#sec:lmi}
---------------------------------------
+## Problems Involving Matrix Inequalities {#sec:lmi}
 
 Consider the following problem:
 $$\begin{array}{ll}
@@ -388,7 +381,7 @@ Again, the pattern of access allows the entire computation to be performed in-pl
 
 The following is the algorithm written in Python:
 
-```python
+``` python
 def factor(self, getA):
     T = self.T
     for i in range(self.n):  # from 0 to n-1
@@ -406,7 +399,7 @@ def factor(self, getA):
 The vector $v$ can be found.
 The following is the algorithm written in Python:
 
-```python
+``` python
 def witness(self):
     p = self.p
     n = p + 1
@@ -426,6 +419,7 @@ The oracle only needs to:
     $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$.
 
 -   If Cholesky factorization fails at row $p$,
+
     -   there exists a vector
         $e_p = (0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p$, such that
         -   $v = R_{:p,:p}^{-1} e_p$, and
@@ -449,8 +443,7 @@ A binary search on $t$ can be used for this problem.
 
 ### Example: Estimation of Correlation Function
 
-Random Field [@Schabenberger05]
--------------------------------
+## Random Field [@Schabenberger05]
 
 *Random field*, also known as *stochastic process*, can be regarded as an indexed family of random variables denoted as {$Z(\mathbf{s}): \mathbf{s}\in D$}, where $D$ is a subset of $d$-dimensional Euclidean space $\mathbb{R}^d$. To specify a stochastic process, the joint probability distribution function of any finite subset $(Z(\mathbf{s}_1), \ldots, Z(\mathbf{s}_n))$ must be given in a consistent way, which is called *distribution* of the process. For ease of analysis, a random field is often assumed to be with *Gaussian* distribution and is called Gaussian random field.
 
@@ -465,7 +458,7 @@ only on the separation vector $\mathbf{h}=\mathbf{s}_i-\mathbf{s}_j$. Furthermor
 $$C(\mathbf{s}_i,\mathbf{s}_j)=C(\mathbf{h})=C(h),
 $$
 
-$$R(\mathbf{s}_i,\mathbf{s}_j)=R(\mathbf{h})=R(h)=C(h)/C(0).$$ 
+$$R(\mathbf{s}_i,\mathbf{s}_j)=R(\mathbf{h})=R(h)=C(h)/C(0).$$
 {#eq:corr_def}
 If we denote $C(0)$, the variance of $Z(\mathbf{s})$, as $\sigma^2$, then the relationship between covariance and correlation is $C(h)=\sigma^2 R(h)$.
 
@@ -477,22 +470,21 @@ $$\begin{array}{ll}
 t.} & \Omega(p) \succcurlyeq 0,  \kappa \ge 0 \; .\\
   \end{array}
 $$
-Let $\rho(h) = \sum_i^n p_i \Psi_i(h)$, where $p_i$’s are the unknown coefficients to be fitted $\Psi_i$’s are a family of basis functions. The covariance matrix $\Omega(p)$ can be recast as:
+Let $\rho(h) = \sum_i^n p_i \Psi_i(h)$, where $p_i$'s are the unknown coefficients to be fitted $\Psi_i$'s are a family of basis functions. The covariance matrix $\Omega(p)$ can be recast as:
 $$\Omega(p) = p_1 F_1 + \cdots + p_n F_n, $$
 where $\{F_k\}_{i,j} =\Psi_k( \| s_j - s_i \|_2)$.
 
-Ellipsoid Method Revisited {#sec:ellipsoid}
-===========================================
+# Ellipsoid Method Revisited {#sec:ellipsoid}
 
 Some History of the Ellipsoid Method [@BGT81]. Introduced by Shor and Yudin and Nemirovskii in 1976. It used to show that linear programming (LP) is polynomial-time solvable (Kachiyan 1979), settled the long-standing problem of determining the theoretical complexity of LP. In practice, however, the simplex method runs much faster than the method, although its worst-case complexity is exponential.
 
-Basic Ellipsoid Method
------------------------
+## Basic Ellipsoid Method
 
 An ellipsoid $\mathcal{E}_k(x_k, P_k)$ is specified as a set
 $$\{x \mid (x-x_k) P^{-1}_k (x - x_k) \le 1 \}, $$
 where $x_k \in \mathbb{R}^n$ is the center of the ellipsoid and $P_k \in \mathbb{R}^{n \times n}$ is a positive definite matrix.
 
+```{=tex}
 \begin{figure}
 \centering
 \begin{tikzpicture}[scale=0.6]
@@ -507,25 +499,25 @@ where $x_k \in \mathbb{R}^n$ is the center of the ellipsoid and $P_k \in \mathbb
 \caption{Ellipsoid, feasible region, and cut}
 \label{fig:ellipsoid}
 \end{figure}
-
+```
 Updating the ellipsoid (deep-cut)
 
 Calculation of minimum volume ellipsoid covering:
 $$\mathcal{E}_k \cap \{z \mid g^\mathsf{T} (z - x_k) + \beta \le 0 \}$$
 Let $\tilde{g} = P_k\,g$, $\tau^2 = g^\mathsf{T} P_k g$. We can make the following observations:
 
-1. If $n \cdot \beta < -\tau$ (shallow cut), then no smaller ellipsoid can be found.
+1.  If $n \cdot \beta < -\tau$ (shallow cut), then no smaller ellipsoid can be found.
 
-2. If $\beta > \tau$, then intersection is empty.
+2.  If $\beta > \tau$, then intersection is empty.
 
-3. Otherwise,
-   $$x_c^+ = x_c - \frac{\rho}{ \tau^2 } \tilde{g}, \qquad
-     P^+ = \delta\cdot\left(P - \frac{\sigma}{ \tau^2 } \tilde{g}\tilde{g}^\mathsf{T}\right)
-   $$
-   where
-   $$\rho = \frac{ \tau+nh}{n+1}, \qquad
-     \sigma = \frac{2\rho}{ \tau+\beta}, \qquad
-     \delta = \frac{n^2(\tau^2 - \beta^2)}{(n^2 - 1)\tau^2} $$
+3.  Otherwise,
+    $$x_c^+ = x_c - \frac{\rho}{ \tau^2 } \tilde{g}, \qquad
+      P^+ = \delta\cdot\left(P - \frac{\sigma}{ \tau^2 } \tilde{g}\tilde{g}^\mathsf{T}\right)
+    $$
+    where
+    $$\rho = \frac{ \tau+nh}{n+1}, \qquad
+      \sigma = \frac{2\rho}{ \tau+\beta}, \qquad
+      \delta = \frac{n^2(\tau^2 - \beta^2)}{(n^2 - 1)\tau^2} $$
 
 Even better, split $P$ into two variables $\kappa \cdot Q$. Let $\tilde{g} = Q \cdot g$, $\omega = g^\mathsf{T}\tilde{g}$, $\tau = \sqrt{\kappa\cdot\omega}$.
 $$x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
@@ -537,17 +529,15 @@ Reduce $n^2$ multiplications per iteration. Note that:
 
 -   The range of $\delta$ is $(0, \frac{n^2}{n^2 - 1})$
 
-Central Cut
------------
+## Central Cut
 
-A Special case of  when $\beta = 0$. Deserve a separate implement because it is much simpler. Let $\tilde{g} = Q\,g$, $\tau = \sqrt{\kappa\cdot\omega}$,
+A Special case of when $\beta = 0$. Deserve a separate implement because it is much simpler. Let $\tilde{g} = Q\,g$, $\tau = \sqrt{\kappa\cdot\omega}$,
 
 $$\rho = \frac{\tau}{n+1}, \qquad
   \sigma = \frac{2}{n+1}, \qquad
   \delta = \frac{n^2}{n^2 - 1}. $$
 
-Parallel Cuts
--------------
+## Parallel Cuts
 
 Oracle returns a pair of cuts instead of just one. The pair of cuts is given by $g$ and $(\beta_1, \beta_2)$ such that:
 $$\begin{array}{l}
@@ -592,17 +582,17 @@ $$
 
 A typical structure of digital Finite Impulse Response (FIR) filter is shown in @fig:fir-strctr, where the coefficients $h[0], h[1], \ldots, h[n-1]$ must be determined to meet given specifications. Usually, they can be manually designed using windowing or frequency-sampling techniques [@oppenheim1989discrete].
 
-However, the experience and knowledge of designers are highly demanded in this kind of design methods. Moreover, there is no guarantee about the design’s quality. Therefore, the optimization-based techniques (e.g. [@wu1999fir], more reference) have attracted tons of research effort. In this kind of method, facilitated with growing computing resources and efficient optimization algorithms, the solution space can be effectively explored.
+However, the experience and knowledge of designers are highly demanded in this kind of design methods. Moreover, there is no guarantee about the design's quality. Therefore, the optimization-based techniques (e.g. [@wu1999fir], more reference) have attracted tons of research effort. In this kind of method, facilitated with growing computing resources and efficient optimization algorithms, the solution space can be effectively explored.
 
-![A typical structure of an FIR filter\ @mitra2006digital.](ellipsoid.files/fir_strctr.pdf){#fig:fir-strctr width="80%"}
+![A typical structure of an FIR filter @mitra2006digital.](ellipsoid.files/fir_strctr.pdf){#fig:fir-strctr width="80%"}
 
-In optimization algorithms, what is particularly interesting is the convex optimization. If a problem is in a convex form, it can be efficiently and optimally solved. Convex optimization techniques are also implementable in designing FIR filters, including the Parks-McClellan algorithm [@park1972chebyshev], METEOR [@steiglitz1992meteor], and peak-constrained least-squares (PCLS) [@selesnick1996constrained; @adams1998peak]. In the mentioned articles, with the help of exchange algorithms (e.g. Remez exchange algorithm), certain FIR filter design problems can be formed as linear or quadratic programs. They are two simple forms of convex optimization problems, which can be optimally solved with existing algorithms, such as the interior-point method [@boyd2009convex]. Tempted by the optimality, more efforts were devoted to forming the problem convex. Particularly, in [@wu1999fir], via spectral factorization [@goodman1997spectral], the problem of designing an FIR filter with magnitude constraints on frequency-domain is formulated as a convex optimization problem. More examples are provided in [@davidson2010enriching].
+In optimization algorithms, what is particularly interesting is the convex optimization. If a problem is in a convex form, it can be efficiently and optimally solved. Convex optimization techniques are also implementable in designing FIR filters, including the Parks-McClellan algorithm [@park1972chebyshev], METEOR [@steiglitz1992meteor], and peak-constrained least-squares (PCLS) [@selesnick1996constrained; @adams1998peak]. In the mentioned articles, with the help of exchange algorithms (e.g. Remez exchange algorithm), certain FIR filter design problems can be formed as linear or quadratic programs. They are two simple forms of convex optimization problems, which can be optimally solved with existing algorithms, such as the interior-point method [@boyd2009convex]. Tempted by the optimality, more efforts were devoted to forming the problem convex. Particularly, in [@wu1999fir], via spectral factorization [@goodman1997spectral], the problem of designing an FIR filter with magnitude constraints on frequency-domain is formulated as a convex optimization problem. More examples are provided in [@davidson2010enriching].
 
 Its time response is
 $$y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]}$$
 {#eq:t_res}
 where $\mathbf{h} = (h(0), h(1),..., h(n-1))$ is the filter coefficients. Its frequency response $H: [0,\pi] \rightarrow \mathbb{C}$ is
-$$H(\omega) = \sum_{m=0}^{n-1}{h(m)e^{-jm\omega}}$$ 
+$$H(\omega) = \sum_{m=0}^{n-1}{h(m)e^{-jm\omega}}$$
 {#eq:f_res}
 where $j = \sqrt{-1}$, $n$ is the order of the filter.
 The design of a filter with magnitude constraints is often formulated as a constraint optimization problem as the form
@@ -619,10 +609,10 @@ Therefore, we can only consider the magnitude constraint on $[0,\pi]$ [@wu1999fi
 
 Generally, the problem might be difficult to solve, since we can only obtain the global optimal solution with resource-consuming methods, such as branch-and-bound [@davidson2010enriching]. However, the situation is totally different if the problem is convex, where $f(\mathbf{x})$ and $g(\mathbf{x})$ are convex functions. In such a case, the problem can be optimally solved with many efficient algorithms.
 
-Attracted by the benefits, the authors of\ [@wu1999fir] transformed (?), originally non-convex, into a convex form via spectral factorization:
+Attracted by the benefits, the authors of [@wu1999fir] transformed (?), originally non-convex, into a convex form via spectral factorization:
 
 $$L^2(\omega) \le R(\omega) \le U^2(\omega), \forall \omega\in(0,\pi)$$ {#eq:r_con}
-where $R(\omega)=\sum_{i=-n+1}^{n-1}{r(t)e^{-j{\omega}t}}=|H(\omega)|^2$ and $\mathbf{r}=(r(-n+1),r(-n+2),\ldots,r(n-1))$ are the autocorrelation coefficients. Especially, $\mathbf{r}$ can be determined by $\mathbf{h}$, with the following equation vice versa\ [@wu1999fir]:
+where $R(\omega)=\sum_{i=-n+1}^{n-1}{r(t)e^{-j{\omega}t}}=|H(\omega)|^2$ and $\mathbf{r}=(r(-n+1),r(-n+2),\ldots,r(n-1))$ are the autocorrelation coefficients. Especially, $\mathbf{r}$ can be determined by $\mathbf{h}$, with the following equation vice versa [@wu1999fir]:
 
 $$r(t) = \sum_{i=-n+1}^{n-1}{h(i)h(i+t)}, t\in\mathbb{Z}.$$ {#eq:h_r}
 where $h(t)=0$ for $t<0$ or $t>n-1$.
@@ -647,8 +637,7 @@ $$\begin{array}{ll}
                       & 0 \preceq V(p) \preceq 2Y, \kappa {>} 0.
   \end{array}$$
 
-Discrete Optimization
----------------------
+## Discrete Optimization
 
 Many engineering problems can be formulated as a convex/geometric programming, such as digital circuit sizing. However, in ASIC design, there is often only a limited set of cell types to choose from the cell library. In other words, some design variables are discrete. We can express the discrete version as Mixed-Integer Convex programming (MICP) by mapping the design variables to integers.
 
@@ -662,10 +651,10 @@ $$\begin{array}{ll}
         \text{subject to}    & f_j(x) \le 0, \; \forall j=1,2,\ldots, \\
                              & x \in \mathbb{D},
   \end{array}$$
-where $f_0(x)$ and $f_j(x)$ are “convex”. Note that some design variables are discrete. The oracle looks for a nearby discrete solution $x_d$ of $x_c$ with the cutting-plane:
+where $f_0(x)$ and $f_j(x)$ are "convex". Note that some design variables are discrete. The oracle looks for a nearby discrete solution $x_d$ of $x_c$ with the cutting-plane:
 $$ g^\mathsf{T} (x - x_d) + \beta \le 0, \beta \ge 0, g \neq 0. $$
 Note that the cut may be a shallow cut.
-Suggestion: use as many different cuts as possible for each iteration (e.g. round-robin the evaluation of constraints).
+Suggestion: use as many different cuts as possible for each iteration (e.g. round-robin the evaluation of constraints).
 
 ### Example: Multiplierless FIR Filter Design
 
@@ -675,16 +664,13 @@ Attracted by the benefits of this "multiplier-free" approach, many efforts have 
 
 ![Result](ellipsoid.files/csdlowpass.pdf){#fig:csdlowpass width="80%"}
 
-Concluding Remarks
-==================
+# Concluding Remarks
 
 Should be known to students.
 The ellipsoid method is not a competitor but a companion of interior-point methods.
 
 TBD.
 
-References {-}
-==========
+# References {#references .unnumbered}
 
-\ 
-
+ 
