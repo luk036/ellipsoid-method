@@ -1,9 +1,9 @@
 Note
 ======
 
-pandoc -F pandoc-crossref -F pandoc-citeproc -s -t latex -N --reference-links --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.pdf
+pandoc -F pandoc-crossref --citeproc -s -t latex -N --reference-links --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.pdf
 
-pandoc -F pandoc-crossref -F pandoc-citeproc -s -t html -N --katex=katex/ --reference-links --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.html
+pandoc -F pandoc-crossref --citeproc -s -t html -N --katex=katex/ --reference-links --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.html
 
 pandoc -F pandoc-crossref -s -t beamer --toc --natbib --reference-links --csl=applied-mathematics-letters.csl beamer.yaml cutting_plane.md -o temp.tex
 
@@ -13,9 +13,9 @@ pandoc -s --wrap=preserve ell-review.md -o temp.md
 
 pandoc -s -t beamer --natbib --toc -o temp.tex beamer.yaml ellipsoid.md
 
-pandoc -F pandoc-crossref -F pandoc-citeproc -s -t latex -N latex.yaml crossref.yaml ell-review.md -o temp.tex
+pandoc -F pandoc-crossref --citeproc -s -t latex -N latex.yaml crossref.yaml ell-review.md -o temp.tex
 
-pandoc -F pandoc-crossref -F pandoc-citeproc -s -t html -N --katex=katex/ crossref.yaml ell-review.md -o temp.html
+pandoc -F pandoc-crossref --citeproc -s -t html -N --katex=katex/ crossref.yaml ell-review.md -o temp.html
 
 
 \usepackage{subfig}

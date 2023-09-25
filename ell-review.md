@@ -3,34 +3,35 @@ title: Ellipsoid Method and the Amazing Oracles
 bibliography: ['ellipsoid.bib', 'fir-ref.bib', 'Geostatistics.bib', 'mpcss1.bib', 'mpcss2.bib']
 csl: 'applied-mathematics-letters.csl'
 abstract: |
-  'We will discuss the ellipsoid method and its application in different optimization problems. While it is commonly believed that the method is slower compared to interior point methods, we argue that the ellipsoid method offers distinct advantages. It does not necessitate the evaluation of all constraint functions and can leverage specific types of problem structures. Additionally, people often overlook the importance of the separation oracle. We explore three particular uses of the ellipsoid method: robust optimization, semidefinite programming, and network optimization. For each application, we discuss the utilization of separation oracles and their effectiveness in solving these problems. We also examine implementation issues surrounding the ellipsoid method, such as the use of parallel cuts to update the search space. We provide evidence that in certain cases, such as FIR design, parallel cuts greatly enhance computation speed. We also touch on the topic of discrete optimization and its importance in engineering problems. It is mentioned that the ellipsoid method can be applied to discrete problems, where some design variables are restricted to discrete forms. We present mixed-integer convex programming and the need for an oracle to locate adjacent discrete solutions.'
+  We review the ellipsoid method and its application to various optimization problems. While it is commonly believed that the method is slower than interior-point methods, we argue that the ellipsoid method offers distinct advantages. It does not require the evaluation of all constraint functions and can take advantage of certain types of problem structures. In addition, the importance of the separation oracle is often overlooked. We examine three particular applications of the ellipsoid method: robust optimization, semidefinite programming, and network optimization. For each application, we discuss the use of a separation oracle and its effectiveness in solving the problem. We also examine implementation issues of the ellipsoid method, such as the use of parallel cuts to update the search space. We provide evidence that in certain cases, such as FIR filter design, parallel cuts significantly improve the computation time. We also touch on the topic of discrete optimization. We show that the ellipsoid method can be applied to discrete problems where some design variables are restricted to discrete forms. The additional requirement for an oracle is simply the need to locate the nearest discrete solutions.
 ---
  
 
 # Introduction
 
-The ellipsoid method has an unfavorable reputation due to its perceived slowness for solving large-scale convex problems in comparison to the interior-point method [@unknown]. However, this perception is unfair. Unlike the interior-point method, the ellipsoid method does not necessitate an explicit evaluation of all constraint functions. It solely requires a *separation oracle* that provides a *cutting-plane* (@sec:cutting-plane). This makes the method ideal for problems with a large number, or even an infinite number, of constraints. Another complaint is that the method cannot exploit sparsity. However, while the ellipsoid method cannot take advantage of the sparsity of the problem, the separation oracle can utilize certain structural types.
+The ellipsoid method has an unfavorable reputation due to its perceived slowness in solving convex problems compared to the interior-point method. This perception is unfair. Unlike the interior-point method, the ellipsoid method does not require explicit evaluation of all constraint functions. It only requires a *separation oracle* that provides a *cutting plane* (@sec:cutting_plane). This makes the method ideal for problems with a large or even infinite number of constraints. Another complaint is that the method cannot exploit sparsity. However, while the ellipsoid method cannot take advantage of the sparsity of the problem, the separation oracle can take advantage of certain structural types.
+
+While the ellipsoid method has been investigated for decades [@unknown], the importance of the separation oracle is often overlooked. In this articles, we examine three particular applications.
 
 In @sec:robust, robust optimization is discussed...
 
-In @sec:network, we demonstrate that for network parametric problems, the cutting-plane can be found by identifying a negative cycle in a directed graph. Efficient algorithms exist that exploit network locality and other properties. 
+In @sec:network, we show that for network parametric problems, the cutting plane can be constructed by identifying a negative cycle in a directed graph. Efficient algorithms exist that exploit network locality and other properties. Consequently, it can be used for efficient oracle implementations.
 
-Section @sec:lmi discusses problems involving matrix inequalities. Recall that positive definiteness of a symmetric matrix can be checked efficiently using Cholesky factorization, specifically $LDL^\mathsf{T}$ factorization. Let $A \in \mathbb{R}^{m \times m}$ be a symmetric matrix. If the factorization process stops at row $p$ because of encountering a non-positive diagonal entry of matrix $A$, then $A$ is not positive-definite. With the use of lazy evaluation techniques, it is possible to construct a cutting plane in $O(p^3)$ rather than $O(m^3)$. Consequently, it can be utilized for efficient oracle implementations.
+Section @sec:lmi discusses problems involving matrix inequalities. Recall that the positive definiteness of a symmetric matrix can be efficiently checked using the $LDL^\mathsf{T}$ factorization. Let $A \in \mathbb{R}^{m \times m}$ be a symmetric matrix. If the factorization process stops at row $p$ because it encounters a non-positive diagonal entry of the matrix $A$, then $A$ is not positive definite. Using lazy evaluation techniques, it is possible to construct the cutting plane in $O(p^3)$ instead of $O(m^3)$. Consequently, it can be used for efficient oracle implementations.
 
-The ellipsoid method's implementation is discussed in Section @sec:ellipsoid. This technique is a cutting-plane approach wherein the *search space* is an ellipsoid, conventionally represented as: 
+The implementation of the ellipsoid method is discussed in the section @sec:ellipsoid. This technique is a cutting plane approach where the *search space* is an ellipsoid, conventionally represented as 
 
   $$\{x \mid (x-x_c)P^{-1}(x-x_c) \le 1\},$$ 
 
-where $x_c \in \mathbb{R}^n$ is the center point of the ellipsoid. The matrix $P \in \mathbb{R}^{n \times n}$ is symmetric positive definite. During each iteration, the oracle updates $x_c$ and $P$. While updating ellipsoids can be simple and has been implemented for decades, we demonstrate that the cost can be further reduced by $n^2$ floating-point operations by multiplying $\alpha$ by $Q$ and splitting $P$, resulting in this form: 
+where $x_c \in \mathbb{R}^n$ is the center of the ellipsoid. The matrix $P \in \mathbb{R}^{n \times n}$ is symmetric positive definite. During each iteration, the oracle updates $x_c$ and $P$. While updating ellipsoids can be straightforward and has been implemented for decades, we show that the cost can be further reduced by $n^2$ floating-point operations by multiplying $\alpha$ by $Q$ and splitting $P$, resulting in this form: 
 
   $$\{ x \mid (x-x_c)Q^{-1}(x-x_c) \le \alpha \}.$$
 
-Additionally, Section 4.2 discusses the use of parallel cuts. Two constraints can be employed simultaneously to update the ellipsoid when a pair of parallel inequalities, one of which is violated, arise. Some articles suggest that this method does not lead to significant enhancements. However, we demonstrate that for situations where certain constraints have tight upper and lower bounds, such as in some filter designs, the implementation of parallel cuts can greatly expedite the runtime. Additionally, we illustrate that if the method is implemented carefully, each update, whether utilizing a deep cut or a parallel cut, results in at most one square root operation.
-
+In addition, Section @sec:parallel_cut discusses the use of parallel cuts. Two constraints can be used simultaneously to update the ellipsoid when a pair of parallel inequalities occur, one of which is violated. Some articles suggest that this method does not lead to significant improvements. However, we show that in situations where certain constraints have tight upper and lower bounds, such as in some filter designs, the implementation of parallel cuts can significantly speed up the runtime. In addition, we show that if the method is implemented carefully, every update, whether it uses a deep cut or a parallel cut, results in at most one square root operation.
 
 In many practical engineering problems, some design variables may be restricted to discrete forms. Since the cutting-plane method requires only a separation oracle, it can also be used for discrete problems...
 
-Cutting-plane Method Revisited {#sec:cutting-plane}
+Cutting-plane Method Revisited {#sec:cutting_plane}
 ==============================
 
 Convex Feasibility Problem
@@ -542,7 +543,7 @@ $$\rho = \frac{\tau}{n+1}, \qquad
   \sigma = \frac{2}{n+1}, \qquad
   \delta = \frac{n^2}{n^2 - 1}. $$
 
-Parallel Cuts
+Parallel Cuts {#sec:parallel_cut}
 -------------
 
 Oracle returns a pair of cuts instead of just one. The pair of cuts is given by $g$ and $(\beta_1, \beta_2)$ such that:
@@ -643,7 +644,7 @@ $$\begin{array}{ll}
                       & 0 \preceq V(p) \preceq 2Y, \kappa {>} 0.
   \end{array}$$
 
-Discrete Optimization
+Discrete Optimization {#sec:discrete}
 ---------------------
 
 Many engineering problems can be formulated as a convex/geometric programming, such as digital circuit sizing. However, in ASIC design, there is often only a limited set of cell types to choose from the cell library. In other words, some design variables are discrete. We can express the discrete version as Mixed-Integer Convex programming (MICP) by mapping the design variables to integers.
