@@ -6,14 +6,19 @@ abstract: |
   We review the ellipsoid method and its application to various optimization problems. While it is commonly believed that the method is slower than interior-point methods, we argue that the ellipsoid method offers distinct advantages. It does not require the evaluation of all constraint functions and can take advantage of certain types of problem structures. In addition, the importance of the separation oracle is often overlooked. We examine three particular applications of the ellipsoid method: robust optimization, semidefinite programming, and network optimization. For each application, we discuss the use of a separation oracle and its effectiveness in solving the problem. We also examine implementation issues of the ellipsoid method, such as the use of parallel cuts to update the search space. We provide evidence that in certain cases, such as FIR filter design, parallel cuts significantly improve the computation time. We also touch on the topic of discrete optimization. We show that the ellipsoid method can be applied to discrete problems where some design variables are restricted to discrete forms. The additional requirement for an oracle is simply the need to locate the nearest discrete solutions.
 ---
  
+> When you have eliminated the impossible, whatever remains, however
+> improbable, must be the truth.
+
+*Sir Arthur Conan Doyle, stated by Sherlock Holmes*
+
 
 # Introduction
 
-The ellipsoid method has an unfavorable reputation due to its perceived slowness in solving convex problems compared to the interior-point method. This perception is unfair. Unlike the interior-point method, the ellipsoid method does not require explicit evaluation of all constraint functions. It only requires a *separation oracle* that provides a *cutting plane* (@sec:cutting_plane). This makes the method ideal for problems with a large or even infinite number of constraints. Another complaint is that the method cannot exploit sparsity. However, while the ellipsoid method cannot take advantage of the sparsity of the problem, the separation oracle can take advantage of certain structural types.
+The ellipsoid method has an unfavorable reputation due to its perceived slowness in solving convex problems compared to the interior-point method. This perception is unfair. Unlike the interior-point method, the ellipsoid method does not require explicit evaluation of all constraint functions. It only requires a *separation oracle* that provides a *cutting plane* (@sec:cutting_plane). This makes the method ideal for problems with a moderate number of design variables but a large or even infinite number of constraints. Another complaint is that the method cannot exploit sparsity. However, while the ellipsoid method cannot take advantage of the sparsity of the problem, the separation oracle can take advantage of certain structural types.
 
 While the ellipsoid method has been investigated for decades [@unknown], the importance of the separation oracle is often overlooked. In this articles, we examine three particular applications.
 
-In @sec:robust, robust optimization is discussed...
+In @sec:robust, robust convex optimization is discussed. Robust optimization is a framework for dealing with parameter uncertainties in mathematical models. Uncertainties in the real world can make the original model inapplicable. Robust optimization incorporates these uncertainties into the optimization problem by considering the worst-case scenario. It seeks to find a solution that is robust and performs optimally under all plausible parameter values within a given set of uncertainties. Note that a robust counterpart of a convex problem preserves the convexity. However the number of constraints becomes infinite. 
 
 In @sec:network, we show that for network parametric problems, the cutting plane can be constructed by identifying a negative cycle in a directed graph. Efficient algorithms exist that exploit network locality and other properties. Consequently, it can be used for efficient oracle implementations.
 
@@ -141,7 +146,8 @@ $$\begin{array}{ll}
    \text{subject to} & x_1 \le k, \\
                      & x_1 > 0, x_2 > 0,
   \end{array}$$ {#eq:profit-max-in-original-form}
-where $p$ is the market price per unit, $A$ is the scale of production, $\alpha$ and $\beta$ are output elasticities, $x_i$ and $v_i$ are the i-th input quantity and output price, $A x_1^\alpha x_2^\beta$ is the Cobb-Douglas production function, and $k$ is a constant that limits the quantity of $x_1$. The above formulation is not in convex form. First, we rewrite the problem:
+where $p$ is the market price per unit, $A$ is the scale of production, $\alpha$ and $\beta$ are output elasticities, $x_i$ and $v_i$ are the i-th input quantity and output price, $A x_1^\alpha x_2^\beta$ is the Cobb-Douglas production function which is a widely accepted model used to represent the relationship between inputs and outputs in production. $k$ is a constant that limits the quantity of $x_1$. The above formulation is not in convex form. First, we rewrite the problem:
+
 $$\begin{array}{ll}
     \text{maximize}   & t, \\
     \text{subject to} & t  + v_1 x_1  + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}, \\
@@ -172,6 +178,12 @@ Amazing Oracles {#sec:oracles}
 
 Robust Convex Optimization {#sec:robust}
 --------------------------
+
+
+Overall, robust optimization accounts for parameter uncertainties by formulating problems that consider worst-case scenarios. This approach allows for more reliable and robust solutions when dealing with uncertainty. The study presented in this paper addresses profit maximization using a robust geometric programming approach with interval uncertainty. The authors study the well-established Cobb-Douglas production function and introduce an approximate equivalent of the robust counterpart using piecewise convex linear approximations. This approximation takes the form of a geometric programming problem. An example is used to demonstrate the impact of uncertainties.
+
+
+Interval uncertainties refer to uncertainties in model parameters that are represented as intervals. The authors of this study consider interval uncertainties in the model parameters. Upper and lower piecewise convex linear approximations of the robust counterpart are presented that are efficiently solvable using interior point methods. These approximations are used to incorporate the interval uncertainties into the model.
 
 Consider:
 $$\begin{array}{ll}
@@ -212,7 +224,8 @@ The oracle only needs to determine:
 
 ### Example: Robust Profit Maximization {#sec:profit-rb}
 
-Consider again the profit maximization problem in @sec:profit. Now suppose that the parameters $\{\alpha, \beta, p, v_1, v_2, k\}$ are subject to interval uncertainties:
+Consider again the profit maximization problem in @sec:profit. 
+This paper considers uncertainties in the model parameters over a given interval. Now suppose that the parameters $\{\alpha, \beta, p, v_1, v_2, k\}$ are subject to interval uncertainties:
 $$\begin{array}{rcl}
 \alpha - \varepsilon_1 \le & \hat{\alpha} & \le \alpha + \varepsilon_1 \\
 \beta  - \varepsilon_2 \le & \hat{\beta}  & \le \beta  + \varepsilon_2 \\
@@ -228,7 +241,9 @@ $$\begin{array}{ll}
                         (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A)  \\
                 & y_1 \le \log \hat{k}.
   \end{array}$$
-In [@Aliabadi2013Robust], the authors present a *piecewise linear approximation* approach. It involves a lot of programming work, but the results are inaccurate. However, this can easily be solved using the cutting-plane method. Note that in this simple example, the worst-case scenario occurs when:
+
+
+In [@Aliabadi2013Robust], the authors propose the use of piecewise convex linear approximations as a close approximation of the robust counterpart, leading to more solvability using interior-point algorithms[1][2][9]. It involves a lot of programming work, but the results are inaccurate. However, this can easily be solved using the cutting-plane method. Note that in this simple example, the worst-case scenario occurs when:
 
 -   $\hat{p} = p - e_3$, $k = \bar{k} - e_3$
 
@@ -286,9 +301,17 @@ $$\begin{array}{ll}
 where $C_k$ is a cycle of $G$:
 $$W_k(x, t) = \sum_{ (i,j)\in C_k} h_{ij}(x, t).$$
 
+The minimum cycle ratio (MCR) problem is a fundamental problem in the analysis of directed graphs. Given a directed graph, the MCR problem seeks to find the cycle with the minimum ratio of the sum of the edge weights to the number of edges in the cycle. In other words, the MCR problem tries to find the "tightest" cycle in the graph, where the tightness of a cycle is measured by the ratio of the total weight of the cycle to its length.
+
+The MCR problem has many applications in the analysis of discrete event systems, such as digital circuits and communication networks. It is closely related to other problems in graph theory, such as the shortest path problem and the maximum flow problem. Efficient algorithms for solving the MCR problem are therefore of great practical importance.
+
 ### Negative Cycle Detection Algorithm
 
 The negative cycle detection is the most time-consuming part of the proposed method, so it is very important to choose the proper negative cycle detection algorithm. There are lots of methods to detect negative cycles in a weighted graph [@cherkassky1999negative], in which Tarjan’s algorithm [@Tarjan1981negcycle] is one of the fastest algorithms in practice [@alg:dasdan_mcr; @cherkassky1999negative].
+
+Howard's method is a minimum cycle ratio (MCR) algorithm that uses a policy iteration algorithm to find the minimum cycle ratio of a directed graph. The algorithm maintains a set of candidate cycles and iteratively updates the cycle with the minimum ratio until convergence. 
+
+To detect negative cycles, Howard's method uses a cycle detection algorithm based on the Bellman-Ford algorithm. Specifically, the algorithm maintains a predecessor graph of the original graph and performs cycle detection on this graph using the Bellman-Ford algorithm. If a negative cycle is detected, the algorithm stops and returns the cycle.
 
 The separation oracle only needs to determine:
 
