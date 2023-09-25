@@ -3,7 +3,6 @@ author:
   - 'Wai-Shing Luk\thanks{Fudan University}'
 documentclass: siamltex
 classoption:
-  - final
   - leqno
 keywords:
   - Ellipsoid method

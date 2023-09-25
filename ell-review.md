@@ -9,7 +9,7 @@ abstract: |
 
 # Introduction
 
-The ellipsoid method has an unfavorable reputation due to its perceived slowness for solving large-scale convex problems in comparison to the interior-point method [@unknown]. However, this perception is unfair. Unlike the interior-point method, the ellipsoid method does not necessitate an explicit evaluation of all constraint functions. It solely requires a *separation oracle* that provides a *cutting-plane* (@sec:cutting-plane). This makes the method ideal for problems with a large number, or even an infinite number, of constraints. Aonther complaint is that the method cannot exploit sparsity. However, while the ellipsoid method cannot take advantage of the sparsity of the problem, the separation oracle can utilize certain structural types.
+The ellipsoid method has an unfavorable reputation due to its perceived slowness for solving large-scale convex problems in comparison to the interior-point method [@unknown]. However, this perception is unfair. Unlike the interior-point method, the ellipsoid method does not necessitate an explicit evaluation of all constraint functions. It solely requires a *separation oracle* that provides a *cutting-plane* (@sec:cutting-plane). This makes the method ideal for problems with a large number, or even an infinite number, of constraints. Another complaint is that the method cannot exploit sparsity. However, while the ellipsoid method cannot take advantage of the sparsity of the problem, the separation oracle can utilize certain structural types.
 
 In @sec:robust, robust optimization is discussed...
 
@@ -49,7 +49,6 @@ When a *separation oracle* $\Omega$ is *queried* at $x_0$, it either
 2.  returns a separating hyperplane between $x_0$ and $\mathcal{K}$:
 
 $$g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \ge 0, g \neq 0, \; \forall x \in \mathcal{K}.$$
-{#eq:cut}
 
 The pair of $(g, \beta)$ is called a *cutting-plane*, because it eliminates the half-space $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from our search. We have the following observations:
 
@@ -100,7 +99,6 @@ $$\begin{array}{ll}
     \text{minimize}     & f_0(x), \\
     \text{subject to}   & x \in \mathcal{K}.
   \end{array}$$
-{#eq:convex-optimization}
 We treat the optimization problem as a feasibility problem with an additional constraint $f_0(x) \le t$.
 Here, $f_0(x)$ can be a convex function or a quasi-convex function.
 $t$ is the best-so-far value of $f_0(x)$.
@@ -110,7 +108,6 @@ $$\begin{array}{ll}
     \text{subject to} & \Phi(x, t) \le 0, \\
                       & x \in \mathcal{K},
   \end{array} $$
-{#eq:cvx-in-feasibility-form}
 where $\Phi(x, t) \le 0$ is the $t$-sublevel set of $f_0(x)$.
 
 For every $x$, $\Phi(x, t)$ is a non-increasing function of $t$, *i.e.*, $\Phi(x, t’) \le \Phi(x, t)$ whenever $t’ \ge t$. Note that $\mathcal{K}_t \subseteq \mathcal{K}_u$ if and only if $t \le u$ (monotonicity). An easy way to solve the optimization problem is to apply a binary search on $t$.
@@ -142,8 +139,7 @@ $$\begin{array}{ll}
    \text{maximize}   & p(A x_1^\alpha x_2^\beta) - v_1 x_1 - v_2 x_2, \\
    \text{subject to} & x_1 \le k, \\
                      & x_1 > 0, x_2 > 0,
-  \end{array}$$
-{#eq:profit-max-in-original-form}
+  \end{array}$$ {#eq:profit-max-in-original-form}
 where $p$ is the market price per unit, $A$ is the scale of production, $\alpha$ and $\beta$ are output elasticities, $x_i$ and $v_i$ are the i-th input quantity and output price, $A x_1^\alpha x_2^\beta$ is the Cobb-Douglas production function, and $k$ is a constant that limits the quantity of $x_1$. The above formulation is not in convex form. First, we rewrite the problem:
 $$\begin{array}{ll}
     \text{maximize}   & t, \\
@@ -151,7 +147,7 @@ $$\begin{array}{ll}
                       & x_1 \le k, \\
                       & x_1 > 0, x_2 > 0.
   \end{array} $$
-By the change of variables, we can obtain the following convex form of\ @eq-profit-max-in-orginal-form:
+By the change of variables, we can obtain the following convex form of\ @eq:profit-max-in-original-form:
 $$\begin{array}{ll}
     \text{maximize}   & t, \\
     \text{subject to} & \log(t + v_1 e^{y_1} + v_2 e^{y_2}) -
@@ -561,7 +557,7 @@ $$ l \le a^\mathsf{T} x + b \le u, \qquad L \preceq F(x) \preceq U.$$
 
 Usually, provide faster convergence.
 
-![Parallel cuts](ellipsoid.files/parallel_cut.pdf){#fig:parallel_cut width="80%"}
+![Parallel cuts](ellipsoid.files/parallel_cut.pdf){width="80%"}
 
 Updating the ellipsoid.
 
@@ -627,7 +623,7 @@ where $R(\omega)=\sum_{i=-n+1}^{n-1}{r(t)e^{-j{\omega}t}}=|H(\omega)|^2$ and $\m
 $$r(t) = \sum_{i=-n+1}^{n-1}{h(i)h(i+t)}, t\in\mathbb{Z}.$$ {#eq:h_r}
 where $h(t)=0$ for $t<0$ or $t>n-1$.
 
-![Result](ellipsoid.files/lowpass.pdf){#fig:lowpass width="80%"}
+![Result](ellipsoid.files/lowpass.pdf){width="80%"}
 
 ### Example: Maximum Likelihood estimation
 
@@ -669,11 +665,11 @@ Suggestion: use as many different cuts as possible for each iteration (e.g. roun
 
 ### Example: Multiplierless FIR Filter Design
 
-However, there are still many filter design problems that are non-convex, such as multiplierless FIR filter design problems. Note that in [@fig:fir-strctr], each coefficient associated with a multiplier unit makes the filter power-hungry, especially in *application specific integrated circuits* (ASIC). Fortunately, if each coefficient is quantized and represented as a sum of Singed Power-of-Two (SPT), a multiplierless filter can be implemented. Such coefficients can be uniquely represented by a Canonical Signed-Digit (CSD) code with a minimum number of non-zero digits[@george1960csd]. In this case, it confines the multiplication to addition and shift operations. An example is shown in @fig:multi-shift. The coefficient 0.40625 = 13/32 can be written as $2^{-1} - 2^{-3} + 2^{-5}$. Thus, as shown in @fig:shift, the multiplier can be replaced with three shifters and two adders at a much lower cost. However, the coefficient quantization constraint is non-convex, making the convex optimization algorithm not directly applicable. A similar case is the consideration of the finite word-length effect [@lim1982finite].
+However, there are still many filter design problems that are non-convex, such as multiplierless FIR filter design problems. Note that in [@fig:fir-strctr], each coefficient associated with a multiplier unit makes the filter power-hungry, especially in *application specific integrated circuits* (ASIC). Fortunately, if each coefficient is quantized and represented as a sum of Singed Power-of-Two (SPT), a multiplierless filter can be implemented. Such coefficients can be uniquely represented by a Canonical Signed-Digit (CSD) code with a minimum number of non-zero digits[@george1960csd]. In this case, it confines the multiplication to addition and shift operations. The coefficient 0.40625 = 13/32 can be written as $2^{-1} - 2^{-3} + 2^{-5}$. Thus, the multiplier can be replaced with three shifters and two adders at a much lower cost. However, the coefficient quantization constraint is non-convex, making the convex optimization algorithm not directly applicable. A similar case is the consideration of the finite word-length effect [@lim1982finite].
 
 Attracted by the benefits of this "multiplier-free" approach, many efforts have been devoted to its design techniques. For its general problems, integer programming (e.g. [@kodek1980design; @lim1982finite; @lim1983fir; @lim1999signed]) can be implemented to achieve the optimal solution. However, it requires excessive computational resources. Other heuristic techniques, such as genetic algorithm [@xu1995design] and dynamic-programming-like method [@chen1999trellis], also have inefficiency. If the quantization constraint is the only non-convex constraint in the design problem, a lower bound can be efficiently obtained by solving the relaxed problem [@davidson2010enriching]. Then to make the solution feasible, it can be rounded to the nearest CSD code or used as a starting point of a local search algorithm to obtain a better solution [@kodek1981comparison]. However, neither method guarantees the feasibility of the final solution. Besides, the local search problem remains non-convex. Therefore, the adopted algorithm may also be inefficient, such as branch-and-bound in [@kodek1981comparison].
 
-![Result](ellipsoid.files/csdlowpass.pdf){#fig:csdlowpass width="80%"}
+![Result](ellipsoid.files/csdlowpass.pdf){width="80%"}
 
 Concluding Remarks
 ==================
