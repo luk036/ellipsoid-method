@@ -343,7 +343,7 @@ $$\begin{array}{ll}
     \text{variables}  &  \pi’, \psi’, u’ \, .
   \end{array}$$
 where $x = (\pi’, \psi’ )^\mathsf{T}$.
-The authors of [@orlin1985computing] claim that they have developed an efficient algorithm for solving such a multi-parameter problem, but we could not find any follow-up publication on this. Interestingly, by using the cutting-plane method, one can easily extend the single-parameter network algorithm to a multi-parameter one.
+The authors of [@orlin1985computing] claim they have devised an algorithm for solving multi-parameter problems. However, we did not uncover any further publications to support this claim. Notably, the cutting-plane method readily extends the single-parameter network algorithm to be multi-parameter.
 
 In this application, $h_{ij}(x)$ is:
 $${h}_{ij}(x) = \left\{ \begin{array}{cll}
@@ -670,11 +670,11 @@ $$\begin{array}{ll}
 Discrete Optimization {#sec:discrete}
 ---------------------
 
-Many engineering problems can be formulated as a convex/geometric programming, such as digital circuit sizing. However, in ASIC design, there is often only a limited set of cell types to choose from the cell library. In other words, some design variables are discrete. We can express the discrete version as Mixed-Integer Convex programming (MICP) by mapping the design variables to integers.
+Many engineering problems can be formulated through convex/geometric programming, such as digital circuit sizing. However, in ASIC design, there is frequently a limited number of cell types to select from in the cell library. This means that some design variables are discrete. We can map the design variables to integers to represent the discrete version as Mixed-Integer Convex programming (MICP).
 
-What are the problems with the existing methods? It is mostly based on relaxation. The relaxed solution is then used as the lower bound and the branch-and-bound method is used to find the discrete optimal solution. Note that the branch-and-bound method does not exploit the convexity of the problem. What if only constraints on discrete data can be evaluated?
+What are the issues with existing methods? They are primarily based on relaxation. The more relaxed solution is used as the lower bound, and then the branch-and-bound method is applied to find the discrete optimal solution. It should be noted that the branch-and-bound method does not utilize the convexity of the issue. What if only constraints regarding discrete data could be evaluated?
 
-A relaxed optimal solution (convex) is usually obtained first. Then the optimized discrete solution is obtained by exhausting the neighborhood search. However, sometimes the constraints are tight so that the relaxed continuous optimal solution is far from the discrete one. Enumeration of the discrete domains is difficult.
+Typically, a more relaxed optimal solution (convex) is obtained beforehand. After that, the optimized discrete solution is obtained using an exhaustive neighborhood search. However, tight constraints can cause a significant difference between the discrete and relaxed continuous optimal solutions. Enumerating the discrete domains can be challenging.
 
 Consider:
 $$\begin{array}{ll}
