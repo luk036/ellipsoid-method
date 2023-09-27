@@ -3,32 +3,29 @@ title: Ellipsoid Method and the Amazing Oracles
 bibliography: ['ellipsoid.bib', 'fir-ref.bib', 'Geostatistics.bib', 'mpcss1.bib', 'mpcss2.bib']
 csl: 'applied-mathematics-letters.csl'
 abstract: |
-  The ellipsoid method is an optimization technique that offers distinct advantages over interior-point methods, such as not requiring the evaluation of all constraint functions and being suitable for problems with a large or even infinite number of constraints. The method uses a separation oracle that provides a cutting plane to update the search space, which can take advantage of certain problem structures. The importance of the separation oracle is often overlooked. This article reviews the ellipsoid method and its application to various optimization problems, including robust convex optimization, semidefinite programming, and parametric network optimization. We examine the use and effectiveness of separation oracles for each application. The implementation issues of the ellipsoid method are also discussed, such as the use of parallel cuts to update the search space, to improve computation time. We provide evidence that in certain cases, such as FIR filter design, parallel cuts significantly improve the computation time. We also touch on the topic of discrete optimization. It is shown that the ellipsoid method can be applied to discrete problems where some design variables are restricted to discrete forms. The additional requirement for an oracle is simply the need to locate the nearest discrete solutions.
+  The ellipsoid method is an optimization technique that offers distinct advantages over interior-point methods, such as not requiring the evaluation of all constraint functionsand.
+  Thus, it is particularly well-suited for problems with numerous or even infinite constraints. This method features a separation oracle that updates the search space through a cutting plane and can exploit specific problem structures. It is noteworthy that the importance of the separation oracle is frequently disregarded. This article evaluates the usage of the ellipsoid method to solve optimization problems like robust convex optimization, semidefinite programming, and parametric network optimization. We analyze the effectiveness of separation oracles for each application. We also discuss the ellipsoid method's implementation issues, such as parallel cuts used for updating the search space to enhance computation time. In some cases, like FIR filter design, using parallel cuts can significantly reduce computation time. We also discuss discrete optimization, showing that the ellipsoid method can be applied to problems where certain design variables are restricted to discrete forms. The implementation of an oracle is necessary only to find the nearest solutions.
+
 ---
-
-
 
 # Introduction
 
-The ellipsoid method has an unfavorable reputation due to its perceived slowness in solving large-scale convex problems compared to the interior-point methods. This perception is unfair. Unlike the interior-point method, the ellipsoid method does not require explicit evaluation of all constraint functions. It only requires a *separation oracle* that provides a *cutting plane* (@sec:cutting_plane). This makes the method ideal for problems with a moderate number of design variables but a large or even infinite number of constraints. Another complaint is that the method cannot exploit sparsity. However, while the ellipsoid method cannot take advantage of the sparsity of the problem, the separation oracle can take advantage of certain structural types.
+The ellipsoid method's reputation suffers due to its perceived slowness when solving large-scale convex problems in comparison to interior-point methods. This perception is unfair. Unlike the interior-point method, the ellipsoid method does not need explicit evaluation of all constraint functions. Instead, it only requires a separation oracle that provides a *cutting plane* (@sec:cutting_plane). The method is well-suited for problems that involve a moderate number of design variables, but have a large or even infinite number of constraints. Some criticize the method, claiming it is unable to leverage sparsity. However, although the ellipsoid method cannot take advantage of the sparsity of the problem, the separation oracle is capable of taking advantage of certain structural types.
 
-While the ellipsoid method has been investigated for decades [@unknown], the importance of the separation oracle is often overlooked. In this article, we examine three particular applications, including robust convex optimization, network optimization, and semidefinite programming.
+Despite decades of investigation into the ellipsoid method, the significance of the separation oracle is often overlooked. In this article, we explore three specific applications: robust convex optimization, network optimization, and semidefinite programming. On the way we analyze the effectiveness of separation oracles for each application. 
 
-Robust optimization is a framework for dealing with parameter uncertainties in mathematical models. Uncertainties in the real world can make the original model inapplicable. Robust optimization incorporates these uncertainties into the optimization problem by considering the worst-case scenario. It seeks to find a solution that is robust and performs optimally under all plausible parameter values within a given set of uncertainties. Note that a robust counterpart of a convex problem preserves the convexity. However, the number of constraints becomes infinite, making the ellipsoid method a perfect choice for handling this problem. This is discussed in @sec:robust.
+Robust optimization is a framework that addresses parameter uncertainties in mathematical models. Real-world uncertainties may render the original model irrelevant. Robust optimization incorporates such uncertainties into the optimization problem by analyzing the worst-case scenario. The aim is to discover a solution that is strong and performs optimally under various possible parameter values in a given set of uncertainties. A robust counterpart of a convex problem maintains its convexity, although the number of constraints grows infinitely, making the ellipsoid method an ideal option for tackling such problems. This is detailed in @sec:robust.
 
-Network optimization is also an example where the ellipsoid method can be applied. The method can be used for parametric network problems by constructing a cutting plane that identifies a negative cycle in an oriented graph. Algorithms exist that exploit network locality and other properties, making it an efficient approach for network optimization. This is discussed in @sec:network.
+An example of network optimization where the ellipsoid method can be employed is also provided. The approach involves constructing a cutting plane to identify a negative cycle in an oriented graph, making it useful for parametric network problems. There are algorithms available that harness network locality and other properties, resulting in an efficient network optimization technique. This is discussed in more detail in @sec:network.
 
-Section @sec:lmi discusses problems involving matrix inequalities. Recall that the positive definiteness of a symmetric matrix can be efficiently checked using the $LDL^\mathsf{T}$ factorization. Let $A \in \mathbb{R}^{m \times m}$ be a symmetric matrix. If the factorization process stops at row $p$ because it encounters a non-positive diagonal entry of the matrix $A$, then $A$ is not positive definite. Using lazy evaluation techniques, it is possible to construct the cutting plane in $O(p^3)$ instead of $O(m^3)$. Consequently, it can be used for efficient oracle implementations.
+Meanwhile, @sec:lmi describes concerns surrounding matrix inequalities. Remember that utilizing $LDL^\mathsf{T}$ factorization can efficiently confirm the positive definiteness of a symmetric matrix. If a symmetric matrix $A$ with dimensions $m \times m$ encounters a non-positive diagonal entry during factorization that causes the process to stop at row $p$, $A$ cannot be positive definite. At the same time, a witness vector $v$ can be constructed such that $v^\mathsf{T} A v \leq 0$. With a lazy evaluation technique, the cutting plane can be constructed in $O(p^3)$ instead of $O(m^3)$, enabling its use for efficient oracle implementations.
 
-The implementation of the ellipsoid method is discussed in the section @sec:ellipsoid. This technique is a cutting plane approach where the *search space* is an ellipsoid, conventionally represented as 
 
+The implementation of the ellipsoid method is discussed in @sec:ellipsoid. This technique is a cutting plane approach where the *search space* is an ellipsoid, conventionally represented as 
   $$\{x \mid (x-x_c)P^{-1}(x-x_c) \le 1\},$$ 
-
-where $x_c \in \mathbb{R}^n$ is the center of the ellipsoid. The matrix $P \in \mathbb{R}^{n \times n}$ is symmetric positive definite. During each iteration, the oracle updates $x_c$ and $P$. While updating ellipsoids can be straightforward and has been implemented for decades, we show that the cost can be further reduced by $n^2$ floating-point operations by multiplying $\alpha$ by $Q$ and splitting $P$, resulting in this form: 
-
-  $$\{ x \mid (x-x_c)Q^{-1}(x-x_c) \le \alpha \}.$$
-
-In addition, Section @sec:parallel_cut discusses the use of parallel cuts. Two constraints can be used simultaneously to update the ellipsoid when a pair of parallel inequalities occur, one of which is violated. Some articles suggest that this method does not lead to significant improvements. However, we show that in situations where certain constraints have tight upper and lower bounds, such as in some filter designs, the implementation of parallel cuts can significantly speed up the runtime. In addition, we show that if the method is implemented carefully, every update, whether it uses a deep cut or a parallel cut, results in at most one square root operation.
+where $x_c \in \mathbb{R}^n$ is the center of the ellipsoid. The matrix $P \in \mathbb{R}^{n \times n}$ is symmetric positive definite. During each iteration, the ellipsoid method updates $x_c$ and $P$. While updating ellipsoids can be straightforward and has been implemented for decades, we show that the cost can be further reduced by $n^2$ floating point operations by multiplying $\kappa$ by $Q$ and splitting $P$, resulting in this form: 
+  $$\{ x \mid (x-x_c)Q^{-1}(x-x_c) \le \kappa \}.$$
+In addition, @sec:parallel_cut discusses the use of parallel cuts. Two constraints can be used simultaneously to update the ellipsoid when a pair of parallel inequalities occur, one of which is violated. Some articles suggest that this method does not lead to significant improvements. However, we show that in situations where certain constraints have tight upper and lower bounds, such as in some filter designs, the implementation of parallel cuts can significantly speed up the runtime. In addition, we show that if the method is implemented carefully, any update, whether it uses a deep cut or a parallel cut, results in at most one square root operation.
 
 In many practical engineering problems, some design variables may be restricted to discrete forms. Since the cutting-plane method requires only a separation oracle, it can also be used for discrete problems...
 
@@ -41,13 +38,11 @@ Convex Feasibility Problem
 Let $\mathcal{K} \subseteq \mathbb{R}^n$ be a convex set. Consider the feasibility problem:
 
 1.  find a point $x^* \in \mathbb{R}^n$ in $\mathcal{K}$, or
-
 2.  determine that $\mathcal{K}$ is empty (i.e., has no feasible solution).
 
 When a *separation oracle* $\Omega$ is *queried* at $x_0$, it either
 
 1.  asserts that $x_0 \in \mathcal{K}$, or
-
 2.  returns a separating hyperplane between $x_0$ and $\mathcal{K}$:
 
 $$g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \ge 0, g \neq 0, \; \forall x \in \mathcal{K}.$$
@@ -55,9 +50,7 @@ $$g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \ge 0, g \neq 0, \; \forall x \in 
 The pair of $(g, \beta)$ is called a *cutting-plane*, because it eliminates the half-space $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from our search. We have the following observations:
 
 -   If $\beta=0$ ($x_0$ is on the boundary of the half-space), the cutting-plane is called *neutral-cut*.
-
 -   If $\beta>0$ ($x_0$ lies in the interior of the half-space), the cutting-plane is called *deep-cut*.
-
 -   If $\beta<0$ ($x_0$ lies in the exterior of the half-space), the cutting-plane is called *shadow-cut*.
 
 $\mathcal{K}$ is usually given by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1 \cdots m$, where $f_j(x)$ is a convex function.
@@ -69,26 +62,18 @@ The cutting-plane method consists of two key components: separation oracle $\Ome
 For example,
 
 -   Polyhedron $\mathcal{P}$ = $\{z \mid C z \preceq d \}$.
-
 -   Interval $\mathcal{I}$ = $[l, u]$ (for one-dimensional problem).
-
 -   Ellipsoid $\mathcal{E}$ = $\{z \mid (z-x_c)P^{-1}(z-x_c) \le 1 \}$.
 
 Generic cutting-plane method:
 
 -   **Given** initial $\mathcal{S}$ known to contain $\mathcal{K}$.
-
 -   **Repeat**
-
     1.  Select a point $x_0$ in $\mathcal{S}$.
-
     2.  Query the separation oracle at $x_0$.
-
     3.  **If** $x_0 \in \mathcal{K}$, exit.
-
     4.  **Else**, update $\mathcal{S}$ to a smaller set which covers:
         $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\}.$$
-
     5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, exit.
 
 Todo: What if the search space is not large enough?
@@ -119,19 +104,29 @@ Another possibility is to update the best-so-far $t$ whenever a feasible solutio
 Generic Cutting-plane method (Optim)
 
 -   **Given** initial $\mathcal{S}$ known to contain $\mathcal{K}_t$.
-
 -   **Repeat**
-
     1.  Choose a point $x_0$ in $\mathcal{S}$
-
     2.  Query the separation oracle at $x_0$
-
     3.  **If** $x_0 \in \mathcal{K}_t$, update $t$ such that $\Phi(x_0, t) = 0$.
-
     4.  Update $\mathcal{S}$ to a smaller set that covers:
         $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\} $$
-
     5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, exit.
+
+```python
+def cutting_plane_optim(omega, space, t, options=Options()):
+    x_best = None
+    for niter in range(options.max_iters):
+        cut, t1 = omega.assess_optim(space.xc(), t)
+        if t1 is not None:  # better t obtained
+            t = t1
+            x_best = copy.copy(space.xc())
+            status = space.update_central_cut(cut)
+        else:
+            status = space.update_deep_cut(cut)
+        if status != CutStatus.Success or space.tsq() < options.tol:
+            return x_best, t, niter
+    return x_best, t, options.max_iters
+```
 
 Example: Profit Maximization {#sec:profit}
 ------------------------------------------
@@ -158,7 +153,39 @@ $$\begin{array}{ll}
                       & y_1 \le \log k,
   \end{array}$$
 {#eq:profit-in-cvx-form}
-where $y_1 = \log x_1$ and $y_2 = \log x_2$. Some readers may recognize that we can also write the problem in a geometric program by introducing one additional variable [@Aliabadi2013Robust].
+where $y_1 = \log x_1$ and $y_2 = \log x_2$. 
+
+
+```python
+class ProfitOracle(OracleOptim):
+    def __init__(self, params, elasticities, price_out):
+        unit_price, scale, limit = params
+        self.log_pA = math.log(unit_price * scale)
+        self.log_k = math.log(limit)
+        self.price_out = price_out
+        self.elasticities = elasticities
+
+    def assess_optim(self, y, t):
+        if (fj := y[0] - self.log_k) > 0.0:  # constraint
+            grad = np.array([1.0, 0.0])
+            return (grad, fj), None
+
+        log_Cobb = self.log_pA + self.elasticities.dot(y)
+        q = self.price_out * np.exp(y)
+        vx = q[0] + q[1]
+        if (fj := math.log(t + vx) - log_Cobb) >= 0.0:
+            grad = q / (t + vx) - self.elasticities
+            return (grad, fj), None
+
+        t = np.exp(log_Cobb) - vx
+        grad = q / (t + vx) - self.elasticities
+        return (grad, 0.0), t
+```
+
+Some readers may recognize that we can also write the problem in a geometric program by introducing one additional variable [@Aliabadi2013Robust].
+
+
+
 
 Amazing Oracles {#sec:oracles}
 ================
@@ -174,7 +201,6 @@ Amazing Oracles {#sec:oracles}
 
 Robust Convex Optimization {#sec:robust}
 --------------------------
-
 
 Overall, robust optimization accounts for parameter uncertainties by formulating problems that consider worst-case scenarios. This approach allows for more reliable and robust solutions when dealing with uncertainty. The study presented in this paper addresses profit maximization using a robust geometric programming approach with interval uncertainty. The authors study the well-established Cobb-Douglas production function and introduce an approximate equivalent of the robust counterpart using piecewise convex linear approximations. This approximation takes the form of a geometric programming problem. An example is used to demonstrate the impact of uncertainties.
 
@@ -202,26 +228,18 @@ $$\begin{array}{ll}
 The oracle only needs to determine:
 
 -   If $f_j(x_0, q) > 0$ for some $j$ and $q = q_0$, then
-
 -   the cut $(g, \beta)$ = $(\partial f_j(x_0, q_0), f_j(x_0, q_0))$
-
 -   If $f_0(x_0, q) \ge t$ for some $q = q_0$, then
-
 -   the cut $(g, \beta)$ = $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - t)$
-
 -   Otherwise, $x_0$ is feasible, then
-
 -   Let $q_{\max} = \text{argmax}_{q \in \mathcal Q} f_0(x_0, q)$.
-
 -   $t := f_0(x_0, q_{\max})$.
-
 -   The cut $(g, \beta)$ = $(\partial f_0(x_0, q_{\max}), 0)$
-
 
 ### Example: Robust Profit Maximization {#sec:profit-rb}
 
-Consider again the profit maximization problem in @sec:profit. 
-This paper considers uncertainties in the model parameters over a given interval. Now suppose that the parameters $\{\alpha, \beta, p, v_1, v_2, k\}$ are subject to interval uncertainties:
+Consider again the profit maximization problem in @sec:profit. Uncertainties in the model parameters over a given interval. Now suppose that the parameters $\{\alpha, \beta, p, v_1, v_2, k\}$ are subject to interval uncertainties:
+[@Aliabadi2013Robust].
 $$\begin{array}{rcl}
 \alpha - \varepsilon_1 \le & \hat{\alpha} & \le \alpha + \varepsilon_1 \\
 \beta  - \varepsilon_2 \le & \hat{\beta}  & \le \beta  + \varepsilon_2 \\
@@ -238,40 +256,35 @@ $$\begin{array}{ll}
                 & y_1 \le \log \hat{k}.
   \end{array}$$
 
-
-In [@Aliabadi2013Robust], the authors propose the use of piecewise convex linear approximations as a close approximation of the robust counterpart, leading to more solvability using interior-point algorithms[1][2][9]. It involves a lot of programming work, but the results are inaccurate. However, this can easily be solved using the cutting-plane method. Note that in this simple example, the worst-case scenario occurs when:
+In [@Aliabadi2013Robust], the authors propose the use of piecewise convex linear approximations as a close approximation of the robust counterpart, leading to more solvability using interior-point algorithms. This requires a lot of programming, but the results are imprecise. However, this can be easily solved using the cutting plane method. Note that in this simple example, the worst case happens when:
 
 -   $\hat{p} = p - e_3$, $k = \bar{k} - e_3$
-
 -   $v_1 = \bar{v}_1 + e_3$, $v_2 = \bar{v}_2 + e_3$,
-
 -   if $y_1 > 0$, $\alpha = \bar{\alpha} - e_1$, else
     $\alpha = \bar{\alpha} + e_1$
-
 -   if $y_2 > 0$, $\beta = \bar{\beta} - e_2$, else
     $\beta = \bar{\beta} + e_2$
 
 We can even reuse the original oracle to compose the robust counterpart.
 
 ```python
-class profit_rb_oracle:
-    def __init__(self, params, a, v, vparams):
-        p, A, k = params
+class ProfitRbOracle(OracleOptim):
+    def __init__(self, params, elasticities, price_out, vparams):
         e1, e2, e3, e4, e5 = vparams
-        params_rb = p - e3, A, k - e4
-        self.a = a
+        self.elasticities = elasticities
         self.e = [e1, e2]
-        self.P = profit_oracle(params_rb, a, v + e5)
+        unit_price, scale, limit = params
+        params_rb = unit_price - e3, scale, limit - e4
+        self.omega = ProfitOracle(
+            params_rb, elasticities, price_out + np.array([e5, e5])
+        )
 
-    def __call__(self, y, t):
-        a_rb = self.a.copy()
+    def assess_optim(self, y, t):
+        a_rb = copy.copy(self.elasticities)
         for i in [0, 1]:
-            if y[i] <= 0:
-                a_rb[i] += self.e[i]
-            else:
-                a_rb[i] -= self.e[i]
-        self.P.a = a_rb
-        return self.P(y, t)
+            a_rb[i] += -self.e[i] if y[i] > 0.0 else self.e[i]
+        self.omega.elasticities = a_rb
+        return self.omega.assess_optim(y, t)
 ```
 
 Note that the `argmax` may be non-convex and therefore difficult to solve. For more complex problems, one way is to use affine arithmetic for help [@liu2007robust].
@@ -312,11 +325,8 @@ To detect negative cycles, Howard's method uses a cycle detection algorithm base
 The separation oracle only needs to determine:
 
 -   If there exists a negative cycle $C_k$ under $x_0$, then
-
 -   the cut $(g, \beta)$ = $(-\partial W_k(x_0), -W_k(x_0))$
-
 -   If $f_0(x_0) \ge t$, then the cut $(g, \beta)$ = $(\partial f_0(x_0), f_0(x_0) - t)$.
-
 -   Otherwise, $x_0$ is feasible, then
     -   $t := f_0(x_0)$.
     -   The cut $(g, \beta)$ = $(\partial f_0(x_0), 0)$
