@@ -12,14 +12,13 @@ abstract: |
 
 The ellipsoid method's reputation suffers due to its perceived slowness when solving large-scale convex problems in comparison to interior-point methods. This perception is unfair. Unlike the interior-point method, the ellipsoid method does not need explicit evaluation of all constraint functions. Instead, it only requires a separation oracle that provides a *cutting plane* (@sec:cutting_plane). The method is well-suited for problems that involve a moderate number of design variables, but have a large or even infinite number of constraints. Some criticize the method, claiming it is unable to leverage sparsity. However, although the ellipsoid method cannot take advantage of the sparsity of the problem, the separation oracle is capable of taking advantage of certain structural types.
 
-Despite decades of investigation into the ellipsoid method, the significance of the separation oracle is often overlooked. In this article, we explore three specific applications: robust convex optimization, network optimization, and semidefinite programming. On the way we analyze the effectiveness of separation oracles for each application. 
+Despite decades of investigation into the ellipsoid method [@BGT81], the significance of the separation oracle is often overlooked. In this article, we explore three specific applications: robust convex optimization, network optimization, and semidefinite programming. At the same time, we analyze the effectiveness of separation oracles for each application. 
 
-Robust optimization is a framework that addresses parameter uncertainties in mathematical models. Real-world uncertainties may render the original model irrelevant. Robust optimization incorporates such uncertainties into the optimization problem by analyzing the worst-case scenario. The aim is to discover a solution that is strong and performs optimally under various possible parameter values in a given set of uncertainties. A robust counterpart of a convex problem maintains its convexity, although the number of constraints grows infinitely, making the ellipsoid method an ideal option for tackling such problems. This is detailed in @sec:robust.
+Robust optimization incorporates parameter uncertainties into the optimization problem by analyzing the worst-case scenario. The aim is to discover a solution that is strong and performs optimally under various possible parameter values in a given set of uncertainties. A robust counterpart of a convex problem maintains its convexity, although the number of constraints grows infinitely. This makes the ellipsoid method an ideal option for tackling such problems. This is detailed in @sec:robust.
 
-An example of network optimization where the ellipsoid method can be employed is also provided. The approach involves constructing a cutting plane to identify a negative cycle in an oriented graph, making it useful for parametric network problems. There are algorithms available that harness network locality and other properties, resulting in an efficient network optimization technique. This is discussed in more detail in @sec:network.
+An example of network optimization where the ellipsoid method can be employed is also provided. The method involves constructing a cutting plane by identifying a negative cycle in a network graph, making it useful for parametric network problems. There are algorithms available that harness network locality and other properties, resulting in an efficient network optimization technique. This is discussed in more detail in @sec:network.
 
-Meanwhile, @sec:lmi describes concerns surrounding matrix inequalities. Remember that utilizing $LDL^\mathsf{T}$ factorization can efficiently confirm the positive definiteness of a symmetric matrix. If a symmetric matrix $A$ with dimensions $m \times m$ encounters a non-positive diagonal entry during factorization that causes the process to stop at row $p$, $A$ cannot be positive definite. At the same time, a witness vector $v$ can be constructed such that $v^\mathsf{T} A v \leq 0$. With a lazy evaluation technique, the cutting plane can be constructed in $O(p^3)$ instead of $O(m^3)$, enabling its use for efficient oracle implementations.
-
+Meanwhile, @sec:lmi describes concerns surrounding matrix inequalities. Remember that utilizing $LDL^\mathsf{T}$ factorization can efficiently check the positive definiteness of a symmetric matrix. If a symmetric matrix $A$ with dimensions $m \times m$ encounters a non-positive diagonal entry during factorization that causes the process to stop at row $p$, $A$ cannot be positive definite. At the same time, a witness vector $v$ can be constructed to certify that $v^\mathsf{T} A v \leq 0$. With a lazy evaluation technique, the cutting plane can be constructed in $O(p^3)$ instead of $O(m^3)$, enabling its use for efficient oracle implementations.
 
 The implementation of the ellipsoid method is discussed in @sec:ellipsoid. This technique is a cutting plane approach where the *search space* is an ellipsoid, conventionally represented as 
   $$\{x \mid (x-x_c)P^{-1}(x-x_c) \le 1\},$$ 
@@ -331,17 +330,26 @@ The separation oracle only needs to determine:
     -   $t := f_0(x_0)$.
     -   The cut $(g, \beta)$ = $(\partial f_0(x_0), 0)$
 
-### Example: symmetric scalings under the min-max-ratio criterion
+### Example: Optimal matrix scalings under the min-max-ratio criterion
 
-This example is taken from [@orlin1985computing]. Given a matrix $A \in \mathbb{R}^{N\times N}$. A *symmetric scaling* of $A$ is a matrix $B$ of the form $U A U^{-1}$ where $U$ is a nonnegative diagonal matrix with the same dimension. According to the *min-max criterion*, the aim is to minimize the largest absolute value of $B$'s elements [@orlin1985computing] (Program 3).
+This example is taken from [@orlin1985computing]. According to [@orlin1985computing], optimal matrix scaling has several practical applications. One application is in linear programming, where groups of constraints and groups of variables might express the same physical commodity for which common measurement units are used. Another application is in telecommunication, where matrix scaling can be used to optimize the transmission of signals. Additionally, matrix scaling has been used in approximation theory to approximate functions of several variables by the sum of functions of fewer variables. Finally, matrix scaling has been used in Gaussian elimination, a widely used method for solving systems of linear equations, to improve the numerical stability of the algorithm.
 
-Another possible criterion is to minimize the ratio of largest absolute value of the element $B$ to the smallest. One motivation for using this criterion is that high ratios cause difficulties in performing the simplex method. With this *min-max-ratio* criterion, the symmetric scaling problem can be formulated as [@orlin1985computing] (Program 8):
+Given a matrix $A \in \mathbb{R}^{N\times N}$. A *symmetric scaling* of $A$ is a matrix $B$ of the form $U A U^{-1}$ where $U$ is a nonnegative diagonal matrix with the same dimension. According to the *min-max criterion*, the aim is to minimize the largest absolute value of $B$'s elements [@orlin1985computing, (Program\ 3)]:
+$$\begin{array}{ll}
+    \text{minimize}   &  \pi  \\
+    \text{subject to} &  1 \le u_i |a_{ij}| u_j^{-1} \le \Pi, \; \forall a_{ij} \neq 0 , \\
+                      &  \pi, u_1 \cdot u_N \, \text{positive}. \\
+  \end{array}$$
+
+The authors show that the problems of determining the best symmetric scalings under the min-max criterion can be converted into a single parameter network optimization problem, which can be solved efficiently using the parameteric network algorithms.
+
+Another possible criterion is to minimize the ratio of largest absolute value of the element $B$ to the smallest. One motivation for using this criterion is that high ratios cause difficulties in performing the simplex method. With this *min-max-ratio* criterion, the symmetric scaling problem can be formulated as [@orlin1985computing, (Program\ 8)]:
 $$\begin{array}{ll}
     \text{minimize}   &  \pi/\psi  \\
     \text{subject to} &  \psi \le u_i |a_{ij}| u_j^{-1} \le \Pi, \; \forall a_{ij} \neq 0 , \\
                       &  \pi, \psi, u_1 \cdot u_N \, \text{positive}. \\
   \end{array}$$
-Let $k’$ denotes $\log( | k | )$. By taking the logarithm of the variables, we can transform the above programming into a two-parameter network optimization problem:
+Let $k’$ denotes $\log( | k | )$. By taking the logarithm of the variables, we can transform the above programming into a two-parameter network problem:
 $$\begin{array}{ll}
     \text{minimize}   &  \pi’ - \psi’ \\
     \text{subject to} &  u_i’ - u_j’  \le \pi’ - a_{ij}’, \; \forall a_{ij} \neq 0 \,, \\
