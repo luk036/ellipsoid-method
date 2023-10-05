@@ -17,7 +17,7 @@ Robust optimization incorporates parameter uncertainties into the optimization p
 
 An example of network optimization where the ellipsoid method can be employed is also presented. The separation oracle involves constructing a cutting plane by identifying a negative cycle in a network graph. There are algorithms available that utilize network locality and other properties, resulting in an effective oracle implementations. This is discussed in more detail in @sec:network.
 
-Meanwhile, @sec:lmi describes concerns surrounding matrix inequalities. Remember that utilizing $LDL^\mathsf{T}$ factorization can efficiently check the positive definiteness of a symmetric matrix. If a symmetric matrix $A$ with dimensions $m \times m$ encounters a non-positive diagonal entry during factorization that causes the process to stop at row $p$, $A$ cannot be positive definite. At the same time, a witness vector $v$ can be constructed to certify that $v^\mathsf{T} A v \leq 0$. With a lazy evaluation technique, the cutting plane can be constructed in $O(p^3)$ instead of $O(m^3)$, enabling its use for efficient oracle implementations.
+Meanwhile, @sec:lmi describes concerns surrounding matrix inequalities. Remember that utilizing $LDL^\mathsf{T}$ decomposition can efficiently check the positive definiteness of a symmetric matrix. If a symmetric matrix $A$ with dimensions $m \times m$ encounters a non-positive diagonal entry during decomposition that causes the process to stop at row $p$, $A$ cannot be positive definite. At the same time, a witness vector $v$ can be constructed to certify that $v^\mathsf{T} A v \leq 0$. With the row-based style decomposition and a lazy evaluation technique, the cutting plane can be constructed exactly in $O(p^3)$, enabling its use for efficient oracle implementations.
 
 The implementation of the ellipsoid method is discussed in @sec:ellipsoid. This method is a cutting plane approach where the *search space* is an ellipsoid, conventionally represented as 
   $$\{x \mid (x-x_c)P^{-1}(x-x_c) \le 1\},$$ 
@@ -37,6 +37,22 @@ Let $\mathcal{K} \subseteq \mathbb{R}^n$ be a convex set. Consider the feasibili
 
 1.  find a point $x^* \in \mathbb{R}^n$ in $\mathcal{K}$, or
 2.  determine that $\mathcal{K}$ is empty (i.e., has no feasible solution).
+
+A separation oracle, also known as a cutting-plane oracle, is a concept in the mathematical theory of convex optimization¹. It is a method used to describe a convex set that is given as an input to an optimization algorithm¹. Separation oracles are particularly used as input to ellipsoid methods¹.
+
+The separation oracle operates in the following way: Given a vector `y` in `R^n`, it returns one of the following¹:
+
+1. Asserts that `y` is in `K`, where `K` is a convex and compact set in `R^n`.
+2. Finds a hyperplane that separates `y` from `K`: a vector `a` in `R^n`, such that `a.y > a.x` for all `x` in `K`.
+
+This oracle can be implemented in polynomial time as long as the number of constraints is polynomial¹. It's important to note that a strong separation oracle is completely accurate, and thus may be hard to construct. For practical reasons, a weaker version is considered, which allows for small errors in the boundary of `K` and the inequalities¹.
+
+Source: Conversation with Bing, 5/10/2023
+(1) Separation oracle - Wikipedia. https://en.wikipedia.org/wiki/Separation_oracle.
+(2) Lecture # 8: Separation oracles and the ellipsoid algorithm. https://courses.cs.duke.edu/compsci530/cps230/current/notes/lec8.pdf.
+(3) Solving convex programs defined by separation oracles?. https://or.stackexchange.com/questions/2899/solving-convex-programs-defined-by-separation-oracles.
+(4) Introduction to Optimization Theory - Stanford University. https://web.stanford.edu/~sidford/courses/20fa_opt_theory/sidford_2020fa_mse213_cs269o_lec18.pdf.
+(5) Separation oracle - Wikiwand. https://www.wikiwand.com/en/Separation_oracle.
 
 When a *separation oracle* $\Omega$ is *queried* at $x_0$, it either
 
@@ -63,18 +79,18 @@ For example,
 -   Interval $\mathcal{I}$ = $[l, u]$ (for one-dimensional problem).
 -   Ellipsoid $\mathcal{E}$ = $\{z \mid (z-x_c)P^{-1}(z-x_c) \le 1 \}$.
 
-Generic cutting-plane method:
+Here's a basic outline of how the cutting-plane method works:
 
--   **Given** initial $\mathcal{S}$ known to contain $\mathcal{K}$.
--   **Repeat**
-    1.  Select a point $x_0$ in $\mathcal{S}$.
-    2.  Query the separation oracle at $x_0$.
-    3.  **If** $x_0 \in \mathcal{K}$, exit.
-    4.  **Else**, update $\mathcal{S}$ to a smaller set which covers:
-        $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\}.$$
-    5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, exit.
+1. **Initialization**: Start with a search space $\mathcal{S}$ that is guaranteed to contain a minimizer of the function.
 
-Todo: What if the search space is not large enough?
+2. **Iteration**: Denote the center of the current $\mathcal{S}$ as $x_c$. In each iteration, query the separation oracle at $x_c$. Compute a subgradient of the function at the center of the current search space. This gives us a half-space that is guaranteed to contain a minimizer.
+
+3. **Update**: Compute the smaller $\mathcal{S}^+$ that contains the half-space from step 2. This new search space is guaranteed to contain a minimizer of the function.
+
+4. **Repeat**: Repeat steps 2 and 3 until $\mathcal{S}$ is empty or it is small enough.
+
+For example, consider we are minimizing a convex function `f` in `R^n`. We start with an ellipsoid `E(k)` that is guaranteed to contain a minimizer of `f`. We compute a subgradient `g(k)` of `f` at the center, `x(k)`, of `E(k)`. We then know that the half ellipsoid `E(k) ∩ {z | g(k)T (z − x(k)) ≤ 0}` contains a minimizer of `f`. We compute the ellipsoid of minimum volume that contains this sliced half ellipsoid; this new ellipsoid `E(k+1)` is then guaranteed to contain a minimizer of `f`².
+
 
 From Feasibility to Optimization
 --------------------------------
@@ -195,7 +211,7 @@ Amazing Oracles {#sec:oracles}
     -   oracle technique: negative cycle detection
 
 -   Semidefinite programming
-    -   oracle technique: Cholesky factorization
+    -   oracle technique: Cholesky decomposition
 
 Robust Convex Optimization {#sec:robust}
 --------------------------
@@ -387,9 +403,31 @@ $x$, then the above problem is a convex programming.
 Reduce to *semidefinite programming* if $F(x)$ is linear w.r.t.
 $x$, i.e., $F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n$.
 
-### Cholesky Factorization Algorithm
+In convex optimization, a **Linear Matrix Inequality (LMI)** is an expression of the form:
 
-An alternative form, eliminating the need to take square roots, is the symmetric indefinite factorization:
+$$A(y) = A_0 + y_1 A_1 + y_2 A_2 + \cdot + y_m A_n \succeq 0$$
+
+where $y = [y_i, i = 1, \cdot, n]$ is a real vector, $A_0, A_1, A_2, \cdot, A_n$ are symmetric matrices, and $\succeq 0$ is a generalized inequality meaning $A(y)$ is a positive semidefinite matrix¹.
+
+This linear matrix inequality specifies a convex constraint on $y$. There are efficient numerical methods to determine whether an LMI is feasible (e.g., whether there exists a vector $y$ such that $A(y) \succeq 0$), or to solve a convex optimization problem with LMI constraints¹.
+
+Many optimization problems in control theory, system identification, and signal processing can be formulated using LMIs¹. Also, LMIs find application in Polynomial Sum-Of-Squares¹.
+
+### Cholesky decomposition Algorithm
+
+The Cholesky decomposition, also known as Cholesky factorization, is a method used in linear algebra to decompose a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose¹. This decomposition is useful for efficient numerical solutions, such as Monte Carlo simulations¹.
+
+The Cholesky decomposition of a Hermitian positive-definite matrix A is a decomposition of the form A = LL*, where L is a lower triangular matrix with real and positive diagonal entries, and L* denotes the conjugate transpose of L¹. Every Hermitian positive-definite matrix (and thus also every real-valued symmetric positive-definite matrix) has a unique Cholesky decomposition¹.
+
+If A is a real matrix (hence symmetric positive-definite), the decomposition may be written as A = LLT, where L is a real lower triangular matrix with positive diagonal entries¹.
+
+The Cholesky decomposition is generally twice as efficient as the LU decomposition for solving systems of linear equations when it is feasible².
+
+The **Cholesky decomposition** and the **LDLT decomposition** are both methods used in linear algebra to decompose a matrix, but they are used in different contexts and have different properties¹².
+
+- **Cholesky decomposition**: This method decomposes a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose¹. It's generally faster and more numerically stable than the LDLT decomposition³. However, it requires the input matrix to be positive-definite¹.
+
+- **LDLT decomposition**: This is a variant of the LU decomposition that is valid for positive-definite symmetric matrices². The LDLT decomposition can be applied to a broader range of matrices (we don't need a matrix to be positive-definite)¹. It decomposes a matrix into the product of a lower triangular matrix, a diagonal matrix, and the transpose of the lower triangular matrix². The LDLT decomposition is just as fast as Cholesky decomposition, but it avoids performing any square roots and is therefore faster and more numerically stable³.
 
 $$\begin{aligned}
 \mathbf{A} = \mathbf{LDL}^\mathsf{T} & =
@@ -419,6 +457,14 @@ $$
 
 Again, the pattern of access allows the entire computation to be performed in-place if desired.
 
+The Cholesky or LDLT decomposition can be computed in different ways depending on the order of operations, which can be categorized into row-based and column-based methods.
+
+- Column-Based: In this method, the computation proceeds by columns. The inner loops compute the current column using a matrix-vector product that accumulates the effects of previous columns.
+
+- Row-Based: In this method, the computation proceeds by rows. The inner loops compute the current row by solving a triangular system involving previous rows.
+
+Each choice of index in the outer loop yields a different Cholesky algorithm, named for the portion of the matrix updated by the basic operation in the inner loops. The choice between row-based and column-based methods depends on the specific requirements of your problem and the properties of your system (like memory layout and access patterns). With the row-based style decomposition and a lazy evaluation technique, the cutting plane can be constructed exactly in $O(p^3)$, enabling its use for efficient oracle implementations.
+
 The following is the algorithm written in Python:
 
 ```python
@@ -436,7 +482,12 @@ def factor(self, getA):
     self.p = self.n
 ```
 
-The vector $v$ can be found.
+The Cholesky factorization can be used to provide a witness vector that certifies a matrix is not positive definite. If a matrix is not positive definite, the Cholesky factorization will fail¹².
+
+During the Cholesky factorization process, there is a step where you compute the diagonal of the lower diagonal matrix as the square root of a value (let's say x). If x<0 then, this means the matrix is not positive definite¹. This failure provides evidence that the matrix is not positive definite.
+
+When the Cholesky factorization fails due to a negative diagonal element, it means that the leading principal submatrix up to that point is not positive definite. The vector that witnesses this is one of the standard basis vectors¹². This basis vector has a 1 in the position corresponding to the failed diagonal element and zeros elsewhere. When pre-multiplied by the original matrix and post-multiplied by its transpose, it will yield a negative value, thus serving as a witness vector¹².
+
 The following is the algorithm written in Python:
 
 ```python
@@ -452,13 +503,13 @@ def witness(self):
 
 The oracle only needs to:
 
--   Perform a *row-based* Cholesky factorization such that
+-   Perform a *row-based* Cholesky decomposition such that
     $F(x_0) = R^\mathsf{T} R$.
 
 -   Let $A_{:p,:p}$ denotes a submatrix
     $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$.
 
--   If Cholesky factorization fails at row $p$,
+-   If Cholesky decomposition fails at row $p$,
     -   there exists a vector
         $e_p = (0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p$, such that
         -   $v = R_{:p,:p}^{-1} e_p$, and
@@ -629,7 +680,7 @@ However, the experience and knowledge of designers are highly demanded in this k
 
 ![A typical structure of an FIR filter\ @mitra2006digital.](ellipsoid.files/fir_strctr.pdf){#fig:fir-strctr width="80%"}
 
-In optimization algorithms, what is particularly interesting is the convex optimization. If a problem is in a convex form, it can be efficiently and optimally solved. Convex optimization techniques are also implementable in designing FIR filters, including the Parks-McClellan algorithm [@park1972chebyshev], METEOR [@steiglitz1992meteor], and peak-constrained least-squares (PCLS) [@selesnick1996constrained; @adams1998peak]. In the mentioned articles, with the help of exchange algorithms (e.g. Remez exchange algorithm), certain FIR filter design problems can be formed as linear or quadratic programs. They are two simple forms of convex optimization problems, which can be optimally solved with existing algorithms, such as the interior-point method [@boyd2009convex]. Tempted by the optimality, more efforts were devoted to forming the problem convex. Particularly, in [@wu1999fir], via spectral factorization [@goodman1997spectral], the problem of designing an FIR filter with magnitude constraints on frequency-domain is formulated as a convex optimization problem. More examples are provided in [@davidson2010enriching].
+In optimization algorithms, what is particularly interesting is the convex optimization. If a problem is in a convex form, it can be efficiently and optimally solved. Convex optimization techniques are also implementable in designing FIR filters, including the Parks-McClellan algorithm [@park1972chebyshev], METEOR [@steiglitz1992meteor], and peak-constrained least-squares (PCLS) [@selesnick1996constrained; @adams1998peak]. In the mentioned articles, with the help of exchange algorithms (e.g. Remez exchange algorithm), certain FIR filter design problems can be formed as linear or quadratic programs. They are two simple forms of convex optimization problems, which can be optimally solved with existing algorithms, such as the interior-point method [@boyd2009convex]. Tempted by the optimality, more efforts were devoted to forming the problem convex. Particularly, in [@wu1999fir], via spectral decomposition [@goodman1997spectral], the problem of designing an FIR filter with magnitude constraints on frequency-domain is formulated as a convex optimization problem. More examples are provided in [@davidson2010enriching].
 
 Its time response is
 $$y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]}$$
@@ -652,7 +703,7 @@ Therefore, we can only consider the magnitude constraint on $[0,\pi]$ [@wu1999fi
 
 Generally, the problem might be difficult to solve, since we can only obtain the global optimal solution with resource-consuming methods, such as branch-and-bound [@davidson2010enriching]. However, the situation is totally different if the problem is convex, where $f(\mathbf{x})$ and $g(\mathbf{x})$ are convex functions. In such a case, the problem can be optimally solved with many efficient algorithms.
 
-Attracted by the benefits, the authors of\ [@wu1999fir] transformed (?), originally non-convex, into a convex form via spectral factorization:
+Attracted by the benefits, the authors of\ [@wu1999fir] transformed (?), originally non-convex, into a convex form via spectral decomposition:
 
 $$L^2(\omega) \le R(\omega) \le U^2(\omega), \forall \omega\in(0,\pi)$$ {#eq:r_con}
 where $R(\omega)=\sum_{i=-n+1}^{n-1}{r(t)e^{-j{\omega}t}}=|H(\omega)|^2$ and $\mathbf{r}=(r(-n+1),r(-n+2),\ldots,r(n-1))$ are the autocorrelation coefficients. Especially, $\mathbf{r}$ can be determined by $\mathbf{h}$, with the following equation vice versa\ [@wu1999fir]:
