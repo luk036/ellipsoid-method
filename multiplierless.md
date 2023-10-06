@@ -1,0 +1,7 @@
+## What is multiplierless FIR filter?
+
+A multiplierless FIR filter is a type of finite impulse response (FIR) filter that does not use a general-purpose multiplier to implement the filter taps. Instead, each filter tap is implemented using dedicated arithmetic elements that realize a fixed filter coefficient. Multiplications by powers-of-two can be obtained for free in dedicated-hardware structure by simply shifting the data bus to the left or right by an appropriate number of bits, therefore a fairly broad set of filter coefficients can be realized by incorporating a small number of adders/subtracters in each filter tap along with appropriate shifting operations. The resulting hardware complexity is a small fraction of the complexity of a general-purpose multiplier and thus a significantly larger number of taps can be integrated onto a single chip.
+
+## What is Canonical Signed Digit (CSD)?
+
+Canonical Signed Digit (CSD) is a type of signed-digit representation of numbers. In CSD, each digit can only be -1, 0, or 1, and no two consecutive digits can be non-zero. This representation has the advantage of being unique and having a minimal number of non-zero digits. CSD is often used in digital signal processing applications, such as filter design, because it allows for efficient implementation of arithmetic operations using simple adders and subtractors. The number of adders/subtracters required to realize a CSD coefficient is one less than the number of nonzero digits in the code. 2

@@ -38,21 +38,14 @@ Let $\mathcal{K} \subseteq \mathbb{R}^n$ be a convex set. Consider the feasibili
 1.  find a point $x^* \in \mathbb{R}^n$ in $\mathcal{K}$, or
 2.  determine that $\mathcal{K}$ is empty (i.e., has no feasible solution).
 
-A separation oracle, also known as a cutting-plane oracle, is a concept in the mathematical theory of convex optimization¹. It is a method used to describe a convex set that is given as an input to an optimization algorithm¹. Separation oracles are particularly used as input to ellipsoid methods¹.
+A separation oracle, also called a cutting-plane oracle, is a concept in the mathematical theory of convex optimization¹. It is a technique used to describe a convex set that serves as input to an optimization algorithm¹. Separation oracles are commonly used as input to ellipsoid methods¹.
 
-The separation oracle operates in the following way: Given a vector `y` in `R^n`, it returns one of the following¹:
+The separation oracle functions as follows: When given a vector `y` in `R^n`, it produces one of the following¹:
 
-1. Asserts that `y` is in `K`, where `K` is a convex and compact set in `R^n`.
-2. Finds a hyperplane that separates `y` from `K`: a vector `a` in `R^n`, such that `a.y > a.x` for all `x` in `K`.
+1. Assert that `y` is within `K`, where `K` is a compact and convex set in `R^n`.
+2. Finds a hyperplane that separates `y` from `K` using a vector `a` in `R^n` such that `a.y > a.x` for all `x` in `K`.
 
-This oracle can be implemented in polynomial time as long as the number of constraints is polynomial¹. It's important to note that a strong separation oracle is completely accurate, and thus may be hard to construct. For practical reasons, a weaker version is considered, which allows for small errors in the boundary of `K` and the inequalities¹.
-
-Source: Conversation with Bing, 5/10/2023
-(1) Separation oracle - Wikipedia. https://en.wikipedia.org/wiki/Separation_oracle.
-(2) Lecture # 8: Separation oracles and the ellipsoid algorithm. https://courses.cs.duke.edu/compsci530/cps230/current/notes/lec8.pdf.
-(3) Solving convex programs defined by separation oracles?. https://or.stackexchange.com/questions/2899/solving-convex-programs-defined-by-separation-oracles.
-(4) Introduction to Optimization Theory - Stanford University. https://web.stanford.edu/~sidford/courses/20fa_opt_theory/sidford_2020fa_mse213_cs269o_lec18.pdf.
-(5) Separation oracle - Wikiwand. https://www.wikiwand.com/en/Separation_oracle.
+This oracle can be implemented in polynomial time as long as the number of constraints is polynomial¹. It's important to note that constructing a robust separation oracle can be difficult, since a strong separation oracle is completely accurate. For practical reasons, we will consider a less stringent version that tolerates minor boundary errors in `K` and the inequalities¹.
 
 When a *separation oracle* $\Omega$ is *queried* at $x_0$, it either
 
@@ -415,19 +408,17 @@ Many optimization problems in control theory, system identification, and signal 
 
 ### Cholesky decomposition Algorithm
 
-The Cholesky decomposition, also known as Cholesky factorization, is a method used in linear algebra to decompose a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose¹. This decomposition is useful for efficient numerical solutions, such as Monte Carlo simulations¹.
+The Cholesky factorization method is employed in linear algebra to decompose a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose¹. This factorization is beneficial for efficient numerical solutions, including Monte Carlo simulations¹.
 
-The Cholesky decomposition of a Hermitian positive-definite matrix A is a decomposition of the form A = LL*, where L is a lower triangular matrix with real and positive diagonal entries, and L* denotes the conjugate transpose of L¹. Every Hermitian positive-definite matrix (and thus also every real-valued symmetric positive-definite matrix) has a unique Cholesky decomposition¹.
+The Cholesky decomposition of a Hermitian positive-definite matrix A is a unique decomposition where A = LL*, with L being a lower triangular matrix containing real and positive diagonal entries, and L* representing the conjugate transpose of L¹. Every real-valued symmetric positive-definite matrix and Hermitian positive-definite matrix have a Cholesky decomposition¹.
 
-If A is a real matrix (hence symmetric positive-definite), the decomposition may be written as A = LLT, where L is a real lower triangular matrix with positive diagonal entries¹.
+If A is a real matrix that is symmetric positive-definite, it can be decomposed as A = LLT. Here, L is a real lower triangular matrix that has positive diagonal entries¹.
 
-The Cholesky decomposition is generally twice as efficient as the LU decomposition for solving systems of linear equations when it is feasible².
+The Cholesky and LDLT decompositions are matrix decomposition methods used in linear algebra for different purposes, with distinct properties¹².
 
-The **Cholesky decomposition** and the **LDLT decomposition** are both methods used in linear algebra to decompose a matrix, but they are used in different contexts and have different properties¹².
+The Cholesky decomposition involves decomposing a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose¹. It is typically faster and more numerically stable than the LDLT decomposition³. However, the input matrix must be positive-definite¹ for this to work.
 
-- **Cholesky decomposition**: This method decomposes a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose¹. It's generally faster and more numerically stable than the LDLT decomposition³. However, it requires the input matrix to be positive-definite¹.
-
-- **LDLT decomposition**: This is a variant of the LU decomposition that is valid for positive-definite symmetric matrices². The LDLT decomposition can be applied to a broader range of matrices (we don't need a matrix to be positive-definite)¹. It decomposes a matrix into the product of a lower triangular matrix, a diagonal matrix, and the transpose of the lower triangular matrix². The LDLT decomposition is just as fast as Cholesky decomposition, but it avoids performing any square roots and is therefore faster and more numerically stable³.
+The LDLT decomposition, a variant of the LU decomposition that applies to positive-definite symmetric matrices², is more versatile as it can be applied to a wider range of matrices and does not require them to be positive-definite¹. The LDLT decomposition factors a matrix into the product of a lower triangular matrix, a diagonal matrix, and the transpose of the lower triangular matrix². This decomposition is as fast as Cholesky decomposition but does not require any square roots, making it faster and more numerically stable³.
 
 $$\begin{aligned}
 \mathbf{A} = \mathbf{LDL}^\mathsf{T} & =
@@ -457,14 +448,13 @@ $$
 
 Again, the pattern of access allows the entire computation to be performed in-place if desired.
 
-The Cholesky or LDLT decomposition can be computed in different ways depending on the order of operations, which can be categorized into row-based and column-based methods.
+The Cholesky or LDLT decomposition can be computed using either row-based or column-based methods.
 
 - Column-Based: In this method, the computation proceeds by columns. The inner loops compute the current column using a matrix-vector product that accumulates the effects of previous columns.
 
 - Row-Based: In this method, the computation proceeds by rows. The inner loops compute the current row by solving a triangular system involving previous rows.
 
-Each choice of index in the outer loop yields a different Cholesky algorithm, named for the portion of the matrix updated by the basic operation in the inner loops. The choice between row-based and column-based methods depends on the specific requirements of your problem and the properties of your system (like memory layout and access patterns). With the row-based style decomposition and a lazy evaluation technique, the cutting plane can be constructed exactly in $O(p^3)$, enabling its use for efficient oracle implementations.
-
+Each outer loop index selection produces a distinct Cholesky algorithm, which is named after the portion of the matrix updated by the basic operation within the inner loops. Whether to use a row-based or column-based method depends on the specific problem requirements, as well as system properties such as memory layout and access patterns. With row-based style decomposition and lazy evaluation technique, the cutting plane construction can be done with exactness in $O(p^3)$. This allows for effective oracle implementation.
 The following is the algorithm written in Python:
 
 ```python
@@ -482,11 +472,11 @@ def factor(self, getA):
     self.p = self.n
 ```
 
-The Cholesky factorization can be used to provide a witness vector that certifies a matrix is not positive definite. If a matrix is not positive definite, the Cholesky factorization will fail¹².
+The Cholesky factorization provides a witness vector certifying that a matrix is not positive definite. If a matrix fails the Cholesky factorization, then it is not positive definite¹².
 
-During the Cholesky factorization process, there is a step where you compute the diagonal of the lower diagonal matrix as the square root of a value (let's say x). If x<0 then, this means the matrix is not positive definite¹. This failure provides evidence that the matrix is not positive definite.
+During the factorization process, compute the diagonal of the lower diagonal matrix by finding the square root of a value, denoted as x. If x<0, then this indicates that the matrix is not positive definite¹. This failure serves as evidence for a non-positive definite matrix.
 
-When the Cholesky factorization fails due to a negative diagonal element, it means that the leading principal submatrix up to that point is not positive definite. The vector that witnesses this is one of the standard basis vectors¹². This basis vector has a 1 in the position corresponding to the failed diagonal element and zeros elsewhere. When pre-multiplied by the original matrix and post-multiplied by its transpose, it will yield a negative value, thus serving as a witness vector¹².
+If the Cholesky factorization fails due to a negative diagonal element, it indicates that the leading principal submatrix up to that point is not positive definite. The vector that confirms this is one of the standard basis vectors¹². This basis vector comprises a 1 in the position that corresponds to the failed diagonal element and zeros elsewhere. When you pre-multiply it by the original matrix and post-multiply it by its transpose, it will yield a negative value, thus serving as a witnessing vector¹².
 
 The following is the algorithm written in Python:
 
