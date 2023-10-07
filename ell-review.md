@@ -3,27 +3,32 @@ title: Ellipsoid Method and the Amazing Oracles
 bibliography: ['ellipsoid.bib', 'fir-ref.bib', 'Geostatistics.bib', 'mpcss1.bib', 'mpcss2.bib']
 csl: 'applied-mathematics-letters.csl'
 abstract: |
-  The ellipsoid method is an optimization technique that offers distinct advantages over interior-point methods because it does not require evaluating all constraint functions. This makes it ideal for problems with many or even infinite constraints. The method utilizes an ellipsoid as a search space and employs a separation oracle to provide a cutting plane for updating the search space. Notably, the importance of the separation oracle is often overlooked. This article evaluates the usage of the ellipsoid method in three specific applications, including robust convex optimization, semidefinite programming, and parametric network optimization. The effectiveness of separation oracles is analyzed for each application. We also discuss implementation issues of the ellipsoid method, such as utilizing parallel cuts to update the search space and enhance computation time. In some instances, parallel cuts can drastically reduce computation time, as observed in FIR filter design. Discrete optimization is also investigated, illustrating how the ellipsoid method can be applied to problems that involve discrete design variables. An oracle implementation is required solely for locating the nearest discrete solutions
-
+  The ellipsoid method is an optimization technique that offers distinct advantages over interior-point methods because it does not require evaluating all constraint functions. This makes it ideal for convex problems with many or even infinite constraints. The method utilizes an ellipsoid as a search space and employs a separation oracle to provide a cutting plane for updating it. Notably, the importance of the separation oracle is often overlooked. This article evaluates the usage of the ellipsoid method in three specific applications, namely robust convex optimization, semidefinite programming, and parametric network optimization. The effectiveness of separation oracles is analyzed for each application. We also discuss implementation issues of the ellipsoid method, such as utilizing parallel cuts to update the ellipsoid. In some instances, parallel cuts can drastically reduce computation time, as observed in FIR filter design. Discrete optimization is also investigated, illustrating how the ellipsoid method can be applied to problems that involve discrete design variables. An oracle implementation is required solely for locating the nearest discrete solutions
 ---
 
 # Introduction
 
-The ellipsoid method's reputation suffers due to its perceived slowness when solving large-scale convex problems in comparison to interior-point methods. This perception is unfair. Unlike the interior-point method, the ellipsoid method does not need explicit evaluation of all constraint functions. Instead, it utilizes an ellipsoid as a search space and only requires a separation oracle that provides a *cutting plane* (@sec:cutting_plane). The method is well-suited for problems that involve a moderate number of design variables but have many or even infinite constraints. Some criticize the method, claiming it is unable to leverage sparsity. However, although the ellipsoid method cannot take advantage of the sparsity of the problem, the separation oracle is capable of taking advantage of certain structural types.
+The ellipsoid method's reputation suffers due to its perceived slowness when solving large-scale convex problems in comparison to interior-point methods. This perception is unfair. Unlike the interior-point method, the ellipsoid method does not need explicit evaluation of all constraint functions. Instead, it utilizes an ellipsoid as a search space and only requires a separation oracle that provides a *cutting plane* (@sec:cutting_plane). The method is well-suited for problems that involve a moderate number of design variables but have many or even infinite constraints. Some criticize the method, claiming it is unable to leverage sparsity. Nevertheless, although the ellipsoid method cannot take advantage of the sparsity of the problem, the separation oracle is capable of taking advantage of certain structural types.
 
-Despite decades of investigation into the ellipsoid method [@BGT81], the importance of the separation oracle is often overlooked. In this article, we examine three specific applications: robust convex optimization, network optimization, and semidefinite programming. The effectiveness of separation oracles is analyzed for each application. 
+Despite decades of investigation into the ellipsoid method [@BGT81], the importance of the separation oracle is often overlooked. In this article, we examine three specific applications, namely robust convex optimization, network optimization, and semidefinite programming. The effectiveness of separation oracles is analyzed for each application. 
 
-Robust optimization incorporates parameter uncertainties into the optimization problem by analyzing the worst-case scenario. The goal is to find a strong solution that performs optimally under various possible parameter values in a given set of uncertainties. A robust counterpart of a convex problem preserves its convexity, although the number of constraints grows infinitely. This makes the ellipsoid method an excellent choice for tackling such problems. This is detailed in @sec:robust.
+Robust optimization incorporates parameter uncertainties into the optimization problem by analyzing the worst-case scenario. The goal is to find a reliable solution that performs optimally under various possible parameter values in a given set of uncertainties. A robust counterpart of a convex problem preserves its convexity, although the number of constraints grows infinitely. This makes the ellipsoid method an excellent choice for tackling such problems. This is detailed in @sec:robust.
 
-An example of network optimization where the ellipsoid method can be employed is also presented. The separation oracle involves constructing a cutting plane by identifying a negative cycle in a network graph. There are algorithms available that utilize network locality and other properties, resulting in an effective oracle implementations. This is discussed in more detail in @sec:network.
+An example of network optimization where the ellipsoid method can be employed is also presented. The separation oracle involves constructing a cutting plane by identifying a negative cycle in a network graph. There are algorithms available for negative cycle finding that utilize network locality and other properties, resulting in an effective oracle implementations. This is discussed in more detail in @sec:network.
 
-Meanwhile, @sec:lmi describes concerns surrounding matrix inequalities. Remember that utilizing $LDL^\mathsf{T}$ decomposition can efficiently check the positive definiteness of a symmetric matrix. If a symmetric matrix $A$ with dimensions $m \times m$ encounters a non-positive diagonal entry during decomposition that causes the process to stop at row $p$, $A$ cannot be positive definite. At the same time, a witness vector $v$ can be constructed to certify that $v^\mathsf{T} A v \leq 0$. With the row-based style decomposition and a lazy evaluation technique, the cutting plane can be constructed exactly in $O(p^3)$, enabling its use for efficient oracle implementations.
+Meanwhile, @sec:lmi describes concerns surrounding matrix inequalities. Recall that utilizing Cholesky or LDLT decomposition can efficiently check the positive definiteness of a symmetric matrix. If a symmetric matrix $A$ with dimensions $m \times m$ encounters a non-positive diagonal entry during decomposition that causes the process to stop at row $p$, $A$ cannot be positive definite. In such cases, a witness vector $v$ can be constructed to certify that $v^\mathsf{T} A v \leq 0$. With the row-based decomposition and a lazy evaluation technique, the cutting plane can be constructed in $O(p^3)$, enabling its use for efficient oracle implementations.
 
-The implementation of the ellipsoid method is discussed in @sec:ellipsoid. This method is a cutting plane approach where the *search space* is an ellipsoid, conventionally represented as 
-  $$\{x \mid (x-x_c)P^{-1}(x-x_c) \le 1\},$$ 
-where $x_c \in \mathbb{R}^n$ is the center of the ellipsoid. The matrix $P \in \mathbb{R}^{n \times n}$ is symmetric positive definite. During each iteration, the ellipsoid method updates $x_c$ and $P$. While updating ellipsoids can be straightforward and has been implemented for decades, we show that the cost can be further reduced by $n^2$ floating point operations by multiplying $\kappa$ by $Q$ and splitting $P$, resulting in this form: 
-  $$\{ x \mid (x-x_c)Q^{-1}(x-x_c) \le \kappa \}.$$
-In addition, @sec:parallel_cut discusses the use of parallel cuts. Two constraints can be used simultaneously to update the ellipsoid when a pair of parallel inequalities occur, one of which is violated. Some articles suggest that this method does not lead to significant improvements. However, we show that in situations where certain constraints have tight upper and lower bounds, such as in some filter designs, the implementation of parallel cuts can significantly speed up the runtime. In addition, we show that if the method is implemented carefully, any update, whether it uses a deep cut or a parallel cut, results in at most one square root operation.
+The implementation of the ellipsoid method is discussed in @sec:ellipsoid. Basically it generates a sequence of ellipsoids whose volume uniformly decreases at every step. The ellipsoid is conventionally represented as:
+
+$$\{x \mid (x - x_c)P^{-1}(x - x_c) \le 1\},$$ 
+
+where $x_c \in \mathbb{R}^n$ is the center of the ellipsoid. The matrix $P \in \mathbb{R}^{n \times n}$ is symmetric positive definite. During each iteration, the ellipsoid method updates $x_c$ and $P$. While updating ellipsoids can be straightforward and has been implemented for decades, we show that the cost can be further reduced by $n^2$ floating point operations by splitting $P$ into $\kappa$ and $Q$, resulting in this form: 
+
+$$\{ x \mid (x-x_c)Q^{-1}(x-x_c) \le \kappa \}.$$
+
+In addition, @sec:parallel_cut discusses the use of parallel cuts. Some articles suggest that this technique does not lead to significant improvements. However, we show that in situations where certain constraints have tight upper and lower bounds, such as in FIR filter designs, the implementation of parallel cuts can significantly speed up the runtime. 
+
+In addition, we show that if the ellipsoid method is implemented carefully, any update, whether it uses a single cut or a parallel cut, results in at most one square root operation.
 
 In many practical engineering problems, some design variables may be restricted to discrete forms. Since the cutting-plane method requires only a separation oracle, it can also be used for discrete problems...
 
@@ -33,80 +38,67 @@ Cutting-plane Method Revisited {#sec:cutting_plane}
 Convex Feasibility Problem
 --------------------------
 
-Let $\mathcal{K} \subseteq \mathbb{R}^n$ be a convex set. Consider the feasibility problem:
+Let $\mathcal{K} \subseteq \mathbb{R}^n$ be a compact and convex set. Consider the feasibility problem:
 
-1.  find a point $x^* \in \mathbb{R}^n$ in $\mathcal{K}$, or
-2.  determine that $\mathcal{K}$ is empty (i.e., has no feasible solution).
+1.  Find a point $x^* \in \mathbb{R}^n$ in $\mathcal{K}$, or
+2.  Determine that $\mathcal{K}$ is empty (i.e., has no feasible solution).
 
-A separation oracle, also called a cutting-plane oracle, is a concept in the mathematical theory of convex optimization¹. It is a technique used to describe a convex set that serves as input to an optimization algorithm¹. Separation oracles are commonly used as input to ellipsoid methods¹.
+A separation oracle, also called a cutting-plane oracle, is a technique used to describe a convex set that serves as input to a cutting-plane method.
+When a separation oracle $\Omega$ is *queried* at $x_0 \in \mathbb{R}^n$, it produces one of the following:
 
-The separation oracle functions as follows: When given a vector `y` in `R^n`, it produces one of the following¹:
-
-1. Assert that `y` is within `K`, where `K` is a compact and convex set in `R^n`.
-2. Finds a hyperplane that separates `y` from `K` using a vector `a` in `R^n` such that `a.y > a.x` for all `x` in `K`.
-
-This oracle can be implemented in polynomial time as long as the number of constraints is polynomial¹. It's important to note that constructing a robust separation oracle can be difficult, since a strong separation oracle is completely accurate. For practical reasons, we will consider a less stringent version that tolerates minor boundary errors in `K` and the inequalities¹.
-
-When a *separation oracle* $\Omega$ is *queried* at $x_0$, it either
-
-1.  asserts that $x_0 \in \mathcal{K}$, or
-2.  returns a separating hyperplane between $x_0$ and $\mathcal{K}$:
-
-$$g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \ge 0, g \neq 0, \; \forall x \in \mathcal{K}.$$
+1.  Assert that $x_0 \in \mathcal{K}$, or
+2.  Return a hyperplane that separates $x_0$ from $\mathcal{K}$:
+    $$g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \ge 0, g \neq 0, \; \forall x \in \mathcal{K}.$$
 
 The pair of $(g, \beta)$ is called a *cutting-plane*, because it eliminates the half-space $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from our search. We have the following observations:
 
--   If $\beta=0$ ($x_0$ is on the boundary of the half-space), the cutting-plane is called *neutral-cut*.
+-   If $\beta=0$ ($x_0$ is on the boundary of the half-space), the cutting-plane is called *central-cut*.
 -   If $\beta>0$ ($x_0$ lies in the interior of the half-space), the cutting-plane is called *deep-cut*.
 -   If $\beta<0$ ($x_0$ lies in the exterior of the half-space), the cutting-plane is called *shadow-cut*.
 
-$\mathcal{K}$ is usually given by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1 \cdots m$, where $f_j(x)$ is a convex function.
-A vector $g \equiv \partial f(x_0)$ is called the *sub-gradient* of a convex function $f$ at $x_0$ if $f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)$.
-Thus, the cut $(g, \beta)$ is given by $(\partial f(x_0), f(x_0))$.
+The convex set $\mathcal{K}$ is usually given by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1 \cdots m$, where $f_j(x)$ is a convex function. The vector $g \equiv \partial f(x_0)$ is called the *sub-gradient* of a convex function $f$ at $x_0$ if $f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)$. Thus, the cut $(g, \beta)$ is given by $(\partial f(x_0), f(x_0))$. Note that if $f(x)$ is differentiable, we can simply take $\partial f(x_0) = \nabla f(x_0)$.
 
-Note that if $f(x)$ is differentiable, we can simply take $\partial f(x_0) = \nabla f(x_0)$.
-The cutting-plane method consists of two key components: separation oracle $\Omega$ and a search space $\mathcal{S}$ initially sufficiently large to cover $\mathcal{K}$.
-For example,
+The cutting-plane method consists of two key components: separation oracle $\Omega$ and a search space $\mathcal{S}$ initially sufficiently large to cover $\mathcal{K}$. For example,
 
 -   Polyhedron $\mathcal{P}$ = $\{z \mid C z \preceq d \}$.
--   Interval $\mathcal{I}$ = $[l, u]$ (for one-dimensional problem).
 -   Ellipsoid $\mathcal{E}$ = $\{z \mid (z-x_c)P^{-1}(z-x_c) \le 1 \}$.
+-   Interval $\mathcal{I}$ = $[l, u]$ (for one-dimensional problem).
 
-Here's a basic outline of how the cutting-plane method works:
+Denote the center of the current $\mathcal{S}$ as $x_c$. Here is a basic outline of how the cutting-plane method works:
 
-1. **Initialization**: Start with a search space $\mathcal{S}$ that is guaranteed to contain a minimizer of the function.
-
-2. **Iteration**: Denote the center of the current $\mathcal{S}$ as $x_c$. In each iteration, query the separation oracle at $x_c$. Compute a subgradient of the function at the center of the current search space. This gives us a half-space that is guaranteed to contain a minimizer.
-
-3. **Update**: Compute the smaller $\mathcal{S}^+$ that contains the half-space from step 2. This new search space is guaranteed to contain a minimizer of the function.
-
+1. **Initialization**: Start with a search space $\mathcal{S}$ that is guaranteed to contain a $x^*$.
+2. **Iteration**: In each iteration, query the separation oracle at $x_c$. If $x_c \in \mathcal{K}$, then quit.
+3. **Update**: Compute the smaller $\mathcal{S}^+$ that contains the half-space from step 2.
 4. **Repeat**: Repeat steps 2 and 3 until $\mathcal{S}$ is empty or it is small enough.
-
-For example, consider we are minimizing a convex function `f` in `R^n`. We start with an ellipsoid `E(k)` that is guaranteed to contain a minimizer of `f`. We compute a subgradient `g(k)` of `f` at the center, `x(k)`, of `E(k)`. We then know that the half ellipsoid `E(k) ∩ {z | g(k)T (z − x(k)) ≤ 0}` contains a minimizer of `f`. We compute the ellipsoid of minimum volume that contains this sliced half ellipsoid; this new ellipsoid `E(k+1)` is then guaranteed to contain a minimizer of `f`².
 
 
 From Feasibility to Optimization
 --------------------------------
 
-Consider:
+Now consider:
 $$\begin{array}{ll}
     \text{minimize}     & f_0(x), \\
     \text{subject to}   & x \in \mathcal{K}.
   \end{array}$$
-We treat the optimization problem as a feasibility problem with an additional constraint $f_0(x) \le t$.
-Here, $f_0(x)$ can be a convex function or a quasi-convex function.
-$t$ is the best-so-far value of $f_0(x)$.
-We can reformulate the problem as:
+where $f_0(x)$ can be a convex function or a quasi-convex function. We treat the above optimization problem as a feasibility problem with an additional constraint $f_0(x) \le t$, where $t \in \mathbb{R}$ is called the best-so-far value of $f_0(x)$.
+Thus, we can reformulate the problem as:
 $$\begin{array}{ll}
     \text{minimize}   & t, \\
     \text{subject to} & \Phi(x, t) \le 0, \\
                       & x \in \mathcal{K},
   \end{array} $$
-where $\Phi(x, t) \le 0$ is the $t$-sublevel set of $f_0(x)$.
+where $\Phi(x, t) \le 0$ is the $t$-sublevel set of $f_0(x)$ when $f_0(x)$ is quasi-convex. For every $x$, $\Phi(x, t)$ is a non-increasing function of $t$, i.e., $\Phi(x, t’) \le \Phi(x, t)$ whenever $t’ \ge t$. Denote $\mathcal{K}_t$ as the new constraint set. Note that $\mathcal{K}_t \subseteq \mathcal{K}_u$ if and only if $t \le u$ (monotonicity). 
 
-For every $x$, $\Phi(x, t)$ is a non-increasing function of $t$, *i.e.*, $\Phi(x, t’) \le \Phi(x, t)$ whenever $t’ \ge t$. Note that $\mathcal{K}_t \subseteq \mathcal{K}_u$ if and only if $t \le u$ (monotonicity). An easy way to solve the optimization problem is to apply a binary search on $t$.
+An easy way to solve the optimization problem is to apply a binary search on $t$ and solve the corresponding feasibility problems at each $t$. Another possibility is to update the best-so-far $t$ whenever a feasible solution $x_0$ is found such that $\Phi(x_0, t) = 0$.
 
-Another possibility is to update the best-so-far $t$ whenever a feasible solution $x_0$ is found such that $\Phi(x_0, t) = 0$. We assume that the oracle takes responsibility for that.
+Here is a basic outline of how the cutting-plane method (optim) works:
+
+1. **Initialization**: Start with a search space $\mathcal{S}$ that is guaranteed to contain a $x^*$.
+2. **Iteration**: In each iteration, query the separation oracle at $x_c$. Compute a subgradient of the function at $x_c$. This gives us a half-space that is guaranteed to contain a $x^*$.
+3. If $x_c \in \mathcal{K}_t$, update $t$ such that $\Phi(x_c, t) = 0$.
+3. **Update**: Compute the smaller $\mathcal{S}^+$ that contains the half-space from step 2.
+4. **Repeat**: Repeat steps 2 and 3 until $\mathcal{S}$ is empty or it is small enough.
+
 
 Generic Cutting-plane method (Optim)
 
@@ -118,6 +110,8 @@ Generic Cutting-plane method (Optim)
     4.  Update $\mathcal{S}$ to a smaller set that covers:
         $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\} $$
     5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, exit.
+
+We assume that the oracle takes responsibility for that.
 
 ```python
 def cutting_plane_optim(omega, space, t, options=Options()):
@@ -398,9 +392,9 @@ $x$, i.e., $F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n$.
 
 In convex optimization, a **Linear Matrix Inequality (LMI)** is an expression of the form:
 
-$$A(y) = A_0 + y_1 A_1 + y_2 A_2 + \cdot + y_m A_n \succeq 0$$
+$$A(y) = A_0 + y_1 A_1 + y_2 A_2 + \cdots + y_m A_n \succeq 0$$
 
-where $y = [y_i, i = 1, \cdot, n]$ is a real vector, $A_0, A_1, A_2, \cdot, A_n$ are symmetric matrices, and $\succeq 0$ is a generalized inequality meaning $A(y)$ is a positive semidefinite matrix¹.
+where $y = [y_i, i = 1, \cdots, n]$ is a real vector, $A_0, A_1, A_2, \cdots, A_n$ are symmetric matrices, and $\succeq 0$ is a generalized inequality meaning $A(y)$ is a positive semidefinite matrix¹.
 
 This linear matrix inequality specifies a convex constraint on $y$. There are efficient numerical methods to determine whether an LMI is feasible (e.g., whether there exists a vector $y$ such that $A(y) \succeq 0$), or to solve a convex optimization problem with LMI constraints¹.
 
@@ -454,7 +448,7 @@ The Cholesky or LDLT decomposition can be computed using either row-based or col
 
 - Row-Based: In this method, the computation proceeds by rows. The inner loops compute the current row by solving a triangular system involving previous rows.
 
-Each outer loop index selection produces a distinct Cholesky algorithm, which is named after the portion of the matrix updated by the basic operation within the inner loops. Whether to use a row-based or column-based method depends on the specific problem requirements, as well as system properties such as memory layout and access patterns. With row-based style decomposition and lazy evaluation technique, the cutting plane construction can be done with exactness in $O(p^3)$. This allows for effective oracle implementation.
+Each outer loop index selection produces a distinct Cholesky algorithm, which is named after the portion of the matrix updated by the basic operation within the inner loops. Whether to use a row-based or column-based method depends on the specific problem requirements, as well as system properties such as memory layout and access patterns. With row-based decomposition and lazy evaluation technique, the cutting plane construction can be done with exactness in $O(p^3)$. This allows for effective oracle implementation.
 The following is the algorithm written in Python:
 
 ```python
