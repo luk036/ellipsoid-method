@@ -287,7 +287,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     \text{subject to}   &amp; x \in \mathcal{K}
 \end{array}</span></p>
 <ul>
-<li><p>The optimization problem is treated as a feasibility problem with an additional constraint <span class="math inline">f_0(x) \le t</span></p></li>
+<li><p>The optimization problem is treated as a feasibility problem with an additional constraint <span class="math inline">f_0(x) \le \gamma</span></p></li>
 <li><p><span class="math inline">f_0(x)</span> could be a convex function or a <em>quasiconvex function</em>.</p></li>
 <li><p><span class="math inline">t</span> is also called the <em>best-so-far</em> value of <span class="math inline">f_0(x)</span>.</p></li>
 </ul>
@@ -295,11 +295,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 id="convex-optimization-problem">Convex Optimization Problem</h2>
 <ul>
 <li><p>Consider the following general form: <span class="math display">\begin{array}{ll}
-            \text{minimize}         &amp; t, \\
-            \text{subject to}   &amp; \Phi(x, t) \le 0 \\
+            \text{minimize}         &amp; \gamma, \\
+            \text{subject to}   &amp; \Phi(x, \gamma) \le 0 \\
                                 &amp; x \in \mathcal{K}
-  \end{array}</span> where <span class="math inline">\mathcal{K}&#39;_t = \{x \mid \Phi(x, t) \le 0\}</span> is the <span class="math inline">t</span>-sublevel set of <span class="math inline">\{x \mid f_0(x) \le t\}</span>.</p></li>
-<li><p>Note: <span class="math inline">\mathcal{K&#39;}_t \subseteq \mathcal{K&#39;}_u</span> if and only if <span class="math inline">t \le u</span> (monotonicity)</p></li>
+  \end{array}</span> where <span class="math inline">\mathcal{K}&#39;_\gamma = \{x \mid \Phi(x, \gamma) \le 0\}</span> is the <span class="math inline">t</span>-sublevel set of <span class="math inline">\{x \mid f_0(x) \le \gamma\}</span>.</p></li>
+<li><p>Note: <span class="math inline">\mathcal{K&#39;}_\gamma \subseteq \mathcal{K&#39;}_u</span> if and only if <span class="math inline">\gamma \le u</span> (monotonicity)</p></li>
 <li><p>One easy way to solve the optimization problem is to apply the binary search on <span class="math inline">t</span>.</p></li>
 </ul>
 <hr />
@@ -307,7 +307,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">def</span> bsearch(evaluate, I, options<span class="op">=</span>Options()):</span>
 <span id="cb2-2"><a href="#cb2-2"></a>    feasible <span class="op">=</span> <span class="va">False</span></span>
 <span id="cb2-3"><a href="#cb2-3"></a>    l, u <span class="op">=</span> I</span>
-<span id="cb2-4"><a href="#cb2-4"></a>    t <span class="op">=</span> l <span class="op">+</span> (u <span class="op">-</span> l)<span class="op">/</span><span class="dv">2</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>    gamma <span class="op">=</span> l <span class="op">+</span> (u <span class="op">-</span> l)<span class="op">/</span><span class="dv">2</span></span>
 <span id="cb2-5"><a href="#cb2-5"></a>    <span class="cf">for</span> niter <span class="kw">in</span> <span class="bu">range</span>(options.max_it):</span>
 <span id="cb2-6"><a href="#cb2-6"></a>        <span class="cf">if</span> evaluate(t):  <span class="co"># feasible sol&#39;n obtained</span></span>
 <span id="cb2-7"><a href="#cb2-7"></a>            feasible <span class="op">=</span> <span class="va">True</span></span>
@@ -315,7 +315,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb2-9"><a href="#cb2-9"></a>        <span class="cf">else</span>:</span>
 <span id="cb2-10"><a href="#cb2-10"></a>            l <span class="op">=</span> t</span>
 <span id="cb2-11"><a href="#cb2-11"></a>        tau <span class="op">=</span> (u <span class="op">-</span> l)<span class="op">/</span><span class="dv">2</span></span>
-<span id="cb2-12"><a href="#cb2-12"></a>        t <span class="op">=</span> l <span class="op">+</span> tau</span>
+<span id="cb2-12"><a href="#cb2-12"></a>        gamma <span class="op">=</span> l <span class="op">+</span> tau</span>
 <span id="cb2-13"><a href="#cb2-13"></a>        <span class="cf">if</span> tau <span class="op">&lt;</span> options.tol:</span>
 <span id="cb2-14"><a href="#cb2-14"></a>            <span class="cf">break</span></span>
 <span id="cb2-15"><a href="#cb2-15"></a>    <span class="cf">return</span> u, niter<span class="op">+</span><span class="dv">1</span>, feasible</span></code></pre></div>
@@ -344,31 +344,31 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 id="shrinking">Shrinking</h2>
 <ul>
 <li><p>Another possible way is, to update the best-so-far <span class="math inline">t</span> whenever a feasible solution <span class="math inline">x_0</span> is found by solving the equation <span class="math inline">\Phi(x_0, t_\text{new}) = 0</span>.</p></li>
-<li><p>If the equation is difficuit to solve but <span class="math inline">t</span> is also convex w.r.t. <span class="math inline">\Phi</span>, then we may create a new varaible, say <span class="math inline">x_{n+1}</span> and let <span class="math inline">x_{n+1} \le t&#39;</span>.</p></li>
+<li><p>If the equation is difficuit to solve but <span class="math inline">t</span> is also convex w.r.t. <span class="math inline">\Phi</span>, then we may create a new varaible, say <span class="math inline">x_{n+1}</span> and let <span class="math inline">x_{n+1} \le \gamma&#39;</span>.</p></li>
 </ul>
 <hr />
 <h2 id="generic-cutting-plane-method-optim">Generic Cutting-plane method (Optim)</h2>
 <ul>
-<li><strong>Given</strong> initial <span class="math inline">\mathcal{S}</span> known to contain <span class="math inline">\mathcal{K}_t</span>.</li>
+<li><strong>Given</strong> initial <span class="math inline">\mathcal{S}</span> known to contain <span class="math inline">\mathcal{K}_\gamma</span>.</li>
 <li><strong>Repeat</strong>
 <ol type="1">
 <li>Choose a point <span class="math inline">x_0</span> in <span class="math inline">\mathcal{S}</span></li>
 <li>Query the separation oracle at <span class="math inline">x_0</span></li>
-<li><strong>If</strong> <span class="math inline">x_0 \in \mathcal{K}_t</span>, update <span class="math inline">t</span> such that <span class="math inline">\Phi(x_0, t) = 0</span>.</li>
+<li><strong>If</strong> <span class="math inline">x_0 \in \mathcal{K}_\gamma</span>, update <span class="math inline">t</span> such that <span class="math inline">\Phi(x_0, \gamma) = 0</span>.</li>
 <li>Update <span class="math inline">\mathcal{S}</span> to a smaller set that covers: <span class="math display">\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\} </span></li>
 <li><strong>If</strong> <span class="math inline">\mathcal{S}^+ = \emptyset</span> or it is small enough, quit.</li>
 </ol></li>
 </ul>
 <hr />
 
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">def</span> cutting_plane_dc(evaluate, S, t, options<span class="op">=</span>Options()):</span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">def</span> cutting_plane_dc(evaluate, S, \gamma, options<span class="op">=</span>Options()):</span>
 <span id="cb4-2"><a href="#cb4-2"></a>    feasible <span class="op">=</span> <span class="va">False</span>  <span class="co"># no sol&#39;n</span></span>
 <span id="cb4-3"><a href="#cb4-3"></a>    x_best <span class="op">=</span> S.xc</span>
 <span id="cb4-4"><a href="#cb4-4"></a>    <span class="cf">for</span> niter <span class="kw">in</span> <span class="bu">range</span>(options.max_it):</span>
 <span id="cb4-5"><a href="#cb4-5"></a>        cut, t1 <span class="op">=</span> evaluate(S.xc, t)</span>
-<span id="cb4-6"><a href="#cb4-6"></a>        <span class="cf">if</span> t <span class="op">!=</span> t1:  <span class="co"># best t obtained</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>        <span class="cf">if</span> gamma <span class="op">!=</span> t1:  <span class="co"># best gamma obtained</span></span>
 <span id="cb4-7"><a href="#cb4-7"></a>            feasible <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb4-8"><a href="#cb4-8"></a>            t <span class="op">=</span> t1</span>
+<span id="cb4-8"><a href="#cb4-8"></a>            gamma <span class="op">=</span> t1</span>
 <span id="cb4-9"><a href="#cb4-9"></a>            x_best <span class="op">=</span> S.xc</span>
 <span id="cb4-10"><a href="#cb4-10"></a>        status, tau <span class="op">=</span> S.update(cut)</span>
 <span id="cb4-11"><a href="#cb4-11"></a>        <span class="cf">if</span> status <span class="op">!=</span> <span class="dv">0</span>:  <span class="co"># empty cut</span></span>
@@ -376,7 +376,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb4-13"><a href="#cb4-13"></a>        <span class="cf">if</span> tau <span class="op">&lt;</span> options.tol:</span>
 <span id="cb4-14"><a href="#cb4-14"></a>            status <span class="op">=</span> <span class="dv">2</span></span>
 <span id="cb4-15"><a href="#cb4-15"></a>            <span class="cf">break</span></span>
-<span id="cb4-16"><a href="#cb4-16"></a>    <span class="cf">return</span> x_best, t, niter<span class="op">+</span><span class="dv">1</span>, feasible, status</span></code></pre></div>
+<span id="cb4-16"><a href="#cb4-16"></a>    <span class="cf">return</span> x_best, \gamma, niter<span class="op">+</span><span class="dv">1</span>, feasible, status</span></code></pre></div>
 <hr />
 <h2 id="example---profit-maximization-problem">Example - Profit Maximization Problem</h2>
 <p>This example is taken from <span class="citation" data-cites="Aliabadi2013Robust">[@Aliabadi2013Robust]</span>.</p>
@@ -398,8 +398,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li>The formulation is not in the convex form.</li>
 <li>Rewrite the problem in the following form: <span class="math display">\begin{array}{ll}
-  \text{maximize} &amp; t \\
-  \text{subject to} &amp; t  + v_1 x_1  + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}\\
+  \text{maximize} &amp; \gamma \\
+  \text{subject to} &amp; gamma  + v_1 x_1  + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}\\
                 &amp; x_1 \le k.
   \end{array}</span></li>
 </ul>
@@ -413,8 +413,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><p>We have the problem in a convex form:</p></li>
 </ul>
 <p><span class="math display">\begin{array}{ll}
-    \text{max}  &amp; t \\
-    \text{s.t.} &amp; \log(t + v_1 e^{y_1} + v_2 e^{y_2}) - (\alpha y_1 + \beta y_2) \le \log(pA) \\
+    \text{max}  &amp; \gamma \\
+    \text{s.t.} &amp; \log(\gamma + v_1 e^{y_1} + v_2 e^{y_2}) - (\alpha y_1 + \beta y_2) \le \log(pA) \\
                 &amp; y_1 \le \log k.
 \end{array}</span></p>
 <hr />
@@ -435,11 +435,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb5-14"><a href="#cb5-14"></a>        log_Cobb <span class="op">=</span> <span class="va">self</span>.log_pA <span class="op">+</span> np.dot(<span class="va">self</span>.a, y)</span>
 <span id="cb5-15"><a href="#cb5-15"></a>        x <span class="op">=</span> np.exp(y)</span>
 <span id="cb5-16"><a href="#cb5-16"></a>        vx <span class="op">=</span> np.dot(<span class="va">self</span>.v, x)</span>
-<span id="cb5-17"><a href="#cb5-17"></a>        te <span class="op">=</span> t <span class="op">+</span> vx</span>
+<span id="cb5-17"><a href="#cb5-17"></a>        te <span class="op">=</span> gamma <span class="op">+</span> vx</span>
 <span id="cb5-18"><a href="#cb5-18"></a>        fj <span class="op">=</span> np.log(te) <span class="op">-</span> log_Cobb</span>
 <span id="cb5-19"><a href="#cb5-19"></a>        <span class="cf">if</span> fj <span class="op">&lt;</span> <span class="fl">0.</span>:</span>
 <span id="cb5-20"><a href="#cb5-20"></a>            te <span class="op">=</span> np.exp(log_Cobb)</span>
-<span id="cb5-21"><a href="#cb5-21"></a>            t <span class="op">=</span> te <span class="op">-</span> vx</span>
+<span id="cb5-21"><a href="#cb5-21"></a>            gamma <span class="op">=</span> te <span class="op">-</span> vx</span>
 <span id="cb5-22"><a href="#cb5-22"></a>            fj <span class="op">=</span> <span class="fl">0.</span></span>
 <span id="cb5-23"><a href="#cb5-23"></a>        g <span class="op">=</span> (<span class="va">self</span>.v <span class="op">*</span> x) <span class="op">/</span> te <span class="op">-</span> <span class="va">self</span>.a</span>
 <span id="cb5-24"><a href="#cb5-24"></a>        <span class="cf">return</span> (g, fj), t</span></code></pre></div>
@@ -488,8 +488,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
      \forall q \in {\mathbb Q}, \; j = 1,2,\cdots,m,
   \end{array}</span> where <span class="math inline">q</span> represents a set of varying parameters.</p></li>
 <li><p>The problem can be reformulated as: <span class="math display">\begin{array}{ll}
-    \text{minimize}   &amp; t \\
-    \text{subject to} &amp; \sup_{q \in \mathbb Q} f_0(x,q) \le t  \\
+    \text{minimize}   &amp; \gamma \\
+    \text{subject to} &amp; \sup_{q \in \mathbb Q} f_0(x,q) \le \gamma  \\
     &amp; f_j(x,q) \le 0, \;
      \forall q \in {\mathbb Q}, \; j = 1,2,\cdots,m,
   \end{array}</span></p></li>
@@ -497,8 +497,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <hr />
 <h2 id="example---profit-maximization-problem-convex">Example - Profit Maximization Problem (convex)</h2>
 <p><span class="math display">\begin{array}{ll}
-\text{max}  &amp; t \\
-\text{s.t.} &amp; \log(t + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) - (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A)  \\
+\text{max}  &amp; \gamma \\
+\text{s.t.} &amp; \log(\gamma + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) - (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A)  \\
                   &amp; y_1 \le \log \hat{k} ,
 \end{array}</span></p>
 <ul>
@@ -640,8 +640,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 id="optimal-matrix-scaling-contd">Optimal Matrix Scaling (cont’d)</h2>
 <p>By taking the logarithms of variables, the above problem can be transformed into:</p>
 <p><span class="math display">\begin{array}{ll}
-  \text{minimize}   &amp;   t \\
-  \text{subject to} &amp;   {\color{blue}\pi&#39;} - {\color{blue}\psi&#39;} \le t \\
+  \text{minimize}   &amp;   \gamma \\
+  \text{subject to} &amp;   {\color{blue}\pi&#39;} - {\color{blue}\psi&#39;} \le \gamma \\
                     &amp;   {\color{red}u_i&#39;} - {\color{red}u_j&#39;}  \le {\color{blue}\pi&#39;} - a_{ij}&#39;, \; \forall a_{ij} \neq 0 \,, \\
                     &amp;   {\color{red}u_j&#39;} - {\color{red}u_i&#39;} \le a_{ij}&#39; - {\color{blue}\psi&#39;}, \; \forall a_{ij} \neq 0 \,, \\
   \text{variables}  &amp;   {\color{blue}\pi&#39;}, {\color{blue}\psi&#39;}, {\color{red}u&#39;} \, .
@@ -673,7 +673,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb9-21"><a href="#cb9-21"></a>        s <span class="op">=</span> x[<span class="dv">0</span>] <span class="op">-</span> x[<span class="dv">1</span>]</span>
 <span id="cb9-22"><a href="#cb9-22"></a>        fj <span class="op">=</span> s <span class="op">-</span> t</span>
 <span id="cb9-23"><a href="#cb9-23"></a>        <span class="cf">if</span> fj <span class="op">&lt;</span> <span class="fl">0.</span>:</span>
-<span id="cb9-24"><a href="#cb9-24"></a>            t <span class="op">=</span> s</span>
+<span id="cb9-24"><a href="#cb9-24"></a>            gamma <span class="op">=</span> s</span>
 <span id="cb9-25"><a href="#cb9-25"></a>            fj <span class="op">=</span> <span class="fl">0.</span></span>
 <span id="cb9-26"><a href="#cb9-26"></a>        <span class="cf">return</span> (np.array([<span class="fl">1.</span>, <span class="fl">-1.</span>]), fj), t</span></code></pre></div>
 <hr />
@@ -694,8 +694,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 id="example---clock-period-yield-driven-co-optimization-1">Example - clock period &amp; yield-driven co-optimization</h2>
 <p>The problem can be reformulated as:</p>
 <p><span class="math display">\begin{array}{cll}
-   \text{minimize}   &amp; t \\
-   \text{subject to} &amp; T_\text{CP} - {\color{blue}\beta} t \le 0\\
+   \text{minimize}   &amp; \gamma \\
+   \text{subject to} &amp; T_\text{CP} - {\color{blue}\beta} \gamma \le 0\\
                      &amp; u_i - u_j \le T_\text{CP} - F_{ij}^{-1}({\color{blue}\beta}), &amp; \forall (j, i) \in E_s \,,\\
                      &amp; u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), &amp; \forall (i, j) \in E_h \,, \\
                      &amp; T_\text{CP} \ge 0, \, 0 \le {\color{blue}\beta} \le 1 \, , \\
@@ -783,11 +783,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li>Let <span class="math inline">A(x) = A_0 + x_1 A_1 + \cdots + x_n A_n</span></li>
 <li>Problem <span class="math inline">\min_x \| A(x) \|</span> can be reformulated as <span class="math display">\begin{array}{ll}
-     \text{minimize}      &amp; t, \\
+     \text{minimize}      &amp; \gamma, \\
      \text{subject to}    &amp; \left(
  \begin{array}{cc}
-  t\,I   &amp; A(x) \\
-  A^\mathsf{T}(x) &amp; t\,I
+  \gamma\,I   &amp; A(x) \\
+  A^\mathsf{T}(x) &amp; \gamma\,I
  \end{array} \right) \succeq 0,
  \end{array}</span></li>
 <li>Binary search on <span class="math inline">t</span> can be used for this problem.</li>

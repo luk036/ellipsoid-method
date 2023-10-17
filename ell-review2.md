@@ -101,25 +101,25 @@ $$\begin{array}{ll}
     \text{subject to}   & x \in \mathcal{K}.
   \end{array}$$
 {#eq:convex-optimization}
-We treat the optimization problem as a feasibility problem with an additional constraint $f_0(x) \le t$.
+We treat the optimization problem as a feasibility problem with an additional constraint $f_0(x) \le \gamma$.
 Here, $f_0(x)$ can be a convex function or a quasi-convex function.
-$t$ is the best-so-far value of $f_0(x)$.
+$\gamma$ is the best-so-far value of $f_0(x)$.
 We can reformulate the problem as:
 $$\begin{array}{ll}
-    \text{minimize}   & t, \\
-    \text{subject to} & \Phi(x, t) \le 0, \\
+    \text{minimize}   & \gamma, \\
+    \text{subject to} & \Phi(x, \gamma) \le 0, \\
                       & x \in \mathcal{K},
   \end{array} $$
 {#eq:cvx-in-feasibility-form}
-where $\Phi(x, t) \le 0$ is the $t$-sublevel set of $f_0(x)$.
+where $\Phi(x, \gamma) \le 0$ is the $\gamma$-sublevel set of $f_0(x)$.
 
-For every $x$, $\Phi(x, t)$ is a non-increasing function of $t$, *i.e.*, $\Phi(x, t’) \le \Phi(x, t)$ whenever $t’ \ge t$. Note that $\mathcal{K}_t \subseteq \mathcal{K}_u$ if and only if $t \le u$ (monotonicity). An easy way to solve the optimization problem is to apply a binary search on $t$.
+For every $x$, $\Phi(x, \gamma)$ is a non-increasing function of $\gamma$, *i.e.*, $\Phi(x, \gamma') \le \Phi(x, \gamma)$ whenever $\gamma' \ge \gamma$. Note that $\mathcal{K}_\gamma \subseteq \mathcal{K}_u$ if and only if $\gamma \le u$ (monotonicity). An easy way to solve the optimization problem is to apply a binary search on $\gamma$.
 
-Another possibility is to update the best-so-far $t$ whenever a feasible solution $x_0$ is found such that $\Phi(x_0, t) = 0$. We assume that the oracle takes responsibility for that.
+Another possibility is to update the best-so-far $\gamma$ whenever a feasible solution $x_0$ is found such that $\Phi(x_0, \gamma) = 0$. We assume that the oracle takes responsibility for that.
 
 Generic Cutting-plane method (Optim)
 
--   **Given** initial $\mathcal{S}$ known to contain $\mathcal{K}_t$.
+-   **Given** initial $\mathcal{S}$ known to contain $\mathcal{K}_\gamma$.
 
 -   **Repeat**
 
@@ -127,7 +127,7 @@ Generic Cutting-plane method (Optim)
 
     2.  Query the separation oracle at $x_0$
 
-    3.  **If** $x_0 \in \mathcal{K}_t$, update $t$ such that $\Phi(x_0, t) = 0$.
+    3.  **If** $x_0 \in \mathcal{K}_\gamma$, update $\gamma$ such that $\Phi(x_0, \gamma) = 0$.
 
     4.  Update $\mathcal{S}$ to a smaller set that covers:
         $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\} $$
@@ -145,15 +145,15 @@ $$\begin{array}{ll}
 {#eq:profit-max-in-original-form}
 where $p$ is the market price per unit, $A$ is the scale of production, $\alpha$ and $\beta$ are output elasticities, $x_i$ and $v_i$ are the i-th input quantity and output price, $A x_1^\alpha x_2^\beta$ is the Cobb-Douglas production function, and $k$ is a constant that limits the quantity of $x_1$. The above formulation is not in convex form. First, we rewrite the problem:
 $$\begin{array}{ll}
-    \text{maximize}   & t, \\
-    \text{subject to} & t  + v_1 x_1  + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}, \\
+    \text{maximize}   & \gamma, \\
+    \text{subject to} & gamma  + v_1 x_1  + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}, \\
                       & x_1 \le k, \\
                       & x_1 > 0, x_2 > 0.
   \end{array} $$
 By the change of variables, we can obtain the following convex form of @eq-profit-max-in-orginal-form:
 $$\begin{array}{ll}
-    \text{maximize}   & t, \\
-    \text{subject to} & \log(t + v_1 e^{y_1} + v_2 e^{y_2}) -
+    \text{maximize}   & \gamma, \\
+    \text{subject to} & \log(\gamma + v_1 e^{y_1} + v_2 e^{y_2}) -
                     (\alpha y_1 + \beta y_2) \le \log(p\,A), \\
                       & y_1 \le \log k,
   \end{array}$$
@@ -181,8 +181,8 @@ $$ {#eq:robust-optim}
 where $q$ represents a set of varying parameters.
 We can reformulate the problem as:
 $$\begin{array}{ll}
-    \text{minimize}   & t, \\
-    \text{subject to} & f_0(x, q) \le t,  \\
+    \text{minimize}   & \gamma, \\
+    \text{subject to} & f_0(x, q) \le \gamma,  \\
                       & f_j(x, q) \le 0, \;
             \forall q \in \mathcal{Q}, \; j = 1,2,\cdots,m.
   \end{array} $$
@@ -195,15 +195,15 @@ The oracle only needs to determine:
 
 -   the cut $(g, \beta)$ = $(\partial f_j(x_0, q_0), f_j(x_0, q_0))$
 
--   If $f_0(x_0, q) \ge t$ for some $q = q_0$, then
+-   If $f_0(x_0, q) \ge \gamma$ for some $q = q_0$, then
 
--   the cut $(g, \beta)$ = $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - t)$
+-   the cut $(g, \beta)$ = $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - \gamma)$
 
 -   Otherwise, $x_0$ is feasible, then
 
 -   Let $q_{\max} = \text{argmax}_{q \in \mathcal Q} f_0(x_0, q)$.
 
--   $t := f_0(x_0, q_{\max})$.
+-   $\gamma := f_0(x_0, q_{\max})$.
 
 -   The cut $(g, \beta)$ = $(\partial f_0(x_0, q_{\max}), 0)$
 
@@ -220,8 +220,8 @@ k   - \varepsilon_6 \le  & \hat{k}    & \le k   + \varepsilon_6
 \end{array}$$
 The problem formulation of the robust counterpart considering the worst-case scenario is:
 $$\begin{array}{ll}
-    \text{max}  & t \\
-    \text{s.t.} & \log(t + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) -
+    \text{max}  & \gamma \\
+    \text{s.t.} & \log(\gamma + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) -
                         (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A)  \\
                 & y_1 \le \log \hat{k}.
   \end{array}$$
@@ -267,20 +267,20 @@ Note that the `argmax` may be non-convex and therefore difficult to solve. For m
 Given a network represented by a directed graph $G = (V, E)$.
 Consider :
 $$\begin{array}{ll}
-    \text{minimize} & t, \\
-    \text{subject to} & u_i - u_j \le h_{ij}(x, t), \; \forall (i, j) \in E,\\
+    \text{minimize} & \gamma, \\
+    \text{subject to} & u_i - u_j \le h_{ij}(x, \gamma), \; \forall (i, j) \in E,\\
     \text{variables} &x, u,
   \end{array}$$
-where $h_{ij}(x, t)$ is the weight function of edge $(i,j)$.
+where $h_{ij}(x, \gamma)$ is the weight function of edge $(i,j)$.
 
-Assume that the network is large but the number of parameters is small. Given $x$ and $t$, the problem has a feasible solution if and only if $G$ contains no negative cycle. Let $\mathcal{C}$ be a set of all cycles of $G$. We can formulate the problem as:
+Assume that the network is large but the number of parameters is small. Given $x$ and $\gamma$, the problem has a feasible solution if and only if $G$ contains no negative cycle. Let $\mathcal{C}$ be a set of all cycles of $G$. We can formulate the problem as:
 $$\begin{array}{ll}
-    \text{minimize} & t, \\
-    \text{subject to} & W_k(x, t) \ge 0, \forall C_k \in C ,\\
+    \text{minimize} & \gamma, \\
+    \text{subject to} & W_k(x, \gamma) \ge 0, \forall C_k \in C ,\\
        \text{variables} & x,
 \end{array} $$
 where $C_k$ is a cycle of $G$:
-$$W_k(x, t) = \sum_{ (i,j)\in C_k} h_{ij}(x, t).$$
+$$W_k(x, \gamma) = \sum_{ (i,j)\in C_k} h_{ij}(x, \gamma).$$
 
 ### Negative Cycle Detection Algorithm
 
@@ -292,11 +292,11 @@ The separation oracle only needs to determine:
 
 -   the cut $(g, \beta)$ = $(-\partial W_k(x_0), -W_k(x_0))$
 
--   If $f_0(x_0) \ge t$, then the cut $(g, \beta)$ = $(\partial f_0(x_0), f_0(x_0) - t)$.
+-   If $f_0(x_0) \ge \gamma$, then the cut $(g, \beta)$ = $(\partial f_0(x_0), f_0(x_0) - \gamma)$.
 
 -   Otherwise, $x_0$ is feasible, then
 
-    -   $t := f_0(x_0)$.
+    -   $\gamma := f_0(x_0)$.
     -   The cut $(g, \beta)$ = $(\partial f_0(x_0), 0)$
 
 ### Example: symmetric scalings under the min-max-ratio criterion
@@ -432,14 +432,14 @@ The oracle only needs to:
 Let $A(x) = A_0 + x_1 A_1 + \cdots + x_n A_n$.
 Problem $\min_x \| A(x) \|$ can be reformulated as
 $$\begin{array}{ll}
-    \text{minimize}      & t, \\
+    \text{minimize}      & \gamma, \\
     \text{subject to}    & \begin{pmatrix}
-                             t\,I_m   & A(x) \\
-                             A^\mathsf{T}(x) & t\,I_n
+                             \gamma\,I_m   & A(x) \\
+                             A^\mathsf{T}(x) & \gamma\,I_n
                             \end{pmatrix} \succeq 0.
   \end{array}
 $$
-A binary search on $t$ can be used for this problem.
+A binary search on $\gamma$ can be used for this problem.
 
 ### Example: Estimation of Correlation Function
 

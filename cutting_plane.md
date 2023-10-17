@@ -208,11 +208,11 @@ $$\begin{array}{ll}
 \end{array}$$
 
 -   The optimization problem is treated as a feasibility problem with an
-    additional constraint $f_0(x) \le t$
+    additional constraint $f_0(x) \le \gamma$
 
 -   $f_0(x)$ could be a convex function or a *quasiconvex* function.
 
--   $t$ is also known as the *best-so-far* value of
+-   $\gamma$ is also known as the *best-so-far* value of
     $f_0(x)$.
 
 ---
@@ -221,17 +221,17 @@ Convex Optimization Problem
 ----------------------------
 
 -   Consider the following general form: $$\begin{array}{ll}
-                \text{minimize}         & t, \\
-                \text{subject to}   & \Phi(x, t) \le 0 \\
+                \text{minimize}         & \gamma, \\
+                \text{subject to}   & \Phi(x, \gamma) \le 0 \\
                                     & x \in \mathcal{K}
-      \end{array}$$ where $\mathcal{K}'_t = \{x \mid \Phi(x, t) \le 0\}$
-    is the $t$-sublevel set of $\{x \mid f_0(x) \le t\}$.
+      \end{array}$$ where $\mathcal{K}'_\gamma = \{x \mid \Phi(x, \gamma) \le 0\}$
+    is the $\gamma$-sublevel set of $\{x \mid f_0(x) \le \gamma\}$.
 
--   Note: $\mathcal{K'}_t \subseteq \mathcal{K'}_u$ if and only if
-    $t \le u$ (monotonicity)
+-   Note: $\mathcal{K'}_\gamma \subseteq \mathcal{K'}_u$ if and only if
+    $\gamma \le u$ (monotonicity)
 
 -   A simple way to solve the optimization problem is to perform a
-    binary search on $t$.
+    binary search on $\gamma$.
 
 ---
 
@@ -241,7 +241,7 @@ Convex Optimization Problem
 def bsearch(evaluate, I, options=Options()):
     feasible = False
     l, u = I
-    t = l + (u - l)/2
+    gamma = l + (u - l)/2
     for niter in range(options.max_it):
         if evaluate(t):  # feasible sol'n obtained
             feasible = True
@@ -249,7 +249,7 @@ def bsearch(evaluate, I, options=Options()):
         else:
             l = t
         tau = (u - l)/2
-        t = l + tau
+        gamma = l + tau
         if tau < options.tol:
             break
     return u, niter+1, feasible
@@ -287,13 +287,13 @@ Shrinking
 ---------
 
 -   Another possible way is to update the best-so-far
-    $t$ whenever a feasible solution $x_0$ is found,
+    $\gamma$ whenever a feasible solution $x_0$ is found,
     by solving the equation $\Phi(x_0, t_\text{new}) = 0$.
 
 -   If the equation is difficuit to solve
-    but $t$ is also convex w.r.t. $\Phi$,
+    but $\gamma$ is also convex w.r.t. $\Phi$,
     then we may create a new varaible, say $x_{n+1}$
-    and let $x_{n+1} \le t'$.
+    and let $x_{n+1} \le \gamma'$.
 
 ---
 
@@ -301,12 +301,12 @@ Generic Cutting-plane method (Optim)
 ------------------------------------
 
 -   **Given** the initial $\mathcal{S}$ containing
-    $\mathcal{K}_t$.
+    $\mathcal{K}_\gamma$.
 -   **Repeat**
     1.  Select a point $x_0$ in $\mathcal{S}$
     2.  Query the separation oracle at $x_0$
-    3.  **If** $x_0 \in \mathcal{K}_t$, update
-        $t$ such that $\Phi(x_0, t) = 0$.
+    3.  **If** $x_0 \in \mathcal{K}_\gamma$, update
+        $\gamma$ such that $\Phi(x_0, \gamma) = 0$.
     4.  Update $\mathcal{S}$ to a smaller set that covers:
         $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\} $$
     5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
@@ -316,14 +316,14 @@ Generic Cutting-plane method (Optim)
 \scriptsize
 
 ```python
-def cutting_plane_dc(evaluate, S, t, options=Options()):
+def cutting_plane_dc(evaluate, S, \gamma, options=Options()):
     feasible = False  # no sol'n
     x_best = S.xc
     for niter in range(options.max_it):
         cut, t1 = evaluate(S.xc, t)
-        if t != t1:  # best t obtained
+        if gamma != t1:  # best gamma obtained
             feasible = True
-            t = t1
+            gamma = t1
             x_best = S.xc
         status, tau = S.update(cut)
         if status != 0:  # empty cut
@@ -331,7 +331,7 @@ def cutting_plane_dc(evaluate, S, t, options=Options()):
         if tau < options.tol:
             status = 2
             break
-    return x_best, t, niter+1, feasible, status
+    return x_best, \gamma, niter+1, feasible, status
 ```
 
 ---
@@ -361,8 +361,8 @@ Example - Profit maximization (cont'd)
 
 -   The formulation is not in convex form.
 -   Rewrite the problem in the following form: $$\begin{array}{ll}
-      \text{maximize} & t \\
-      \text{subject to} & t  + v_1 x_1  + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}\\
+      \text{maximize} & \gamma \\
+      \text{subject to} & \gamma + v_1 x_1  + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}\\
                     & x_1 \le k.
       \end{array}$$
 
@@ -378,8 +378,8 @@ Profit maximization in Convex Form
 -   We have the problem in convex form:
 
 $$\begin{array}{ll}
-    \text{max}  & t \\
-    \text{s.t.} & \log(t + v_1 e^{y_1} + v_2 e^{y_2}) - (\alpha y_1 + \beta y_2) \le \log(pA) \\
+    \text{max}  & \gamma \\
+    \text{s.t.} & \log(\gamma + v_1 e^{y_1} + v_2 e^{y_2}) - (\alpha y_1 + \beta y_2) \le \log(pA) \\
                 & y_1 \le \log k.
 \end{array}$$
 
@@ -404,11 +404,11 @@ class profit_oracle:
         log_Cobb = self.log_pA + np.dot(self.a, y)
         x = np.exp(y)
         vx = np.dot(self.v, x)
-        te = t + vx
+        te = gamma + vx
         fj = np.log(te) - log_Cobb
         if fj < 0.:
             te = np.exp(log_Cobb)
-            t = te - vx
+            gamma = te - vx
             fj = 0.
         g = (self.v * x) / te - self.a
         return (g, fj), t
@@ -465,8 +465,8 @@ Robust Optimization Formulation
       \end{array}$$ where $q$ represents a set of varying parameters.
 
 -   The problem can be reformulated as: $$\begin{array}{ll}
-        \text{minimize}   & t \\
-        \text{subject to} & \sup_{q \in \mathbb Q} f_0(x,q) \le t  \\
+        \text{minimize}   & \gamma \\
+        \text{subject to} & \sup_{q \in \mathbb Q} f_0(x,q) \le \gamma  \\
         & f_j(x,q) \le 0, \;
          \forall q \in {\mathbb Q}, \; j = 1,2,\cdots,m,
       \end{array}$$
@@ -477,8 +477,8 @@ Example - Profit Maximization Problem (convex)
 ---------------------------------------------
 
 $$\begin{array}{ll}
-\text{max}  & t \\
-\text{s.t.} & \log(t + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) - (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A)  \\
+\text{max}  & \gamma \\
+\text{s.t.} & \log(\gamma + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) - (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A)  \\
                   & y_1 \le \log \hat{k} ,
 \end{array}$$
 
@@ -538,14 +538,14 @@ Oracle in Robust Optimization Formulation
         then
         -   the cut $(g, \beta)$ =
             $(\partial f_j(x_0, q_0), f_j(x_0, q_0))$
-    -   If $f_0(x_0, q) \ge t$ for some
+    -   If $f_0(x_0, q) \ge \gamma$ for some
         $q = q_0$, then
         -   the cut $(g, \beta)$ =
-            $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - t)$
+            $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - \gamma)$
     -   Otherwise, $x_0$ is feasible, then
         -   Let
             $q_{\max} = \text{argmax}_{q \in \mathbb Q} f_0(x_0, q)$.
-        -   $t := f_0(x_0, q_{\max})$.
+        -   $\gamma := f_0(x_0, q_{\max})$.
         -   The cut $(g, \beta)$ =
             $(\partial f_0(x_0, q_{\max}), 0)$
 
@@ -670,8 +670,8 @@ By taking logarithms of the variables, the above problem can be
 transformed into:
 
 $$\begin{array}{ll}
-  \text{minimize}   &   t \\
-  \text{subject to} &   {\color{blue}\pi'} - {\color{blue}\psi'} \le t \\
+  \text{minimize}   &   \gamma \\
+  \text{subject to} &   {\color{blue}\pi'} - {\color{blue}\psi'} \le \gamma \\
                     &   {\color{red}u_i'} - {\color{red}u_j'}  \le {\color{blue}\pi'} - a_{ij}', \; \forall a_{ij} \neq 0 \,, \\
                     &   {\color{red}u_j'} - {\color{red}u_i'} \le a_{ij}' - {\color{blue}\psi'}, \; \forall a_{ij} \neq 0 \,, \\
   \text{variables}  &   {\color{blue}\pi'}, {\color{blue}\psi'}, {\color{red}u'} \, .
@@ -711,7 +711,7 @@ class optscaling_oracle:
         s = x[0] - x[1]
         fj = s - t
         if fj < 0.:
-            t = s
+            gamma = s
             fj = 0.
         return (np.array([1., -1.]), fj), t
 ```
@@ -743,8 +743,8 @@ Example - clock period & yield-driven co-optimization
 The problem can be reformulated as:
 
 $$\begin{array}{cll}
-   \text{minimize}   & t \\
-   \text{subject to} & T_\text{CP} - {\color{blue}\beta} t \le 0\\
+   \text{minimize}   & \gamma \\
+   \text{subject to} & T_\text{CP} - {\color{blue}\beta} \gamma \le 0\\
                      & u_i - u_j \le T_\text{CP} - F_{ij}^{-1}({\color{blue}\beta}), & \forall (j, i) \in E_s \,,\\
                      & u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), & \forall (i, j) \in E_h \,, \\
                      & T_\text{CP} \ge 0, \, 0 \le {\color{blue}\beta} \le 1 \, , \\
@@ -870,14 +870,14 @@ Example - Matrix norm minimization
 -   Let $A(x) = A_0 + x_1 A_1 + \cdots + x_n A_n$
 -   Problem $\min_x \| A(x) \|$ can be reformulated as
     $$\begin{array}{ll}
-         \text{minimize}      & t, \\
+         \text{minimize}      & \gamma, \\
          \text{subject to}    & \left(
      \begin{array}{cc}
-      t\,I   & A(x) \\
-      A^\mathsf{T}(x) & t\,I
+      \gamma\,I   & A(x) \\
+      A^\mathsf{T}(x) & \gamma\,I
      \end{array} \right) \succeq 0,
      \end{array}$$
--   A binary search on $t$ can be used for this problem.
+-   A binary search on $\gamma$ can be used for this problem.
 
 ---
 

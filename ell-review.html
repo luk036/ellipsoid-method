@@ -158,22 +158,22 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     \text{minimize}     &amp; f_0(x), \\
     \text{subject to}   &amp; x \in \mathcal{K}.
   \end{array}
-\qquad(2)</span></span> We treat the optimization problem as a feasibility problem with an additional constraint <span class="math inline">f_0(x) \le t</span>. Here, <span class="math inline">f_0(x)</span> could be a convex function or a quasi-convex function. <span class="math inline">t</span> is the best-so-far value of <span class="math inline">f_0(x)</span>. We can reformulate the problem as: <span id="eq:cvx-in-feasibility-form"><span class="math display">\begin{array}{ll}
-    \text{minimize}   &amp; t, \\
-    \text{subject to} &amp; \Phi(x, t) \le 0, \\
+\qquad(2)</span></span> We treat the optimization problem as a feasibility problem with an additional constraint <span class="math inline">f_0(x) \le \gamma</span>. Here, <span class="math inline">f_0(x)</span> could be a convex function or a quasi-convex function. <span class="math inline">t</span> is the best-so-far value of <span class="math inline">f_0(x)</span>. We can reformulate the problem as: <span id="eq:cvx-in-feasibility-form"><span class="math display">\begin{array}{ll}
+    \text{minimize}   &amp; \gamma, \\
+    \text{subject to} &amp; \Phi(x, \gamma) \le 0, \\
                       &amp; x \in \mathcal{K},
   \end{array}
-\qquad(3)</span></span> where <span class="math inline">\Phi(x, t) \le 0</span> is the <span class="math inline">t</span>-sublevel set of <span class="math inline">f_0(x)</span>.</p>
-<p>For each <span class="math inline">x</span>, <span class="math inline">\Phi(x, t)</span> is a nonincreasing function of <span class="math inline">t</span>, <em>i.e.</em>, <span class="math inline">\Phi(x, t’) \le \Phi(x, t) whenever t’ \ge t</span>. Note that <span class="math inline">\mathcal{K}_t \subseteq \mathcal{K}_u</span> if and only if <span class="math inline">t \le u</span> (monotonicity). One easy way to solve the optimization problem is to apply the binary search on <span class="math inline">t</span>.</p>
-<p>Another possible way is, to update the best-so-far <span class="math inline">t</span> whenever a feasible solution <span class="math inline">x_0</span> is found such that <span class="math inline">\Phi(x_0, t) = 0</span>. We assume that the oracle takes responsibility for that.</p>
+\qquad(3)</span></span> where <span class="math inline">\Phi(x, \gamma) \le 0</span> is the <span class="math inline">t</span>-sublevel set of <span class="math inline">f_0(x)</span>.</p>
+<p>For each <span class="math inline">x</span>, <span class="math inline">\Phi(x, t)</span> is a nonincreasing function of <span class="math inline">t</span>, <em>i.e.</em>, <span class="math inline">\Phi(x, \gamma') \le \Phi(x, \gamma) whenever \gamma' \ge t</span>. Note that <span class="math inline">\mathcal{K}_\gamma \subseteq \mathcal{K}_u</span> if and only if <span class="math inline">\gamma \le u</span> (monotonicity). One easy way to solve the optimization problem is to apply the binary search on <span class="math inline">t</span>.</p>
+<p>Another possible way is, to update the best-so-far <span class="math inline">t</span> whenever a feasible solution <span class="math inline">x_0</span> is found such that <span class="math inline">\Phi(x_0, \gamma) = 0</span>. We assume that the oracle takes responsibility for that.</p>
 <p>Generic Cutting-plane method (Optim)</p>
 <ul>
-<li><p><strong>Given</strong> initial <span class="math inline">\mathcal{S}</span> known to contain <span class="math inline">\mathcal{K}_t</span>.</p></li>
+<li><p><strong>Given</strong> initial <span class="math inline">\mathcal{S}</span> known to contain <span class="math inline">\mathcal{K}_\gamma</span>.</p></li>
 <li><p><strong>Repeat</strong></p>
 <ol type="1">
 <li><p>Choose a point <span class="math inline">x_0</span> in <span class="math inline">\mathcal{S}</span></p></li>
 <li><p>Query the separation oracle at <span class="math inline">x_0</span></p></li>
-<li><p><strong>If</strong> <span class="math inline">x_0 \in \mathcal{K}_t</span>, update <span class="math inline">t</span> such that <span class="math inline">\Phi(x_0, t) = 0</span>.</p></li>
+<li><p><strong>If</strong> <span class="math inline">x_0 \in \mathcal{K}_\gamma</span>, update <span class="math inline">t</span> such that <span class="math inline">\Phi(x_0, \gamma) = 0</span>.</p></li>
 <li><p>Update <span class="math inline">\mathcal{S}</span> to a smaller set that covers: <span class="math display">\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\} </span></p></li>
 <li><p><strong>If</strong> <span class="math inline">\mathcal{S}^+ = \emptyset</span> or it is small enough, quit.</p></li>
 </ol></li>
@@ -186,16 +186,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   \end{array}
 \qquad(4)</span></span> where <span class="math inline">p</span> is the market price per unit, <span class="math inline">A</span> is the scale of production, <span class="math inline">\alpha</span> and <span class="math inline">\beta</span> are the output elasticities, <span class="math inline">x_i</span> and <span class="math inline">v_i</span> are <span class="math inline">i</span>th input quantity and output price, <span class="math inline">A x_1^\alpha x_2^\beta</span> is the Cobb-Douglas production function, and <span class="math inline">k</span> is a constant that restricts the quantity of <span class="math inline">x_1</span>.</p>
 <p>The above formulation is not in a convex form. First, we rewrite the problem: <span class="math display">\begin{array}{ll}
-    \text{maximize}   &amp; t, \\
-    \text{subject to} &amp; t  + v_1 x_1  + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}, \\
+    \text{maximize}   &amp; \gamma, \\
+    \text{subject to} &amp; \gamma  + v_1 x_1  + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}, \\
                       &amp; x_1 \le k, \\
                       &amp; x_1 &gt; 0, x_2 &gt; 0.
   \end{array}
 </span></p>
 <p>By the change of variables, we have the following convex form of <strong>???</strong>:</p>
 <p><span id="eq:profit-in-cvx-form"><span class="math display">\begin{array}{ll}
-    \text{maximize}   &amp; t, \\
-    \text{subject to} &amp; \log(t + v_1 e^{y_1} + v_2 e^{y_2}) -
+    \text{maximize}   &amp; \gamma, \\
+    \text{subject to} &amp; \log(\gamma + v_1 e^{y_1} + v_2 e^{y_2}) -
                     (\alpha y_1 + \beta y_2) \le \log(p\,A), \\
                       &amp; y_1 \le \log k,
   \end{array}
@@ -223,8 +223,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             \forall q \in \mathcal{Q}, \; j = 1,2,\cdots, m,
   \end{array}
 \qquad(6)</span></span> where <span class="math inline">q</span> represents a set of varying parameters. We can reformulate the problem as: <span class="math display">\begin{array}{ll}
-    \text{minimize}   &amp; t, \\
-    \text{subject to} &amp; f_0(x, q) \le t,  \\
+    \text{minimize}   &amp; \gamma, \\
+    \text{subject to} &amp; f_0(x, q) \le \gamma,  \\
                       &amp; f_j(x, q) \le 0, \;
             \forall q \in \mathcal{Q}, \; j = 1,2,\cdots,m.
   \end{array}
@@ -251,8 +251,8 @@ v_2 - \varepsilon_5 \le  &amp; \hat{v}_2  &amp; \le v_2 + \varepsilon_5 \\
 k   - \varepsilon_6 \le  &amp; \hat{k}    &amp; \le k   + \varepsilon_6
 \end{array}
 </span> The robust counterpart considering the worst-case scenario is given by: <span class="math display">\begin{array}{ll}
-    \text{max}  &amp; t \\
-    \text{s.t.} &amp; \log(t + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) -
+    \text{max}  &amp; \gamma \\
+    \text{s.t.} &amp; \log(\gamma + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) -
                         (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A)  \\
                 &amp; y_1 \le \log \hat{k}.
   \end{array}
@@ -285,17 +285,17 @@ k   - \varepsilon_6 \le  &amp; \hat{k}    &amp; \le k   + \varepsilon_6
 <p>Note that the `argmax’ can be non-convex and hence difficult to solved. For more complicated problems, affine arithmetic could be used <span class="citation" data-cites="liu2007robust">[<a href="#ref-liu2007robust" role="doc-biblioref">3</a>]</span>.</p>
 <h2 id="sec:network"><span class="header-section-number">3.2</span> Multi-parameter Network Problems</h2>
 <p>Given a network represented by a directed graph <span class="math inline">G = (V, E)</span>. Consider : <span class="math display">\begin{array}{ll}
-    \text{minimize} &amp; t, \\
-    \text{subject to} &amp; u_i - u_j \le h_{ij}(x, t), \; \forall (i, j) \in E,\\
+    \text{minimize} &amp; \gamma, \\
+    \text{subject to} &amp; u_i - u_j \le h_{ij}(x, \gamma), \; \forall (i, j) \in E,\\
     \text{variables} &amp;x, u,
   \end{array}
 </span> where <span class="math inline">h_{ij}(x, t)</span> is the weight function of edge <span class="math inline">(i,j)</span>.</p>
 <p>Assume that the network is large but the number of parameters is small. Given <span class="math inline">x</span> and <span class="math inline">t</span>, the problem has a feasible solution if and only if <span class="math inline">G</span> contains no negative cycle. Let <span class="math inline">\mathcal{C}</span> be a set of all cycles of <span class="math inline">G</span>. We can formulate the problem as: <span class="math display">\begin{array}{ll}
-    \text{minimize} &amp; t, \\
-    \text{subject to} &amp; W_k(x, t) \ge 0, \forall C_k \in C ,\\
+    \text{minimize} &amp; \gamma, \\
+    \text{subject to} &amp; W_k(x, \gamma) \ge 0, \forall C_k \in C ,\\
        \text{variables} &amp; x,
 \end{array}
-</span> where <span class="math inline">C_k</span> is a cycle of <span class="math inline">G</span>: <span class="math display">W_k(x, t) = \sum_{ (i,j)\in C_k} h_{ij}(x, t).
+</span> where <span class="math inline">C_k</span> is a cycle of <span class="math inline">G</span>: <span class="math display">W_k(x, \gamma) = \sum_{ (i,j)\in C_k} h_{ij}(x, \gamma).
 </span></p>
 <h3 id="sec:negative-cycle-detection-algorithm"><span class="header-section-number">3.2.1</span> Negative Cycle Detection Algorithm</h3>
 <p>The negative cycle detection is the most time-consuming part of the proposed method, so it is very important to choose the proper negative cycle detection algorithm. There are lots of methods to detect negative cycles in a weighted graph <span class="citation" data-cites="cherkassky1999negative">[<a href="#ref-cherkassky1999negative" role="doc-biblioref">4</a>]</span>, in which Tarjan’s algorithm <span class="citation" data-cites="Tarjan1981negcycle">[<a href="#ref-Tarjan1981negcycle" role="doc-biblioref">5</a>]</span> is one of the fastest algorithms in practice <span class="citation" data-cites="alg:dasdan_mcr cherkassky1999negative">[<a href="#ref-cherkassky1999negative" role="doc-biblioref">4</a>,<a href="#ref-alg:dasdan_mcr" role="doc-biblioref">6</a>]</span>.</p>
@@ -410,10 +410,10 @@ k   - \varepsilon_6 \le  &amp; \hat{k}    &amp; \le k   + \varepsilon_6
 </ul>
 <h3 id="sec:example-matrix-norm-minimization"><span class="header-section-number">3.3.2</span> Example: Matrix Norm Minimization</h3>
 <p>Let <span class="math inline">A(x) = A_0 + x_1 A_1 + \cdots + x_n A_n</span>. Problem <span class="math inline">\min_x \| A(x) \|</span> can be reformulated as <span class="math display">\begin{array}{ll}
-    \text{minimize}      &amp; t, \\
+    \text{minimize}      &amp; \gamma, \\
     \text{subject to}    &amp; \begin{pmatrix}
-                             t\,I_m   &amp; A(x) \\
-                             A^\mathsf{T}(x) &amp; t\,I_n
+                             \gamma\,I_m   &amp; A(x) \\
+                             A^\mathsf{T}(x) &amp; \gamma\,I_n
                             \end{pmatrix} \succeq 0.
   \end{array}
 </span> Binary search on <span class="math inline">t</span> can be used for this problem.</p>

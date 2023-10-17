@@ -21,5 +21,5 @@ In the context of the Ellipsoid Method, a shallow cut refers to a linear constra
 
 ## What is the meaning of quasi-convex?
 
-A function f: R^n -> R is quasi-convex if its sublevel sets {x | f(x) <= t} are convex for all t in R. In other words, a function is quasi-convex if the region below any of its level sets is a convex set. Intuitively, this means that the function does not have any "holes" or disjoint regions in its domain where the function takes on smaller values. Quasi-convex functions are important in optimization because they share many of the desirable properties of convex functions, such as having a unique global minimum, while still allowing for some non-convexity in the function.
+A function f: R^n -> R is quasi-convex if its sublevel sets {x | f(x) <= gamma} are convex for all gamma in R. In other words, a function is quasi-convex if the region below any of its level sets is a convex set. Intuitively, this means that the function does not have any "holes" or disjoint regions in its domain where the function takes on smaller values. Quasi-convex functions are important in optimization because they share many of the desirable properties of convex functions, such as having a unique global minimum, while still allowing for some non-convexity in the function.
 
