@@ -1,272 +1,709 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
-<head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="pandoc" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="author" content="Wai-Shing Luk" />
-  <title>Ellipsoid Method and the Amazing Oracles (I)</title>
-  <style>
-      code{white-space: pre-wrap;}
-      span.smallcaps{font-variant: small-caps;}
-      span.underline{text-decoration: underline;}
-      div.column{display: inline-block; vertical-align: top; width: 50%;}
-  </style>
-  <style>
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-  </style>
-  <script src="katex/katex.min.js"></script>
-  <script>document.addEventListener("DOMContentLoaded", function () {
-    var mathElements = document.getElementsByClassName("math");
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") { katex.render(texText.data, mathElements[i], { displayMode: mathElements[i].classList.contains("display"), throwOnError: false } );
-    }}});</script>
-  <link rel="stylesheet" href="katex/katex.min.css" />
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-  <![endif]-->
-  
-  
-  
-  
-  
-  
-  
-  
-  
-</head>
-<body>
-<header id="title-block-header">
-<h1 class="title">Ellipsoid Method and the Amazing Oracles (I)</h1>
-<p class="author">Wai-Shing Luk</p>
-</header>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a href="#introduction">Introduction</a><ul>
-<li><a href="#common-perspective-of-ellipsoid-method">Common Perspective of Ellipsoid Method</a></li>
-<li><a href="#but">But…</a></li>
-<li><a href="#consider-ellipsoid-method-when">Consider Ellipsoid Method When…</a></li>
-</ul></li>
-<li><a href="#cutting-plane-method-revisited">Cutting-plane Method Revisited</a><ul>
-<li><a href="#basic-idea">Basic Idea</a></li>
-<li><a href="#separation-oracle">Separation Oracle</a></li>
-<li><a href="#separation-oracle-contd">Separation oracle (cont’d)</a></li>
-<li><a href="#subgradient">Subgradient</a></li>
-<li><a href="#key-components-of-cutting-plane-method">Key components of Cutting-plane method</a></li>
-<li><a href="#generic-cutting-plane-method">Generic Cutting-plane method</a></li>
-<li><a href="#corresponding-python-code">Corresponding Python code</a></li>
-<li><a href="#from-feasibility-to-optimization">From Feasibility to Optimization</a></li>
-<li><a href="#convex-optimization-problem">Convex Optimization Problem</a></li>
-<li><a href="#shrinking">Shrinking</a></li>
-<li><a href="#generic-cutting-plane-method-optim">Generic Cutting-plane method (Optim)</a></li>
-<li><a href="#example---profit-maximization-problem">Example - Profit Maximization Problem</a></li>
-<li><a href="#example---profit-maximization-contd">Example - Profit maximization (cont’d)</a></li>
-<li><a href="#profit-maximization-in-convex-form">Profit maximization in Convex Form</a></li>
-<li><a href="#area-of-applications">Area of Applications</a></li>
-</ul></li>
-<li><a href="#robust-convex-optimization">Robust Convex Optimization</a><ul>
-<li><a href="#robust-optimization-formulation">Robust Optimization Formulation</a></li>
-<li><a href="#example---profit-maximization-problem-convex">Example - Profit Maximization Problem (convex)</a></li>
-<li><a href="#example---profit-maximization-problem-oracle">Example - Profit Maximization Problem (oracle)</a></li>
-<li><a href="#oracle-in-robust-optimization-formulation">Oracle in Robust Optimization Formulation</a></li>
-</ul></li>
-<li><a href="#multi-parameter-network-problem">Multi-parameter Network Problem</a><ul>
-<li><a href="#parametric-network-problem">Parametric Network Problem</a></li>
-<li><a href="#network-potential-problem-contd">Network Potential Problem (cont’d)</a></li>
-<li><a href="#negative-cycle-finding">Negative Cycle Finding</a></li>
-<li><a href="#oracle-in-network-potential-problem">Oracle in Network Potential Problem</a></li>
-<li><a href="#python-code">Python Code</a></li>
-<li><a href="#example---optimal-matrix-scaling-orlin1985computing">Example - Optimal Matrix Scaling <span class="citation" data-cites="orlin1985computing">[@orlin1985computing]</span></a></li>
-<li><a href="#optimal-matrix-scaling-contd">Optimal Matrix Scaling (cont’d)</a></li>
-<li><a href="#corresponding-python-code-1">Corresponding Python Code</a></li>
-<li><a href="#example---clock-period-yield-driven-co-optimization">Example - clock period &amp; yield-driven co-optimization</a></li>
-<li><a href="#example---clock-period-yield-driven-co-optimization-1">Example - clock period &amp; yield-driven co-optimization</a></li>
-</ul></li>
-<li><a href="#matrix-inequalities">Matrix Inequalities</a><ul>
-<li><a href="#problems-with-matrix-inequalities">Problems With Matrix Inequalities</a></li>
-<li><a href="#problems-with-matrix-inequalities-1">Problems With Matrix Inequalities</a></li>
-<li><a href="#oracle-in-matrix-inequalities">Oracle in Matrix Inequalities</a></li>
-<li><a href="#lazy-evaluation">Lazy evaluation</a></li>
-<li><a href="#google-benchmark-comparison">Google Benchmark Comparison</a></li>
-<li><a href="#example---matrix-norm-minimization">Example - Matrix Norm Minimization</a></li>
-<li><a href="#example---estimation-of-correlation-function">Example - Estimation of Correlation Function</a></li>
-<li><a href="#experimental-result-i">Experimental Result (I)</a></li>
-<li><a href="#experimental-result-ii">Experimental Result (II)</a></li>
-<li><a href="#experimental-result-iii">Experimental Result (III)</a></li>
-</ul></li>
-<li><a href="#reference">Reference</a></li>
-</ul>
-</nav>
-<h1 id="introduction">Introduction</h1>
-<hr />
-<blockquote>
-<p>When you have eliminated the impossible, whatever remains, however improbable, must be the truth.</p>
-</blockquote>
-<p><em>Sir Arthur Conan Doyle, stated by Sherlock Holmes</em></p>
-<hr />
-<h2 id="common-perspective-of-ellipsoid-method">Common Perspective of Ellipsoid Method</h2>
-<ul>
-<li><p>It is commonly believed that it is inefficient in practice for large-scale problems.</p>
-<ul>
-<li><p>The convergent rate is slow, even with the use of deep cuts.</p></li>
-<li><p>Cannot exploit sparsity.</p></li>
-</ul></li>
-<li><p>Since then, it was supplanted by interior-point methods.</p></li>
-<li><p>Only treated as a theoretical tool for proving the polynomial-time solvability of combinatorial optimization problems.</p></li>
-</ul>
-<hr />
-<h2 id="but">But…</h2>
-<ul>
-<li><p>The ellipsoid method works very differently compared with the interior point method.</p></li>
-<li><p>Only require a <em>separtion oracle</em>. Can play nicely with other techniques.</p></li>
-<li><p>The ellipsoid method itself cannot exploit sparsity, but the oracle can.</p></li>
-</ul>
-<hr />
-<h2 id="consider-ellipsoid-method-when">Consider Ellipsoid Method When…</h2>
-<ul>
-<li><p>The number of optimization variables is moderate, e.g. ECO flow, analog circuit sizing, parametric problems</p></li>
-<li><p>The number of constraints is large, or even infinite</p></li>
-<li><p>Oracle can be implemented efficiently.</p></li>
-</ul>
-<h1 id="cutting-plane-method-revisited">Cutting-plane Method Revisited</h1>
-<hr />
-<h2 id="basic-idea">Basic Idea</h2>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <meta name="author" content="Wai-Shing Luk" />
+    <title>Ellipsoid Method and the Amazing Oracles (I)</title>
+    <style>
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+    <style>
+      code.sourceCode > span {
+        display: inline-block;
+        line-height: 1.25;
+      }
+      code.sourceCode > span {
+        color: inherit;
+        text-decoration: inherit;
+      }
+      code.sourceCode > span:empty {
+        height: 1.2em;
+      }
+      .sourceCode {
+        overflow: visible;
+      }
+      code.sourceCode {
+        white-space: pre;
+        position: relative;
+      }
+      div.sourceCode {
+        margin: 1em 0;
+      }
+      pre.sourceCode {
+        margin: 0;
+      }
+      @media screen {
+        div.sourceCode {
+          overflow: auto;
+        }
+      }
+      @media print {
+        code.sourceCode {
+          white-space: pre-wrap;
+        }
+        code.sourceCode > span {
+          text-indent: -5em;
+          padding-left: 5em;
+        }
+      }
+      pre.numberSource code {
+        counter-reset: source-line 0;
+      }
+      pre.numberSource code > span {
+        position: relative;
+        left: -4em;
+        counter-increment: source-line;
+      }
+      pre.numberSource code > span > a:first-child::before {
+        content: counter(source-line);
+        position: relative;
+        left: -1em;
+        text-align: right;
+        vertical-align: baseline;
+        border: none;
+        display: inline-block;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        padding: 0 4px;
+        width: 4em;
+        color: #aaaaaa;
+      }
+      pre.numberSource {
+        margin-left: 3em;
+        border-left: 1px solid #aaaaaa;
+        padding-left: 4px;
+      }
+      div.sourceCode {
+      }
+      @media screen {
+        code.sourceCode > span > a:first-child::before {
+          text-decoration: underline;
+        }
+      }
+      code span.al {
+        color: #ff0000;
+        font-weight: bold;
+      } /* Alert */
+      code span.an {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Annotation */
+      code span.at {
+        color: #7d9029;
+      } /* Attribute */
+      code span.bn {
+        color: #40a070;
+      } /* BaseN */
+      code span.bu {
+      } /* BuiltIn */
+      code span.cf {
+        color: #007020;
+        font-weight: bold;
+      } /* ControlFlow */
+      code span.ch {
+        color: #4070a0;
+      } /* Char */
+      code span.cn {
+        color: #880000;
+      } /* Constant */
+      code span.co {
+        color: #60a0b0;
+        font-style: italic;
+      } /* Comment */
+      code span.cv {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* CommentVar */
+      code span.do {
+        color: #ba2121;
+        font-style: italic;
+      } /* Documentation */
+      code span.dt {
+        color: #902000;
+      } /* DataType */
+      code span.dv {
+        color: #40a070;
+      } /* DecVal */
+      code span.er {
+        color: #ff0000;
+        font-weight: bold;
+      } /* Error */
+      code span.ex {
+      } /* Extension */
+      code span.fl {
+        color: #40a070;
+      } /* Float */
+      code span.fu {
+        color: #06287e;
+      } /* Function */
+      code span.im {
+      } /* Import */
+      code span.in {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Information */
+      code span.kw {
+        color: #007020;
+        font-weight: bold;
+      } /* Keyword */
+      code span.op {
+        color: #666666;
+      } /* Operator */
+      code span.ot {
+        color: #007020;
+      } /* Other */
+      code span.pp {
+        color: #bc7a00;
+      } /* Preprocessor */
+      code span.sc {
+        color: #4070a0;
+      } /* SpecialChar */
+      code span.ss {
+        color: #bb6688;
+      } /* SpecialString */
+      code span.st {
+        color: #4070a0;
+      } /* String */
+      code span.va {
+        color: #19177c;
+      } /* Variable */
+      code span.vs {
+        color: #4070a0;
+      } /* VerbatimString */
+      code span.wa {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Warning */
+    </style>
+    <script src="katex/katex.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        var mathElements = document.getElementsByClassName("math");
+        for (var i = 0; i < mathElements.length; i++) {
+          var texText = mathElements[i].firstChild;
+          if (mathElements[i].tagName == "SPAN") {
+            katex.render(texText.data, mathElements[i], {
+              displayMode: mathElements[i].classList.contains("display"),
+              throwOnError: false,
+            });
+          }
+        }
+      });
+    </script>
+    <link rel="stylesheet" href="katex/katex.min.css" />
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <header id="title-block-header">
+      <h1 class="title">Ellipsoid Method and the Amazing Oracles (I)</h1>
+      <p class="author">Wai-Shing Luk</p>
+    </header>
+    <nav id="TOC" role="doc-toc">
+      <ul>
+        <li>
+          <a href="#introduction">Introduction</a>
+          <ul>
+            <li>
+              <a href="#common-perspective-of-ellipsoid-method"
+                >Common Perspective of Ellipsoid Method</a
+              >
+            </li>
+            <li><a href="#but">But…</a></li>
+            <li>
+              <a href="#consider-ellipsoid-method-when"
+                >Consider Ellipsoid Method When…</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="#cutting-plane-method-revisited"
+            >Cutting-plane Method Revisited</a
+          >
+          <ul>
+            <li><a href="#basic-idea">Basic Idea</a></li>
+            <li><a href="#separation-oracle">Separation Oracle</a></li>
+            <li>
+              <a href="#separation-oracle-contd">Separation oracle (cont’d)</a>
+            </li>
+            <li><a href="#subgradient">Subgradient</a></li>
+            <li>
+              <a href="#key-components-of-cutting-plane-method"
+                >Key components of Cutting-plane method</a
+              >
+            </li>
+            <li>
+              <a href="#generic-cutting-plane-method"
+                >Generic Cutting-plane method</a
+              >
+            </li>
+            <li>
+              <a href="#corresponding-python-code">Corresponding Python code</a>
+            </li>
+            <li>
+              <a href="#from-feasibility-to-optimization"
+                >From Feasibility to Optimization</a
+              >
+            </li>
+            <li>
+              <a href="#convex-optimization-problem"
+                >Convex Optimization Problem</a
+              >
+            </li>
+            <li><a href="#shrinking">Shrinking</a></li>
+            <li>
+              <a href="#generic-cutting-plane-method-optim"
+                >Generic Cutting-plane method (Optim)</a
+              >
+            </li>
+            <li>
+              <a href="#example---profit-maximization-problem"
+                >Example - Profit Maximization Problem</a
+              >
+            </li>
+            <li>
+              <a href="#example---profit-maximization-contd"
+                >Example - Profit maximization (cont’d)</a
+              >
+            </li>
+            <li>
+              <a href="#profit-maximization-in-convex-form"
+                >Profit maximization in Convex Form</a
+              >
+            </li>
+            <li><a href="#area-of-applications">Area of Applications</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#robust-convex-optimization">Robust Convex Optimization</a>
+          <ul>
+            <li>
+              <a href="#robust-optimization-formulation"
+                >Robust Optimization Formulation</a
+              >
+            </li>
+            <li>
+              <a href="#example---profit-maximization-problem-convex"
+                >Example - Profit Maximization Problem (convex)</a
+              >
+            </li>
+            <li>
+              <a href="#example---profit-maximization-problem-oracle"
+                >Example - Profit Maximization Problem (oracle)</a
+              >
+            </li>
+            <li>
+              <a href="#oracle-in-robust-optimization-formulation"
+                >Oracle in Robust Optimization Formulation</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="#multi-parameter-network-problem"
+            >Multi-parameter Network Problem</a
+          >
+          <ul>
+            <li>
+              <a href="#parametric-network-problem"
+                >Parametric Network Problem</a
+              >
+            </li>
+            <li>
+              <a href="#network-potential-problem-contd"
+                >Network Potential Problem (cont’d)</a
+              >
+            </li>
+            <li>
+              <a href="#negative-cycle-finding">Negative Cycle Finding</a>
+            </li>
+            <li>
+              <a href="#oracle-in-network-potential-problem"
+                >Oracle in Network Potential Problem</a
+              >
+            </li>
+            <li><a href="#python-code">Python Code</a></li>
+            <li>
+              <a href="#example---optimal-matrix-scaling-orlin1985computing"
+                >Example - Optimal Matrix Scaling
+                <span class="citation" data-cites="orlin1985computing"
+                  >[@orlin1985computing]</span
+                ></a
+              >
+            </li>
+            <li>
+              <a href="#optimal-matrix-scaling-contd"
+                >Optimal Matrix Scaling (cont’d)</a
+              >
+            </li>
+            <li>
+              <a href="#corresponding-python-code-1"
+                >Corresponding Python Code</a
+              >
+            </li>
+            <li>
+              <a href="#example---clock-period-yield-driven-co-optimization"
+                >Example - clock period &amp; yield-driven co-optimization</a
+              >
+            </li>
+            <li>
+              <a href="#example---clock-period-yield-driven-co-optimization-1"
+                >Example - clock period &amp; yield-driven co-optimization</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="#matrix-inequalities">Matrix Inequalities</a>
+          <ul>
+            <li>
+              <a href="#problems-with-matrix-inequalities"
+                >Problems With Matrix Inequalities</a
+              >
+            </li>
+            <li>
+              <a href="#problems-with-matrix-inequalities-1"
+                >Problems With Matrix Inequalities</a
+              >
+            </li>
+            <li>
+              <a href="#oracle-in-matrix-inequalities"
+                >Oracle in Matrix Inequalities</a
+              >
+            </li>
+            <li><a href="#lazy-evaluation">Lazy evaluation</a></li>
+            <li>
+              <a href="#google-benchmark-comparison"
+                >Google Benchmark Comparison</a
+              >
+            </li>
+            <li>
+              <a href="#example---matrix-norm-minimization"
+                >Example - Matrix Norm Minimization</a
+              >
+            </li>
+            <li>
+              <a href="#example---estimation-of-correlation-function"
+                >Example - Estimation of Correlation Function</a
+              >
+            </li>
+            <li>
+              <a href="#experimental-result-i">Experimental Result (I)</a>
+            </li>
+            <li>
+              <a href="#experimental-result-ii">Experimental Result (II)</a>
+            </li>
+            <li>
+              <a href="#experimental-result-iii">Experimental Result (III)</a>
+            </li>
+          </ul>
+        </li>
+        <li><a href="#reference">Reference</a></li>
+      </ul>
+    </nav>
+    <h1 id="introduction">Introduction</h1>
+    <hr />
+    <blockquote>
+      <p>
+        When you have eliminated the impossible, whatever remains, however
+        improbable, must be the truth.
+      </p>
+    </blockquote>
+    <p><em>Sir Arthur Conan Doyle, stated by Sherlock Holmes</em></p>
+    <hr />
+    <h2 id="common-perspective-of-ellipsoid-method">
+      Common Perspective of Ellipsoid Method
+    </h2>
+    <ul>
+      <li>
+        <p>
+          It is commonly believed that it is inefficient in practice for
+          large-scale problems.
+        </p>
+        <ul>
+          <li>
+            <p>The convergent rate is slow, even with the use of deep cuts.</p>
+          </li>
+          <li><p>Cannot exploit sparsity.</p></li>
+        </ul>
+      </li>
+      <li><p>Since then, it was supplanted by interior-point methods.</p></li>
+      <li>
+        <p>
+          Only treated as a theoretical tool for proving the polynomial-time
+          solvability of combinatorial optimization problems.
+        </p>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="but">But…</h2>
+    <ul>
+      <li>
+        <p>
+          The ellipsoid method works very differently compared with the interior
+          point method.
+        </p>
+      </li>
+      <li>
+        <p>
+          Only require a <em>separtion oracle</em>. Can play nicely with other
+          techniques.
+        </p>
+      </li>
+      <li>
+        <p>
+          The ellipsoid method itself cannot exploit sparsity, but the oracle
+          can.
+        </p>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="consider-ellipsoid-method-when">Consider Ellipsoid Method When…</h2>
+    <ul>
+      <li>
+        <p>
+          The number of optimization variables is moderate, e.g. ECO flow,
+          analog circuit sizing, parametric problems
+        </p>
+      </li>
+      <li><p>The number of constraints is large, or even infinite</p></li>
+      <li><p>Oracle can be implemented efficiently.</p></li>
+    </ul>
+    <h1 id="cutting-plane-method-revisited">Cutting-plane Method Revisited</h1>
+    <hr />
+    <h2 id="basic-idea">Basic Idea</h2>
 
-<ul>
-<li>Let <span class="math inline">\mathcal{K} \subseteq \mathbb{R}^n</span> be a convex set.</li>
-<li>Consider the feasibility problem:
-<ul>
-<li>Find a point <span class="math inline">x^* \in \mathbb{R}^n</span> in <span class="math inline">\mathcal{K}</span>,</li>
-<li>or determine that <span class="math inline">\mathcal{K}</span> is empty (i.e., no feasible solution)</li>
-</ul></li>
-</ul>
+    <ul>
+      <li>
+        Let
+        <span class="math inline">\mathcal{K} \subseteq \mathbb{R}^n</span> be a
+        convex set.
+      </li>
+      <li>
+        Consider the feasibility problem:
+        <ul>
+          <li>
+            Find a point
+            <span class="math inline">x^* \in \mathbb{R}^n</span> in
+            <span class="math inline">\mathcal{K}</span>,
+          </li>
+          <li>
+            or determine that <span class="math inline">\mathcal{K}</span> is
+            empty (i.e., no feasible solution)
+          </li>
+        </ul>
+      </li>
+    </ul>
 
+    <hr />
+    <h2 id="separation-oracle">Separation Oracle</h2>
 
+    <ul>
+      <li>
+        When a separation oracle <span class="math inline">\Omega</span> is
+        <em>queried</em> at <span class="math inline">x_0</span>, it either
+        <ul>
+          <li>
+            asserts that <span class="math inline">x_0 \in \mathcal{K}</span>,
+            or
+          </li>
+          <li>
+            returns a separating hyperplane between
+            <span class="math inline">x_0</span> and
+            <span class="math inline">\mathcal{K}</span>:
+            <span class="math display"
+              >g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \ge 0, g \neq 0, \;
+              \forall x \in \mathcal{K}</span
+            >
+          </li>
+        </ul>
+      </li>
+    </ul>
 
-<hr />
-<h2 id="separation-oracle">Separation Oracle</h2>
+    <hr />
+    <h2 id="separation-oracle-contd">Separation oracle (cont’d)</h2>
+    <ul>
+      <li>
+        <p>
+          <span class="math inline">(g, \beta)</span> is called a
+          <em>cutting-plane</em>, or cut, since it eliminates the halfspace
+          <span class="math inline"
+            >\{x \mid g^\mathsf{T} (x - x_0) + \beta &gt; 0\}</span
+          >
+          from our search.
+        </p>
+      </li>
+      <li>
+        <p>
+          If <span class="math inline">\beta=0</span> (<span class="math inline"
+            >x_0</span
+          >
+          is on the boundary of halfspace that is cut), cutting-plane is called
+          <em>neutral cut</em>.
+        </p>
+      </li>
+      <li>
+        <p>
+          If <span class="math inline">\beta&gt;0</span> (<span
+            class="math inline"
+            >x_0</span
+          >
+          lies in the interior of halfspace that is cut), cutting-plane is
+          called <em>deep cut</em>.
+        </p>
+      </li>
+      <li>
+        <p>
+          If <span class="math inline">\beta&lt;0</span> (<span
+            class="math inline"
+            >x_0</span
+          >
+          lies in the exterior of halfspace that is cut), cutting-plane is
+          called <em>shallow cut</em>.
+        </p>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="subgradient">Subgradient</h2>
+    <ul>
+      <li>
+        <p>
+          <span class="math inline">\mathcal{K}</span> is usually given by a set
+          of inequalities <span class="math inline">f_j(x) \le 0</span> or
+          <span class="math inline">f_j(x) &lt; 0</span> for
+          <span class="math inline">j = 1 \cdots m</span>, where
+          <span class="math inline">f_j(x)</span> is a convex function.
+        </p>
+      </li>
+      <li>
+        <p>
+          A vector <span class="math inline">g \equiv \partial f(x_0)</span> is
+          called a subgradient of a convex function
+          <span class="math inline">f</span> at
+          <span class="math inline">x_0</span> if
+          <span class="math inline"
+            >f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)</span
+          >.
+        </p>
+      </li>
+      <li>
+        <p>
+          Hence, the cut <span class="math inline">(g, \beta)</span> is given by
+          <span class="math inline">(\partial f(x_0), f(x_0))</span>
+        </p>
+      </li>
+    </ul>
+    <p>Remarks:</p>
+    <ul>
+      <li>
+        If <span class="math inline">f(x)</span> is differentiable, we can
+        simply take
+        <span class="math inline">\partial f(x_0) = \nabla f(x_0)</span>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="key-components-of-cutting-plane-method">
+      Key components of Cutting-plane method
+    </h2>
+    <ul>
+      <li>Cutting plane oracle <span class="math inline">\Omega</span></li>
+      <li>
+        A search space <span class="math inline">\mathcal{S}</span> initially
+        big enough to cover <span class="math inline">\mathcal{K}</span>, e.g.
+        <ul>
+          <li>
+            Polyhedron <span class="math inline">\mathcal{P}</span> =
+            <span class="math inline">\{z \mid C z \preceq d \}</span>
+          </li>
+          <li>
+            Interval <span class="math inline">\mathcal{I}</span> =
+            <span class="math inline">[l, u]</span> (for one-dimensional
+            problem)
+          </li>
+          <li>
+            Ellipsoid <span class="math inline">\mathcal{E}</span> =
+            <span class="math inline"
+              >\{z \mid (z-x_c)P^{-1}(z-x_c) \le 1 \}</span
+            >
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="generic-cutting-plane-method">Generic Cutting-plane method</h2>
+    <ul>
+      <li>
+        <strong>Given</strong> initial
+        <span class="math inline">\mathcal{S}</span> known to contain
+        <span class="math inline">\mathcal{K}</span>.
+      </li>
+      <li>
+        <strong>Repeat</strong>
+        <ol type="1">
+          <li>
+            Choose a point <span class="math inline">x_0</span> in
+            <span class="math inline">\mathcal{S}</span>
+          </li>
+          <li>
+            Query the cutting-plane oracle at
+            <span class="math inline">x_0</span>
+          </li>
+          <li>
+            <strong>If</strong>
+            <span class="math inline">x_0 \in \mathcal{K}</span>, quit
+          </li>
+          <li>
+            <strong>Else</strong>, update
+            <span class="math inline">\mathcal{S}</span> to a smaller set that
+            covers:
+            <span class="math display"
+              >\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0)
+              + \beta \le 0\}</span
+            >
+          </li>
+          <li>
+            <strong>If</strong>
+            <span class="math inline">\mathcal{S}^+ = \emptyset</span> or it is
+            small enough, quit.
+          </li>
+        </ol>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="corresponding-python-code">Corresponding Python code</h2>
 
-<ul>
-<li>When a separation oracle <span class="math inline">\Omega</span> is <em>queried</em> at <span class="math inline">x_0</span>, it either
-<ul>
-<li>asserts that <span class="math inline">x_0 \in \mathcal{K}</span>, or</li>
-<li>returns a separating hyperplane between <span class="math inline">x_0</span> and <span class="math inline">\mathcal{K}</span>: <span class="math display">g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \ge 0, g \neq 0, \;
-      \forall x \in \mathcal{K}</span></li>
-</ul></li>
-</ul>
-
-
-
-<hr />
-<h2 id="separation-oracle-contd">Separation oracle (cont’d)</h2>
-<ul>
-<li><p><span class="math inline">(g, \beta)</span> is called a <em>cutting-plane</em>, or cut, since it eliminates the halfspace <span class="math inline">\{x \mid g^\mathsf{T} (x - x_0) + \beta &gt; 0\}</span> from our search.</p></li>
-<li><p>If <span class="math inline">\beta=0</span> (<span class="math inline">x_0</span> is on the boundary of halfspace that is cut), cutting-plane is called <em>neutral cut</em>.</p></li>
-<li><p>If <span class="math inline">\beta&gt;0</span> (<span class="math inline">x_0</span> lies in the interior of halfspace that is cut), cutting-plane is called <em>deep cut</em>.</p></li>
-<li><p>If <span class="math inline">\beta&lt;0</span> (<span class="math inline">x_0</span> lies in the exterior of halfspace that is cut), cutting-plane is called <em>shallow cut</em>.</p></li>
-</ul>
-<hr />
-<h2 id="subgradient">Subgradient</h2>
-<ul>
-<li><p><span class="math inline">\mathcal{K}</span> is usually given by a set of inequalities <span class="math inline">f_j(x) \le 0</span> or <span class="math inline">f_j(x) &lt; 0</span> for <span class="math inline">j = 1 \cdots m</span>, where <span class="math inline">f_j(x)</span> is a convex function.</p></li>
-<li><p>A vector <span class="math inline">g \equiv \partial f(x_0)</span> is called a subgradient of a convex function <span class="math inline">f</span> at <span class="math inline">x_0</span> if <span class="math inline">f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)</span>.</p></li>
-<li><p>Hence, the cut <span class="math inline">(g, \beta)</span> is given by <span class="math inline">(\partial f(x_0), f(x_0))</span></p></li>
-</ul>
-<p>Remarks:</p>
-<ul>
-<li>If <span class="math inline">f(x)</span> is differentiable, we can simply take <span class="math inline">\partial f(x_0) = \nabla f(x_0)</span></li>
-</ul>
-<hr />
-<h2 id="key-components-of-cutting-plane-method">Key components of Cutting-plane method</h2>
-<ul>
-<li>Cutting plane oracle <span class="math inline">\Omega</span></li>
-<li>A search space <span class="math inline">\mathcal{S}</span> initially big enough to cover <span class="math inline">\mathcal{K}</span>, e.g.
-<ul>
-<li>Polyhedron <span class="math inline">\mathcal{P}</span> = <span class="math inline">\{z \mid C z \preceq d \}</span></li>
-<li>Interval <span class="math inline">\mathcal{I}</span> = <span class="math inline">[l, u]</span> (for one-dimensional problem)</li>
-<li>Ellipsoid <span class="math inline">\mathcal{E}</span> = <span class="math inline">\{z \mid (z-x_c)P^{-1}(z-x_c) \le 1 \}</span></li>
-</ul></li>
-</ul>
-<hr />
-<h2 id="generic-cutting-plane-method">Generic Cutting-plane method</h2>
-<ul>
-<li><strong>Given</strong> initial <span class="math inline">\mathcal{S}</span> known to contain <span class="math inline">\mathcal{K}</span>.</li>
-<li><strong>Repeat</strong>
-<ol type="1">
-<li>Choose a point <span class="math inline">x_0</span> in <span class="math inline">\mathcal{S}</span></li>
-<li>Query the cutting-plane oracle at <span class="math inline">x_0</span></li>
-<li><strong>If</strong> <span class="math inline">x_0 \in \mathcal{K}</span>, quit</li>
-<li><strong>Else</strong>, update <span class="math inline">\mathcal{S}</span> to a smaller set that covers: <span class="math display">\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\}</span></li>
-<li><strong>If</strong> <span class="math inline">\mathcal{S}^+ = \emptyset</span> or it is small enough, quit.</li>
-</ol></li>
-</ul>
-<hr />
-<h2 id="corresponding-python-code">Corresponding Python code</h2>
-
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">def</span> cutting_plane_feas(evaluate, S, options<span class="op">=</span>Options()):</span>
+    <div class="sourceCode" id="cb1">
+      <pre
+        class="sourceCode python"
+      ><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">def</span> cutting_plane_feas(evaluate, S, options<span class="op">=</span>Options()):</span>
 <span id="cb1-2"><a href="#cb1-2"></a>    feasible <span class="op">=</span> <span class="va">False</span></span>
 <span id="cb1-3"><a href="#cb1-3"></a>    status <span class="op">=</span> <span class="dv">0</span></span>
 <span id="cb1-4"><a href="#cb1-4"></a>    <span class="cf">for</span> niter <span class="kw">in</span> <span class="bu">range</span>(options.max_it):</span>
@@ -279,32 +716,81 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-11"><a href="#cb1-11"></a>        <span class="cf">if</span> tsq <span class="op">&lt;</span> options.tol:</span>
 <span id="cb1-12"><a href="#cb1-12"></a>            status <span class="op">=</span> <span class="dv">2</span></span>
 <span id="cb1-13"><a href="#cb1-13"></a>            <span class="cf">break</span></span>
-<span id="cb1-14"><a href="#cb1-14"></a>    <span class="cf">return</span> S.xc, niter<span class="op">+</span><span class="dv">1</span>, feasible, status</span></code></pre></div>
-<hr />
-<h2 id="from-feasibility-to-optimization">From Feasibility to Optimization</h2>
-<p><span class="math display">\begin{array}{ll}
-    \text{minimize}     &amp; f_0(x), \\
-    \text{subject to}   &amp; x \in \mathcal{K}
-\end{array}</span></p>
-<ul>
-<li><p>The optimization problem is treated as a feasibility problem with an additional constraint <span class="math inline">f_0(x) \le \gamma</span></p></li>
-<li><p><span class="math inline">f_0(x)</span> could be a convex function or a <em>quasiconvex function</em>.</p></li>
-<li><p><span class="math inline">t</span> is also called the <em>best-so-far</em> value of <span class="math inline">f_0(x)</span>.</p></li>
-</ul>
-<hr />
-<h2 id="convex-optimization-problem">Convex Optimization Problem</h2>
-<ul>
-<li><p>Consider the following general form: <span class="math display">\begin{array}{ll}
-            \text{minimize}         &amp; \gamma, \\
-            \text{subject to}   &amp; \Phi(x, \gamma) \le 0 \\
-                                &amp; x \in \mathcal{K}
-  \end{array}</span> where <span class="math inline">\mathcal{K}&#39;_\gamma = \{x \mid \Phi(x, \gamma) \le 0\}</span> is the <span class="math inline">t</span>-sublevel set of <span class="math inline">\{x \mid f_0(x) \le \gamma\}</span>.</p></li>
-<li><p>Note: <span class="math inline">\mathcal{K&#39;}_\gamma \subseteq \mathcal{K&#39;}_u</span> if and only if <span class="math inline">\gamma \le u</span> (monotonicity)</p></li>
-<li><p>One easy way to solve the optimization problem is to apply the binary search on <span class="math inline">t</span>.</p></li>
-</ul>
-<hr />
+<span id="cb1-14"><a href="#cb1-14"></a>    <span class="cf">return</span> S.xc, niter<span class="op">+</span><span class="dv">1</span>, feasible, status</span></code></pre>
+    </div>
+    <hr />
+    <h2 id="from-feasibility-to-optimization">
+      From Feasibility to Optimization
+    </h2>
+    <p>
+      <span class="math display"
+        >\begin{array}{ll} \text{minimize} &amp; f_0(x), \\ \text{subject to}
+        &amp; x \in \mathcal{K} \end{array}</span
+      >
+    </p>
+    <ul>
+      <li>
+        <p>
+          The optimization problem is treated as a feasibility problem with an
+          additional constraint
+          <span class="math inline">f_0(x) \le \gamma</span>
+        </p>
+      </li>
+      <li>
+        <p>
+          <span class="math inline">f_0(x)</span> could be a convex function or
+          a <em>quasiconvex function</em>.
+        </p>
+      </li>
+      <li>
+        <p>
+          <span class="math inline">t</span> is also called the
+          <em>best-so-far</em> value of <span class="math inline">f_0(x)</span>.
+        </p>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="convex-optimization-problem">Convex Optimization Problem</h2>
+    <ul>
+      <li>
+        <p>
+          Consider the following general form:
+          <span class="math display"
+            >\begin{array}{ll} \text{minimize} &amp; \gamma, \\ \text{subject
+            to} &amp; \Phi(x, \gamma) \le 0 \\ &amp; x \in \mathcal{K}
+            \end{array}</span
+          >
+          where
+          <span class="math inline"
+            >\mathcal{K}&#39;_\gamma = \{x \mid \Phi(x, \gamma) \le 0\}</span
+          >
+          is the <span class="math inline">t</span>-sublevel set of
+          <span class="math inline">\{x \mid f_0(x) \le \gamma\}</span>.
+        </p>
+      </li>
+      <li>
+        <p>
+          Note:
+          <span class="math inline"
+            >\mathcal{K&#39;}_\gamma \subseteq \mathcal{K&#39;}_u</span
+          >
+          if and only if
+          <span class="math inline">\gamma \le u</span> (monotonicity)
+        </p>
+      </li>
+      <li>
+        <p>
+          One easy way to solve the optimization problem is to apply the binary
+          search on <span class="math inline">t</span>.
+        </p>
+      </li>
+    </ul>
+    <hr />
 
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">def</span> bsearch(evaluate, I, options<span class="op">=</span>Options()):</span>
+    <div class="sourceCode" id="cb2">
+      <pre
+        class="sourceCode python"
+      ><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">def</span> bsearch(evaluate, I, options<span class="op">=</span>Options()):</span>
 <span id="cb2-2"><a href="#cb2-2"></a>    feasible <span class="op">=</span> <span class="va">False</span></span>
 <span id="cb2-3"><a href="#cb2-3"></a>    l, u <span class="op">=</span> I</span>
 <span id="cb2-4"><a href="#cb2-4"></a>    gamma <span class="op">=</span> l <span class="op">+</span> (u <span class="op">-</span> l)<span class="op">/</span><span class="dv">2</span></span>
@@ -318,10 +804,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb2-12"><a href="#cb2-12"></a>        gamma <span class="op">=</span> l <span class="op">+</span> tau</span>
 <span id="cb2-13"><a href="#cb2-13"></a>        <span class="cf">if</span> tau <span class="op">&lt;</span> options.tol:</span>
 <span id="cb2-14"><a href="#cb2-14"></a>            <span class="cf">break</span></span>
-<span id="cb2-15"><a href="#cb2-15"></a>    <span class="cf">return</span> u, niter<span class="op">+</span><span class="dv">1</span>, feasible</span></code></pre></div>
-<hr />
+<span id="cb2-15"><a href="#cb2-15"></a>    <span class="cf">return</span> u, niter<span class="op">+</span><span class="dv">1</span>, feasible</span></code></pre>
+    </div>
+    <hr />
 
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">class</span> bsearch_adaptor:</span>
+    <div class="sourceCode" id="cb3">
+      <pre
+        class="sourceCode python"
+      ><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">class</span> bsearch_adaptor:</span>
 <span id="cb3-2"><a href="#cb3-2"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, P, E, options<span class="op">=</span>Options()):</span>
 <span id="cb3-3"><a href="#cb3-3"></a>        <span class="va">self</span>.P <span class="op">=</span> P</span>
 <span id="cb3-4"><a href="#cb3-4"></a>        <span class="va">self</span>.E <span class="op">=</span> E</span>
@@ -339,29 +829,77 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb3-16"><a href="#cb3-16"></a>        <span class="cf">if</span> feasible:</span>
 <span id="cb3-17"><a href="#cb3-17"></a>            <span class="va">self</span>.E._xc <span class="op">=</span> x.copy()</span>
 <span id="cb3-18"><a href="#cb3-18"></a>            <span class="cf">return</span> <span class="va">True</span></span>
-<span id="cb3-19"><a href="#cb3-19"></a>        <span class="cf">return</span> <span class="va">False</span></span></code></pre></div>
-<hr />
-<h2 id="shrinking">Shrinking</h2>
-<ul>
-<li><p>Another possible way is, to update the best-so-far <span class="math inline">t</span> whenever a feasible solution <span class="math inline">x_0</span> is found by solving the equation <span class="math inline">\Phi(x_0, t_\text{new}) = 0</span>.</p></li>
-<li><p>If the equation is difficuit to solve but <span class="math inline">t</span> is also convex w.r.t. <span class="math inline">\Phi</span>, then we may create a new varaible, say <span class="math inline">x_{n+1}</span> and let <span class="math inline">x_{n+1} \le \gamma&#39;</span>.</p></li>
-</ul>
-<hr />
-<h2 id="generic-cutting-plane-method-optim">Generic Cutting-plane method (Optim)</h2>
-<ul>
-<li><strong>Given</strong> initial <span class="math inline">\mathcal{S}</span> known to contain <span class="math inline">\mathcal{K}_\gamma</span>.</li>
-<li><strong>Repeat</strong>
-<ol type="1">
-<li>Choose a point <span class="math inline">x_0</span> in <span class="math inline">\mathcal{S}</span></li>
-<li>Query the separation oracle at <span class="math inline">x_0</span></li>
-<li><strong>If</strong> <span class="math inline">x_0 \in \mathcal{K}_\gamma</span>, update <span class="math inline">t</span> such that <span class="math inline">\Phi(x_0, \gamma) = 0</span>.</li>
-<li>Update <span class="math inline">\mathcal{S}</span> to a smaller set that covers: <span class="math display">\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\} </span></li>
-<li><strong>If</strong> <span class="math inline">\mathcal{S}^+ = \emptyset</span> or it is small enough, quit.</li>
-</ol></li>
-</ul>
-<hr />
+<span id="cb3-19"><a href="#cb3-19"></a>        <span class="cf">return</span> <span class="va">False</span></span></code></pre>
+    </div>
+    <hr />
+    <h2 id="shrinking">Shrinking</h2>
+    <ul>
+      <li>
+        <p>
+          Another possible way is, to update the best-so-far
+          <span class="math inline">t</span> whenever a feasible solution
+          <span class="math inline">x_0</span> is found by solving the equation
+          <span class="math inline">\Phi(x_0, t_\text{new}) = 0</span>.
+        </p>
+      </li>
+      <li>
+        <p>
+          If the equation is difficuit to solve but
+          <span class="math inline">t</span> is also convex w.r.t.
+          <span class="math inline">\Phi</span>, then we may create a new
+          varaible, say <span class="math inline">x_{n+1}</span> and let
+          <span class="math inline">x_{n+1} \le \gamma&#39;</span>.
+        </p>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="generic-cutting-plane-method-optim">
+      Generic Cutting-plane method (Optim)
+    </h2>
+    <ul>
+      <li>
+        <strong>Given</strong> initial
+        <span class="math inline">\mathcal{S}</span> known to contain
+        <span class="math inline">\mathcal{K}_\gamma</span>.
+      </li>
+      <li>
+        <strong>Repeat</strong>
+        <ol type="1">
+          <li>
+            Choose a point <span class="math inline">x_0</span> in
+            <span class="math inline">\mathcal{S}</span>
+          </li>
+          <li>
+            Query the separation oracle at <span class="math inline">x_0</span>
+          </li>
+          <li>
+            <strong>If</strong>
+            <span class="math inline">x_0 \in \mathcal{K}_\gamma</span>, update
+            <span class="math inline">t</span> such that
+            <span class="math inline">\Phi(x_0, \gamma) = 0</span>.
+          </li>
+          <li>
+            Update <span class="math inline">\mathcal{S}</span> to a smaller set
+            that covers:
+            <span class="math display"
+              >\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0)
+              + \beta \le 0\}
+            </span>
+          </li>
+          <li>
+            <strong>If</strong>
+            <span class="math inline">\mathcal{S}^+ = \emptyset</span> or it is
+            small enough, quit.
+          </li>
+        </ol>
+      </li>
+    </ul>
+    <hr />
 
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">def</span> cutting_plane_dc(evaluate, S, \gamma, options<span class="op">=</span>Options()):</span>
+    <div class="sourceCode" id="cb4">
+      <pre
+        class="sourceCode python"
+      ><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">def</span> cutting_plane_dc(evaluate, S, \gamma, options<span class="op">=</span>Options()):</span>
 <span id="cb4-2"><a href="#cb4-2"></a>    feasible <span class="op">=</span> <span class="va">False</span>  <span class="co"># no sol&#39;n</span></span>
 <span id="cb4-3"><a href="#cb4-3"></a>    x_best <span class="op">=</span> S.xc</span>
 <span id="cb4-4"><a href="#cb4-4"></a>    <span class="cf">for</span> niter <span class="kw">in</span> <span class="bu">range</span>(options.max_it):</span>
@@ -376,50 +914,85 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb4-13"><a href="#cb4-13"></a>        <span class="cf">if</span> tau <span class="op">&lt;</span> options.tol:</span>
 <span id="cb4-14"><a href="#cb4-14"></a>            status <span class="op">=</span> <span class="dv">2</span></span>
 <span id="cb4-15"><a href="#cb4-15"></a>            <span class="cf">break</span></span>
-<span id="cb4-16"><a href="#cb4-16"></a>    <span class="cf">return</span> x_best, \gamma, niter<span class="op">+</span><span class="dv">1</span>, feasible, status</span></code></pre></div>
-<hr />
-<h2 id="example---profit-maximization-problem">Example - Profit Maximization Problem</h2>
-<p>This example is taken from <span class="citation" data-cites="Aliabadi2013Robust">[@Aliabadi2013Robust]</span>.</p>
-<p><span class="math display">\begin{array}{ll}
-   \text{maximize} &amp; p(A x_1^\alpha x_2^\beta) - v_1 x_1 - v_2 x_2 \\
-   \text{subject to}&amp; x_1 \le k.
-\end{array}</span></p>
-<ul>
-<li><span class="math inline">p(A x_1^\alpha x_2^\beta)</span> : Cobb-Douglas production function</li>
-<li><span class="math inline">p</span>: the market price per unit</li>
-<li><span class="math inline">A</span>: the scale of production</li>
-<li><span class="math inline">\alpha, \beta</span>: the output elasticities</li>
-<li><span class="math inline">x</span>: input quantity</li>
-<li><span class="math inline">v</span>: output price</li>
-<li><span class="math inline">k</span>: a given constant that restricts the quantity of <span class="math inline">x_1</span></li>
-</ul>
-<hr />
-<h2 id="example---profit-maximization-contd">Example - Profit maximization (cont’d)</h2>
-<ul>
-<li>The formulation is not in the convex form.</li>
-<li>Rewrite the problem in the following form: <span class="math display">\begin{array}{ll}
-  \text{maximize} &amp; \gamma \\
-  \text{subject to} &amp; gamma  + v_1 x_1  + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}\\
-                &amp; x_1 \le k.
-  \end{array}</span></li>
-</ul>
-<hr />
-<h2 id="profit-maximization-in-convex-form">Profit maximization in Convex Form</h2>
-<ul>
-<li><p>By taking the logarithm of each variable:</p>
-<ul>
-<li><span class="math inline">y_1 = \log x_1</span>, <span class="math inline">y_2 = \log x_2</span>.</li>
-</ul></li>
-<li><p>We have the problem in a convex form:</p></li>
-</ul>
-<p><span class="math display">\begin{array}{ll}
-    \text{max}  &amp; \gamma \\
-    \text{s.t.} &amp; \log(\gamma + v_1 e^{y_1} + v_2 e^{y_2}) - (\alpha y_1 + \beta y_2) \le \log(pA) \\
-                &amp; y_1 \le \log k.
-\end{array}</span></p>
-<hr />
+<span id="cb4-16"><a href="#cb4-16"></a>    <span class="cf">return</span> x_best, \gamma, niter<span class="op">+</span><span class="dv">1</span>, feasible, status</span></code></pre>
+    </div>
+    <hr />
+    <h2 id="example---profit-maximization-problem">
+      Example - Profit Maximization Problem
+    </h2>
+    <p>
+      This example is taken from
+      <span class="citation" data-cites="Aliabadi2013Robust"
+        >[@Aliabadi2013Robust]</span
+      >.
+    </p>
+    <p>
+      <span class="math display"
+        >\begin{array}{ll} \text{maximize} &amp; p(A x_1^\alpha x_2^\beta) - v_1
+        x_1 - v_2 x_2 \\ \text{subject to}&amp; x_1 \le k. \end{array}</span
+      >
+    </p>
+    <ul>
+      <li>
+        <span class="math inline">p(A x_1^\alpha x_2^\beta)</span> :
+        Cobb-Douglas production function
+      </li>
+      <li><span class="math inline">p</span>: the market price per unit</li>
+      <li><span class="math inline">A</span>: the scale of production</li>
+      <li>
+        <span class="math inline">\alpha, \beta</span>: the output elasticities
+      </li>
+      <li><span class="math inline">x</span>: input quantity</li>
+      <li><span class="math inline">v</span>: output price</li>
+      <li>
+        <span class="math inline">k</span>: a given constant that restricts the
+        quantity of <span class="math inline">x_1</span>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="example---profit-maximization-contd">
+      Example - Profit maximization (cont’d)
+    </h2>
+    <ul>
+      <li>The formulation is not in the convex form.</li>
+      <li>
+        Rewrite the problem in the following form:
+        <span class="math display"
+          >\begin{array}{ll} \text{maximize} &amp; \gamma \\ \text{subject to}
+          &amp; gamma + v_1 x_1 + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}\\
+          &amp; x_1 \le k. \end{array}</span
+        >
+      </li>
+    </ul>
+    <hr />
+    <h2 id="profit-maximization-in-convex-form">
+      Profit maximization in Convex Form
+    </h2>
+    <ul>
+      <li>
+        <p>By taking the logarithm of each variable:</p>
+        <ul>
+          <li>
+            <span class="math inline">y_1 = \log x_1</span>,
+            <span class="math inline">y_2 = \log x_2</span>.
+          </li>
+        </ul>
+      </li>
+      <li><p>We have the problem in a convex form:</p></li>
+    </ul>
+    <p>
+      <span class="math display"
+        >\begin{array}{ll} \text{max} &amp; \gamma \\ \text{s.t.} &amp;
+        \log(\gamma + v_1 e^{y_1} + v_2 e^{y_2}) - (\alpha y_1 + \beta y_2) \le
+        \log(pA) \\ &amp; y_1 \le \log k. \end{array}</span
+      >
+    </p>
+    <hr />
 
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">class</span> profit_oracle:</span>
+    <div class="sourceCode" id="cb5">
+      <pre
+        class="sourceCode python"
+      ><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">class</span> profit_oracle:</span>
 <span id="cb5-2"><a href="#cb5-2"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, params, a, v):</span>
 <span id="cb5-3"><a href="#cb5-3"></a>        p, A, k <span class="op">=</span> params</span>
 <span id="cb5-4"><a href="#cb5-4"></a>        <span class="va">self</span>.log_pA <span class="op">=</span> np.log(p <span class="op">*</span> A)</span>
@@ -442,10 +1015,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb5-21"><a href="#cb5-21"></a>            gamma <span class="op">=</span> te <span class="op">-</span> vx</span>
 <span id="cb5-22"><a href="#cb5-22"></a>            fj <span class="op">=</span> <span class="fl">0.</span></span>
 <span id="cb5-23"><a href="#cb5-23"></a>        g <span class="op">=</span> (<span class="va">self</span>.v <span class="op">*</span> x) <span class="op">/</span> te <span class="op">-</span> <span class="va">self</span>.a</span>
-<span id="cb5-24"><a href="#cb5-24"></a>        <span class="cf">return</span> (g, fj), t</span></code></pre></div>
-<hr />
+<span id="cb5-24"><a href="#cb5-24"></a>        <span class="cf">return</span> (g, fj), t</span></code></pre>
+    </div>
+    <hr />
 
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># Main program</span></span>
+    <div class="sourceCode" id="cb6">
+      <pre
+        class="sourceCode python"
+      ><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># Main program</span></span>
 <span id="cb6-2"><a href="#cb6-2"></a></span>
 <span id="cb6-3"><a href="#cb6-3"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb6-4"><a href="#cb6-4"></a><span class="im">from</span> profit_oracle <span class="im">import</span> <span class="op">*</span></span>
@@ -461,65 +1038,126 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb6-14"><a href="#cb6-14"></a>P <span class="op">=</span> profit_oracle(params, a, v)</span>
 <span id="cb6-15"><a href="#cb6-15"></a>yb1, fb, niter, feasible, status <span class="op">=</span> <span class="op">\</span></span>
 <span id="cb6-16"><a href="#cb6-16"></a>    cutting_plane_dc(P, E, <span class="fl">0.0</span>)</span>
-<span id="cb6-17"><a href="#cb6-17"></a><span class="bu">print</span>(fb, niter, feasible, status)</span></code></pre></div>
-<hr />
-<h2 id="area-of-applications">Area of Applications</h2>
-<ul>
-<li>Robust convex optimization
-<ul>
-<li>oracle technique: affine arithmetic</li>
-</ul></li>
-<li>Parametric network potential problem
-<ul>
-<li>oracle technique: negative cycle detection</li>
-</ul></li>
-<li>Semidefinite programming
-<ul>
-<li>oracle technique: Cholesky or <span class="math inline">LDL^\mathsf{T}</span> factorization</li>
-</ul></li>
-</ul>
-<h1 id="robust-convex-optimization">Robust Convex Optimization</h1>
-<hr />
-<h2 id="robust-optimization-formulation">Robust Optimization Formulation</h2>
-<ul>
-<li><p>Consider: <span class="math display">\begin{array}{ll}
-    \text{minimize}   &amp; \sup_{q \in \mathbb Q} f_0(x,q) \\
-    \text{subject to} &amp; f_j(x,q) \le 0, \;
-     \forall q \in {\mathbb Q}, \; j = 1,2,\cdots,m,
-  \end{array}</span> where <span class="math inline">q</span> represents a set of varying parameters.</p></li>
-<li><p>The problem can be reformulated as: <span class="math display">\begin{array}{ll}
-    \text{minimize}   &amp; \gamma \\
-    \text{subject to} &amp; \sup_{q \in \mathbb Q} f_0(x,q) \le \gamma  \\
-    &amp; f_j(x,q) \le 0, \;
-     \forall q \in {\mathbb Q}, \; j = 1,2,\cdots,m,
-  \end{array}</span></p></li>
-</ul>
-<hr />
-<h2 id="example---profit-maximization-problem-convex">Example - Profit Maximization Problem (convex)</h2>
-<p><span class="math display">\begin{array}{ll}
-\text{max}  &amp; \gamma \\
-\text{s.t.} &amp; \log(\gamma + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) - (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A)  \\
-                  &amp; y_1 \le \log \hat{k} ,
-\end{array}</span></p>
-<ul>
-<li>Now assume that:
-<ul>
-<li><span class="math inline">\hat{\alpha}</span> and <span class="math inline">\hat{\beta}</span> vary <span class="math inline">\bar{\alpha} \pm e_1</span> and <span class="math inline">\bar{\beta} \pm e_2</span> respectively.</li>
-<li><span class="math inline">\hat{p}</span>, <span class="math inline">\hat{k}</span>, <span class="math inline">\hat{v}_1</span>, and <span class="math inline">\hat{v}_2</span> all vary <span class="math inline">\pm e_3</span>.</li>
-</ul></li>
-</ul>
-<hr />
-<h2 id="example---profit-maximization-problem-oracle">Example - Profit Maximization Problem (oracle)</h2>
-<p>By detail analysis, the worst case happens when:</p>
-<ul>
-<li><span class="math inline">p = \bar{p} - e_3</span>, <span class="math inline">k = \bar{k} - e_3</span></li>
-<li><span class="math inline">v_1 = \bar{v}_1 + e_3</span>, <span class="math inline">v_2 = \bar{v}_2 + e_3</span>,</li>
-<li>if <span class="math inline">y_1 &gt; 0</span>, <span class="math inline">\alpha = \bar{\alpha} - e_1</span>, else <span class="math inline">\alpha = \bar{\alpha} + e_1</span></li>
-<li>if <span class="math inline">y_2 &gt; 0</span>, <span class="math inline">\beta = \bar{\beta} - e_2</span>, else <span class="math inline">\beta = \bar{\beta} + e_2</span></li>
-</ul>
-<hr />
+<span id="cb6-17"><a href="#cb6-17"></a><span class="bu">print</span>(fb, niter, feasible, status)</span></code></pre>
+    </div>
+    <hr />
+    <h2 id="area-of-applications">Area of Applications</h2>
+    <ul>
+      <li>
+        Robust convex optimization
+        <ul>
+          <li>oracle technique: affine arithmetic</li>
+        </ul>
+      </li>
+      <li>
+        Parametric network potential problem
+        <ul>
+          <li>oracle technique: negative cycle detection</li>
+        </ul>
+      </li>
+      <li>
+        Semidefinite programming
+        <ul>
+          <li>
+            oracle technique: Cholesky or
+            <span class="math inline">LDL^\mathsf{T}</span> factorization
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <h1 id="robust-convex-optimization">Robust Convex Optimization</h1>
+    <hr />
+    <h2 id="robust-optimization-formulation">
+      Robust Optimization Formulation
+    </h2>
+    <ul>
+      <li>
+        <p>
+          Consider:
+          <span class="math display"
+            >\begin{array}{ll} \text{minimize} &amp; \sup_{q \in \mathbb Q}
+            f_0(x,q) \\ \text{subject to} &amp; f_j(x,q) \le 0, \; \forall q \in
+            {\mathbb Q}, \; j = 1,2,\cdots,m, \end{array}</span
+          >
+          where <span class="math inline">q</span> represents a set of varying
+          parameters.
+        </p>
+      </li>
+      <li>
+        <p>
+          The problem can be reformulated as:
+          <span class="math display"
+            >\begin{array}{ll} \text{minimize} &amp; \gamma \\ \text{subject to}
+            &amp; \sup_{q \in \mathbb Q} f_0(x,q) \le \gamma \\ &amp; f_j(x,q)
+            \le 0, \; \forall q \in {\mathbb Q}, \; j = 1,2,\cdots,m,
+            \end{array}</span
+          >
+        </p>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="example---profit-maximization-problem-convex">
+      Example - Profit Maximization Problem (convex)
+    </h2>
+    <p>
+      <span class="math display"
+        >\begin{array}{ll} \text{max} &amp; \gamma \\ \text{s.t.} &amp;
+        \log(\gamma + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) - (\hat{\alpha} y_1
+        + \hat{\beta} y_2) \le \log(\hat{p}\,A) \\ &amp; y_1 \le \log \hat{k} ,
+        \end{array}</span
+      >
+    </p>
+    <ul>
+      <li>
+        Now assume that:
+        <ul>
+          <li>
+            <span class="math inline">\hat{\alpha}</span> and
+            <span class="math inline">\hat{\beta}</span> vary
+            <span class="math inline">\bar{\alpha} \pm e_1</span> and
+            <span class="math inline">\bar{\beta} \pm e_2</span> respectively.
+          </li>
+          <li>
+            <span class="math inline">\hat{p}</span>,
+            <span class="math inline">\hat{k}</span>,
+            <span class="math inline">\hat{v}_1</span>, and
+            <span class="math inline">\hat{v}_2</span> all vary
+            <span class="math inline">\pm e_3</span>.
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="example---profit-maximization-problem-oracle">
+      Example - Profit Maximization Problem (oracle)
+    </h2>
+    <p>By detail analysis, the worst case happens when:</p>
+    <ul>
+      <li>
+        <span class="math inline">p = \bar{p} - e_3</span>,
+        <span class="math inline">k = \bar{k} - e_3</span>
+      </li>
+      <li>
+        <span class="math inline">v_1 = \bar{v}_1 + e_3</span>,
+        <span class="math inline">v_2 = \bar{v}_2 + e_3</span>,
+      </li>
+      <li>
+        if <span class="math inline">y_1 &gt; 0</span>,
+        <span class="math inline">\alpha = \bar{\alpha} - e_1</span>, else
+        <span class="math inline">\alpha = \bar{\alpha} + e_1</span>
+      </li>
+      <li>
+        if <span class="math inline">y_2 &gt; 0</span>,
+        <span class="math inline">\beta = \bar{\beta} - e_2</span>, else
+        <span class="math inline">\beta = \bar{\beta} + e_2</span>
+      </li>
+    </ul>
+    <hr />
 
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">class</span> profit_rb_oracle:</span>
+    <div class="sourceCode" id="cb7">
+      <pre
+        class="sourceCode python"
+      ><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">class</span> profit_rb_oracle:</span>
 <span id="cb7-2"><a href="#cb7-2"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, params, a, v, vparams):</span>
 <span id="cb7-3"><a href="#cb7-3"></a>        ui, e1, e2, e3 <span class="op">=</span> vparams</span>
 <span id="cb7-4"><a href="#cb7-4"></a>        <span class="va">self</span>.uie <span class="op">=</span> [ui <span class="op">*</span> e1, ui <span class="op">*</span> e2]</span>
@@ -537,75 +1175,178 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb7-16"><a href="#cb7-16"></a>            a_rb[i] <span class="op">+=</span> <span class="va">self</span>.uie[i] <span class="cf">if</span> y[i] <span class="op">&lt;=</span> <span class="fl">0.</span> <span class="op">\</span></span>
 <span id="cb7-17"><a href="#cb7-17"></a>                              <span class="cf">else</span> <span class="op">-</span><span class="va">self</span>.uie[i]</span>
 <span id="cb7-18"><a href="#cb7-18"></a>        <span class="va">self</span>.P.a <span class="op">=</span> a_rb</span>
-<span id="cb7-19"><a href="#cb7-19"></a>        <span class="cf">return</span> <span class="va">self</span>.P(y, t)</span></code></pre></div>
-<hr />
-<h2 id="oracle-in-robust-optimization-formulation">Oracle in Robust Optimization Formulation</h2>
-<ul>
-<li>The oracle only needs to determine:
-<ul>
-<li>If <span class="math inline">f_j(x_0, q) &gt; 0</span> for some <span class="math inline">j</span> and <span class="math inline">q = q_0</span>, then
-<ul>
-<li>the cut <span class="math inline">(g, \beta)</span> = <span class="math inline">(\partial f_j(x_0, q_0), f_j(x_0, q_0))</span></li>
-</ul></li>
-<li>If <span class="math inline">f_0(x_0, q) \ge t</span> for some <span class="math inline">q = q_0</span>, then
-<ul>
-<li>the cut <span class="math inline">(g, \beta)</span> = <span class="math inline">(\partial f_0(x_0, q_0), f_0(x_0, q_0) - t)</span></li>
-</ul></li>
-<li>Otherwise, <span class="math inline">x_0</span> is feasible, then
-<ul>
-<li>Let <span class="math inline">q_{\max} = \text{argmax}_{q \in \mathbb Q} f_0(x_0, q)</span>.</li>
-<li><span class="math inline">t := f_0(x_0, q_{\max})</span>.</li>
-<li>The cut <span class="math inline">(g, \beta)</span> = <span class="math inline">(\partial f_0(x_0, q_{\max}), 0)</span></li>
-</ul></li>
-</ul></li>
-</ul>
-<p>Remark:</p>
-<ul>
-<li>for more complicated problems, affine arithmetic could be used <span class="citation" data-cites="liu2007robust">[@liu2007robust]</span>.</li>
-</ul>
-<h1 id="multi-parameter-network-problem">Multi-parameter Network Problem</h1>
-<hr />
-<h2 id="parametric-network-problem">Parametric Network Problem</h2>
-<p>Given a network represented by a directed graph <span class="math inline">G = (V, E)</span>.</p>
-<p>Consider:</p>
-<p><span class="math display">\begin{array}{ll}
-    \text{find} &amp; x, {\color{red}u} \\
-    \text{subject to} &amp; {\color{red}u_j} - {\color{red}u_i} \le h_{ij}(x), \; \forall (i, j) \in E ,
-   \end{array}</span></p>
-<ul>
-<li><p><span class="math inline">h_{ij}(x)</span> is the concave function of edge <span class="math inline">(i,j)</span>,</p></li>
-<li><p>Assume: network is large but the number of parameters is small.</p></li>
-</ul>
-<hr />
-<h2 id="network-potential-problem-contd">Network Potential Problem (cont’d)</h2>
-<p>Given <span class="math inline">x</span>, the problem has a feasible solution if and only if <span class="math inline">G</span> contains no negative cycle. Let <span class="math inline">\mathcal{C}</span> be a set of all cycles of <span class="math inline">G</span>.</p>
-<p><span class="math display">\begin{array}{ll}
-    \text{find} &amp; x \\
-    \text{subject to} &amp; w_k(x) \ge 0, \forall C_k \in \mathcal{C} ,
-\end{array}</span></p>
-<ul>
-<li><p><span class="math inline">C_k</span> is a cycle of <span class="math inline">G</span></p></li>
-<li><p><span class="math inline">w_k(x) = \sum_{ (i,j)\in C_k} h_{ij}(x)</span>.</p></li>
-</ul>
-<hr />
-<h2 id="negative-cycle-finding">Negative Cycle Finding</h2>
-<p>There are lots of methods to detect negative cycles in a weighted graph <span class="citation" data-cites="cherkassky1999negative">[@cherkassky1999negative]</span>, in which Tarjan’s algorithm <span class="citation" data-cites="Tarjan1981negcycle">[@Tarjan1981negcycle]</span> is one of the fastest algorithms in practice <span class="citation" data-cites="alg:dasdan_mcr cherkassky1999negative">[@alg:dasdan_mcr; @cherkassky1999negative]</span>.</p>
-<hr />
-<h2 id="oracle-in-network-potential-problem">Oracle in Network Potential Problem</h2>
-<ul>
-<li>The oracle only needs to determine:
-<ul>
-<li>If there exists a negative cycle <span class="math inline">C_k</span> under <span class="math inline">x_0</span>, then
-<ul>
-<li>the cut <span class="math inline">(g, \beta)</span> = <span class="math inline">(-\partial w_k(x_0), -w_k(x_0))</span></li>
-</ul></li>
-<li>Otherwise, the shortest path solution gives the value of <span class="math inline">{\color{red}u}</span>.</li>
-</ul></li>
-</ul>
-<hr />
-<h2 id="python-code">Python Code</h2>
+<span id="cb7-19"><a href="#cb7-19"></a>        <span class="cf">return</span> <span class="va">self</span>.P(y, t)</span></code></pre>
+    </div>
+    <hr />
+    <h2 id="oracle-in-robust-optimization-formulation">
+      Oracle in Robust Optimization Formulation
+    </h2>
+    <ul>
+      <li>
+        The oracle only needs to determine:
+        <ul>
+          <li>
+            If <span class="math inline">f_j(x_0, q) &gt; 0</span> for some
+            <span class="math inline">j</span> and
+            <span class="math inline">q = q_0</span>, then
+            <ul>
+              <li>
+                the cut <span class="math inline">(g, \beta)</span> =
+                <span class="math inline"
+                  >(\partial f_j(x_0, q_0), f_j(x_0, q_0))</span
+                >
+              </li>
+            </ul>
+          </li>
+          <li>
+            If <span class="math inline">f_0(x_0, q) \ge t</span> for some
+            <span class="math inline">q = q_0</span>, then
+            <ul>
+              <li>
+                the cut <span class="math inline">(g, \beta)</span> =
+                <span class="math inline"
+                  >(\partial f_0(x_0, q_0), f_0(x_0, q_0) - t)</span
+                >
+              </li>
+            </ul>
+          </li>
+          <li>
+            Otherwise, <span class="math inline">x_0</span> is feasible, then
+            <ul>
+              <li>
+                Let
+                <span class="math inline"
+                  >q_{\max} = \text{argmax}_{q \in \mathbb Q} f_0(x_0, q)</span
+                >.
+              </li>
+              <li><span class="math inline">t := f_0(x_0, q_{\max})</span>.</li>
+              <li>
+                The cut <span class="math inline">(g, \beta)</span> =
+                <span class="math inline"
+                  >(\partial f_0(x_0, q_{\max}), 0)</span
+                >
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <p>Remark:</p>
+    <ul>
+      <li>
+        for more complicated problems, affine arithmetic could be used
+        <span class="citation" data-cites="liu2007robust">[@liu2007robust]</span
+        >.
+      </li>
+    </ul>
+    <h1 id="multi-parameter-network-problem">
+      Multi-parameter Network Problem
+    </h1>
+    <hr />
+    <h2 id="parametric-network-problem">Parametric Network Problem</h2>
+    <p>
+      Given a network represented by a directed graph
+      <span class="math inline">G = (V, E)</span>.
+    </p>
+    <p>Consider:</p>
+    <p>
+      <span class="math display"
+        >\begin{array}{ll} \text{find} &amp; x, {\color{red}u} \\ \text{subject
+        to} &amp; {\color{red}u_j} - {\color{red}u_i} \le h_{ij}(x), \; \forall
+        (i, j) \in E , \end{array}</span
+      >
+    </p>
+    <ul>
+      <li>
+        <p>
+          <span class="math inline">h_{ij}(x)</span> is the concave function of
+          edge <span class="math inline">(i,j)</span>,
+        </p>
+      </li>
+      <li>
+        <p>Assume: network is large but the number of parameters is small.</p>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="network-potential-problem-contd">
+      Network Potential Problem (cont’d)
+    </h2>
+    <p>
+      Given <span class="math inline">x</span>, the problem has a feasible
+      solution if and only if <span class="math inline">G</span> contains no
+      negative cycle. Let <span class="math inline">\mathcal{C}</span> be a set
+      of all cycles of <span class="math inline">G</span>.
+    </p>
+    <p>
+      <span class="math display"
+        >\begin{array}{ll} \text{find} &amp; x \\ \text{subject to} &amp; w_k(x)
+        \ge 0, \forall C_k \in \mathcal{C} , \end{array}</span
+      >
+    </p>
+    <ul>
+      <li>
+        <p>
+          <span class="math inline">C_k</span> is a cycle of
+          <span class="math inline">G</span>
+        </p>
+      </li>
+      <li>
+        <p>
+          <span class="math inline"
+            >w_k(x) = \sum_{ (i,j)\in C_k} h_{ij}(x)</span
+          >.
+        </p>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="negative-cycle-finding">Negative Cycle Finding</h2>
+    <p>
+      There are lots of methods to detect negative cycles in a weighted
+      graph <span class="citation" data-cites="cherkassky1999negative"
+        >[@cherkassky1999negative]</span
+      >, in which Tarjan’s algorithm <span
+        class="citation"
+        data-cites="Tarjan1981negcycle"
+        >[@Tarjan1981negcycle]</span
+      >
+      is one of the fastest algorithms in practice
+      <span class="citation" data-cites="alg:dasdan_mcr cherkassky1999negative"
+        >[@alg:dasdan_mcr; @cherkassky1999negative]</span
+      >.
+    </p>
+    <hr />
+    <h2 id="oracle-in-network-potential-problem">
+      Oracle in Network Potential Problem
+    </h2>
+    <ul>
+      <li>
+        The oracle only needs to determine:
+        <ul>
+          <li>
+            If there exists a negative cycle
+            <span class="math inline">C_k</span> under
+            <span class="math inline">x_0</span>, then
+            <ul>
+              <li>
+                the cut <span class="math inline">(g, \beta)</span> =
+                <span class="math inline">(-\partial w_k(x_0), -w_k(x_0))</span>
+              </li>
+            </ul>
+          </li>
+          <li>
+            Otherwise, the shortest path solution gives the value of
+            <span class="math inline">{\color{red}u}</span>.
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="python-code">Python Code</h2>
 
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">class</span> network_oracle:</span>
+    <div class="sourceCode" id="cb8">
+      <pre
+        class="sourceCode python"
+      ><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">class</span> network_oracle:</span>
 <span id="cb8-2"><a href="#cb8-2"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, G, f, p):</span>
 <span id="cb8-3"><a href="#cb8-3"></a>        <span class="va">self</span>.G <span class="op">=</span> G</span>
 <span id="cb8-4"><a href="#cb8-4"></a>        <span class="va">self</span>.f <span class="op">=</span> f</span>
@@ -622,35 +1363,84 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb8-15"><a href="#cb8-15"></a>            <span class="cf">return</span> <span class="va">None</span>, <span class="dv">1</span></span>
 <span id="cb8-16"><a href="#cb8-16"></a>        f <span class="op">=</span> <span class="op">-</span><span class="bu">sum</span>(<span class="va">self</span>.f(<span class="va">self</span>.G, e, x) <span class="cf">for</span> e <span class="kw">in</span> C)</span>
 <span id="cb8-17"><a href="#cb8-17"></a>        g <span class="op">=</span> <span class="op">-</span><span class="bu">sum</span>(<span class="va">self</span>.p(<span class="va">self</span>.G, e, x) <span class="cf">for</span> e <span class="kw">in</span> C)</span>
-<span id="cb8-18"><a href="#cb8-18"></a>        <span class="cf">return</span> (g, f), <span class="dv">0</span></span></code></pre></div>
-<hr />
-<h2 id="example---optimal-matrix-scaling-orlin1985computing">Example - Optimal Matrix Scaling <span class="citation" data-cites="orlin1985computing">[@orlin1985computing]</span></h2>
-<ul>
-<li><p>Given a sparse matrix <span class="math inline">A = [a_{ij}] \in \mathbb{R}^{N\times N}</span>.</p></li>
-<li><p>Find another matrix <span class="math inline">B = U A U^{-1}</span> where <span class="math inline">U</span> is a nonnegative diagonal matrix, such that the ratio of any two elements of <span class="math inline">B</span> in absolute value is as close to 1 as possible.</p></li>
-<li><p>Let <span class="math inline">U = \mathrm{diag}([u_1, u_2, \ldots, u_N])</span>. Under the min-max-ratio criterion, the problem can be formulated as:</p></li>
-</ul>
-<p><span class="math display">\begin{array}{ll}
-  \text{minimize}   &amp;   \pi/\psi  \\
-  \text{subject to} &amp;   \psi \le u_i |a_{ij}| u_j^{-1} \le \pi, \; \forall a_{ij} \neq 0 , \\
-                    &amp;   \pi, \psi, u, \, \text{positive} \\
-  \text{variables}  &amp;   \pi, \psi, u \, .
-  \end{array}</span></p>
-<hr />
-<h2 id="optimal-matrix-scaling-contd">Optimal Matrix Scaling (cont’d)</h2>
-<p>By taking the logarithms of variables, the above problem can be transformed into:</p>
-<p><span class="math display">\begin{array}{ll}
-  \text{minimize}   &amp;   \gamma \\
-  \text{subject to} &amp;   {\color{blue}\pi&#39;} - {\color{blue}\psi&#39;} \le \gamma \\
-                    &amp;   {\color{red}u_i&#39;} - {\color{red}u_j&#39;}  \le {\color{blue}\pi&#39;} - a_{ij}&#39;, \; \forall a_{ij} \neq 0 \,, \\
-                    &amp;   {\color{red}u_j&#39;} - {\color{red}u_i&#39;} \le a_{ij}&#39; - {\color{blue}\psi&#39;}, \; \forall a_{ij} \neq 0 \,, \\
-  \text{variables}  &amp;   {\color{blue}\pi&#39;}, {\color{blue}\psi&#39;}, {\color{red}u&#39;} \, .
-  \end{array}</span></p>
-<p>where <span class="math inline">k&#39;</span> denotes <span class="math inline">\log( | k | )</span> and <span class="math inline">x = ({\color{blue}\pi&#39;}, {\color{blue}\psi&#39;} )^\mathsf{T}</span>.</p>
-<hr />
-<h2 id="corresponding-python-code-1">Corresponding Python Code</h2>
+<span id="cb8-18"><a href="#cb8-18"></a>        <span class="cf">return</span> (g, f), <span class="dv">0</span></span></code></pre>
+    </div>
+    <hr />
+    <h2 id="example---optimal-matrix-scaling-orlin1985computing">
+      Example - Optimal Matrix Scaling
+      <span class="citation" data-cites="orlin1985computing"
+        >[@orlin1985computing]</span
+      >
+    </h2>
+    <ul>
+      <li>
+        <p>
+          Given a sparse matrix
+          <span class="math inline"
+            >A = [a_{ij}] \in \mathbb{R}^{N\times N}</span
+          >.
+        </p>
+      </li>
+      <li>
+        <p>
+          Find another matrix
+          <span class="math inline">B = U A U^{-1}</span> where
+          <span class="math inline">U</span> is a nonnegative diagonal matrix,
+          such that the ratio of any two elements of
+          <span class="math inline">B</span> in absolute value is as close to 1
+          as possible.
+        </p>
+      </li>
+      <li>
+        <p>
+          Let
+          <span class="math inline"
+            >U = \mathrm{diag}([u_1, u_2, \ldots, u_N])</span
+          >. Under the min-max-ratio criterion, the problem can be formulated
+          as:
+        </p>
+      </li>
+    </ul>
+    <p>
+      <span class="math display"
+        >\begin{array}{ll} \text{minimize} &amp; \pi/\psi \\ \text{subject to}
+        &amp; \psi \le u_i |a_{ij}| u_j^{-1} \le \pi, \; \forall a_{ij} \neq 0 ,
+        \\ &amp; \pi, \psi, u, \, \text{positive} \\ \text{variables} &amp; \pi,
+        \psi, u \, . \end{array}</span
+      >
+    </p>
+    <hr />
+    <h2 id="optimal-matrix-scaling-contd">Optimal Matrix Scaling (cont’d)</h2>
+    <p>
+      By taking the logarithms of variables, the above problem can be
+      transformed into:
+    </p>
+    <p>
+      <span class="math display"
+        >\begin{array}{ll} \text{minimize} &amp; \gamma \\ \text{subject to}
+        &amp; {\color{blue}\pi&#39;} - {\color{blue}\psi&#39;} \le \gamma \\
+        &amp; {\color{red}u_i&#39;} - {\color{red}u_j&#39;} \le
+        {\color{blue}\pi&#39;} - a_{ij}&#39;, \; \forall a_{ij} \neq 0 \,, \\
+        &amp; {\color{red}u_j&#39;} - {\color{red}u_i&#39;} \le a_{ij}&#39; -
+        {\color{blue}\psi&#39;}, \; \forall a_{ij} \neq 0 \,, \\
+        \text{variables} &amp; {\color{blue}\pi&#39;}, {\color{blue}\psi&#39;},
+        {\color{red}u&#39;} \, . \end{array}</span
+      >
+    </p>
+    <p>
+      where <span class="math inline">k&#39;</span> denotes
+      <span class="math inline">\log( | k | )</span> and
+      <span class="math inline"
+        >x = ({\color{blue}\pi&#39;}, {\color{blue}\psi&#39;} )^\mathsf{T}</span
+      >.
+    </p>
+    <hr />
+    <h2 id="corresponding-python-code-1">Corresponding Python Code</h2>
 
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">def</span> constr(G, e, x):</span>
+    <div class="sourceCode" id="cb9">
+      <pre
+        class="sourceCode python"
+      ><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">def</span> constr(G, e, x):</span>
 <span id="cb9-2"><a href="#cb9-2"></a>    u, v <span class="op">=</span> e</span>
 <span id="cb9-3"><a href="#cb9-3"></a>    i_u <span class="op">=</span> G.node_idx[u]</span>
 <span id="cb9-4"><a href="#cb9-4"></a>    i_v <span class="op">=</span> G.node_idx[v]</span>
@@ -675,80 +1465,164 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb9-23"><a href="#cb9-23"></a>        <span class="cf">if</span> fj <span class="op">&lt;</span> <span class="fl">0.</span>:</span>
 <span id="cb9-24"><a href="#cb9-24"></a>            gamma <span class="op">=</span> s</span>
 <span id="cb9-25"><a href="#cb9-25"></a>            fj <span class="op">=</span> <span class="fl">0.</span></span>
-<span id="cb9-26"><a href="#cb9-26"></a>        <span class="cf">return</span> (np.array([<span class="fl">1.</span>, <span class="fl">-1.</span>]), fj), t</span></code></pre></div>
-<hr />
-<h2 id="example---clock-period-yield-driven-co-optimization">Example - clock period &amp; yield-driven co-optimization</h2>
-<p><span class="math display">\begin{array}{cll}
-   \text{minimize} &amp;T_\text{CP} / {\color{blue}\beta} \\
-   \text{subject to} &amp; u_i - u_j \le T_\text{CP} - F_{ij}^{-1}({\color{blue}\beta}), &amp; \forall (j, i) \in E_s \,,\\
-                     &amp; u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), &amp; \forall (i, j) \in E_h \,, \\
-                     &amp; T_\text{CP} \ge 0, \, 0 \le {\color{blue}\beta} \le 1 \, , \\
-    \text{variables} &amp;T_\text{CP}, {\color{blue}\beta}, u.
-   \end{array}</span></p>
-<ul>
-<li>Note that <span class="math inline">F_{ij}^{-1}(x)</span> is not concave in general in <span class="math inline">[0, 1]</span>.</li>
-<li>Fortunately, we are most likely interested in optimizing circuits for high yield rather than the low one in practice.</li>
-<li>Therefore, by imposing an additional constraint to <span class="math inline">\beta</span>, say <span class="math inline">\beta \ge 0.8</span>, the problem becomes convex.</li>
-</ul>
-<hr />
-<h2 id="example---clock-period-yield-driven-co-optimization-1">Example - clock period &amp; yield-driven co-optimization</h2>
-<p>The problem can be reformulated as:</p>
-<p><span class="math display">\begin{array}{cll}
-   \text{minimize}   &amp; \gamma \\
-   \text{subject to} &amp; T_\text{CP} - {\color{blue}\beta} \gamma \le 0\\
-                     &amp; u_i - u_j \le T_\text{CP} - F_{ij}^{-1}({\color{blue}\beta}), &amp; \forall (j, i) \in E_s \,,\\
-                     &amp; u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), &amp; \forall (i, j) \in E_h \,, \\
-                     &amp; T_\text{CP} \ge 0, \, 0 \le {\color{blue}\beta} \le 1 \, , \\
-    \text{variables} &amp;T_\text{CP}, {\color{blue}\beta}, u.
-   \end{array}</span></p>
-<h1 id="matrix-inequalities">Matrix Inequalities</h1>
-<hr />
-<h2 id="problems-with-matrix-inequalities">Problems With Matrix Inequalities</h2>
-<p>Consider the following problem:</p>
-<p><span class="math display">\begin{array}{ll}
-    \text{find}    &amp; x, \\
-    \text{subject to}  &amp; F(x) \succeq 0,
-\end{array}</span></p>
-<ul>
-<li><span class="math inline">F(x)</span>: a matrix-valued function</li>
-<li><span class="math inline">A \succeq 0</span> denotes <span class="math inline">A</span> is positive semidefinite.</li>
-</ul>
-<hr />
-<h2 id="problems-with-matrix-inequalities-1">Problems With Matrix Inequalities</h2>
-<ul>
-<li>Recall that a matrix <span class="math inline">A</span> is positive semidefinite if and only if <span class="math inline">v^\mathsf{T} A v \ge 0</span> for all <span class="math inline">v \in \mathbb{R}^N</span>.</li>
-<li>The problem can be transformed into: <span class="math display">\begin{array}{ll}
-          \text{find}      &amp; x, \\
-          \text{subject to}    &amp; v^\mathsf{T} F(x) v \ge 0, \; \forall v \in \mathbb{R}^N
-  \end{array}</span></li>
-<li>Consider <span class="math inline">v^\mathsf{T} F(x) v</span> is concave for all <span class="math inline">v \in \mathbb{R}^N</span> w. r. t. <span class="math inline">x</span>, then the above problem is a convex programming.</li>
-<li>Reduce to <em>semidefinite programming</em> if <span class="math inline">F(x)</span> is linear w.r.t. <span class="math inline">x</span>, i.e., <span class="math inline">F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n</span></li>
-</ul>
-<hr />
-<h2 id="oracle-in-matrix-inequalities">Oracle in Matrix Inequalities</h2>
-<p>The oracle only needs to:</p>
-<ul>
-<li>Perform a <em>row-based</em> $LDL^\mathsf{T}$ factorization such that <span class="math inline">F(x_0) = L D L^\mathsf{T}</span>.</li>
-<li>Let <span class="math inline">A_{:p,:p}</span> denotes a submatrix <span class="math inline">A(1:p, 1:p) \in \mathbb{R}^{p\times p}</span>.</li>
-<li>If the process fails at row <span class="math inline">p</span>,
-<ul>
-<li>there exists a vector <span class="math inline">e_p = (0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p</span>, such that
-<ul>
-<li><span class="math inline">v = R_{:p,:p}^{-1} e_p</span>, and</li>
-<li><span class="math inline">v^\mathsf{T} F_{:p,:p}(x_0) v &lt; 0</span>.</li>
-</ul></li>
-<li>The cut <span class="math inline">(g, \beta)</span> = <span class="math inline">(-v^\mathsf{T} \partial F_{:p,:p}(x_0) v, -v^\mathsf{T} F_{:p,:p}(x_0) v)</span></li>
-</ul></li>
-</ul>
-<hr />
-<h2 id="lazy-evaluation">Lazy evaluation</h2>
-<ul>
-<li><p>Don’t construct the full matrix at each iteration!</p></li>
-<li><p>Only O(<span class="math inline">p^3</span>) per iteration, independent of <span class="math inline">N</span>!</p></li>
-</ul>
-<hr />
+<span id="cb9-26"><a href="#cb9-26"></a>        <span class="cf">return</span> (np.array([<span class="fl">1.</span>, <span class="fl">-1.</span>]), fj), t</span></code></pre>
+    </div>
+    <hr />
+    <h2 id="example---clock-period-yield-driven-co-optimization">
+      Example - clock period &amp; yield-driven co-optimization
+    </h2>
+    <p>
+      <span class="math display"
+        >\begin{array}{cll} \text{minimize} &amp;T_\text{CP} /
+        {\color{blue}\beta} \\ \text{subject to} &amp; u_i - u_j \le T_\text{CP}
+        - F_{ij}^{-1}({\color{blue}\beta}), &amp; \forall (j, i) \in E_s \,,\\
+        &amp; u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), &amp; \forall
+        (i, j) \in E_h \,, \\ &amp; T_\text{CP} \ge 0, \, 0 \le
+        {\color{blue}\beta} \le 1 \, , \\ \text{variables} &amp;T_\text{CP},
+        {\color{blue}\beta}, u. \end{array}</span
+      >
+    </p>
+    <ul>
+      <li>
+        Note that <span class="math inline">F_{ij}^{-1}(x)</span> is not concave
+        in general in <span class="math inline">[0, 1]</span>.
+      </li>
+      <li>
+        Fortunately, we are most likely interested in optimizing circuits for
+        high yield rather than the low one in practice.
+      </li>
+      <li>
+        Therefore, by imposing an additional constraint to
+        <span class="math inline">\beta</span>, say
+        <span class="math inline">\beta \ge 0.8</span>, the problem becomes
+        convex.
+      </li>
+    </ul>
+    <hr />
+    <h2 id="example---clock-period-yield-driven-co-optimization-1">
+      Example - clock period &amp; yield-driven co-optimization
+    </h2>
+    <p>The problem can be reformulated as:</p>
+    <p>
+      <span class="math display"
+        >\begin{array}{cll} \text{minimize} &amp; \gamma \\ \text{subject to}
+        &amp; T_\text{CP} - {\color{blue}\beta} \gamma \le 0\\ &amp; u_i - u_j
+        \le T_\text{CP} - F_{ij}^{-1}({\color{blue}\beta}), &amp; \forall (j, i)
+        \in E_s \,,\\ &amp; u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}),
+        &amp; \forall (i, j) \in E_h \,, \\ &amp; T_\text{CP} \ge 0, \, 0 \le
+        {\color{blue}\beta} \le 1 \, , \\ \text{variables} &amp;T_\text{CP},
+        {\color{blue}\beta}, u. \end{array}</span
+      >
+    </p>
+    <h1 id="matrix-inequalities">Matrix Inequalities</h1>
+    <hr />
+    <h2 id="problems-with-matrix-inequalities">
+      Problems With Matrix Inequalities
+    </h2>
+    <p>Consider the following problem:</p>
+    <p>
+      <span class="math display"
+        >\begin{array}{ll} \text{find} &amp; x, \\ \text{subject to} &amp; F(x)
+        \succeq 0, \end{array}</span
+      >
+    </p>
+    <ul>
+      <li><span class="math inline">F(x)</span>: a matrix-valued function</li>
+      <li>
+        <span class="math inline">A \succeq 0</span> denotes
+        <span class="math inline">A</span> is positive semidefinite.
+      </li>
+    </ul>
+    <hr />
+    <h2 id="problems-with-matrix-inequalities-1">
+      Problems With Matrix Inequalities
+    </h2>
+    <ul>
+      <li>
+        Recall that a matrix <span class="math inline">A</span> is positive
+        semidefinite if and only if
+        <span class="math inline">v^\mathsf{T} A v \ge 0</span> for all
+        <span class="math inline">v \in \mathbb{R}^N</span>.
+      </li>
+      <li>
+        The problem can be transformed into:
+        <span class="math display"
+          >\begin{array}{ll} \text{find} &amp; x, \\ \text{subject to} &amp;
+          v^\mathsf{T} F(x) v \ge 0, \; \forall v \in \mathbb{R}^N
+          \end{array}</span
+        >
+      </li>
+      <li>
+        Consider <span class="math inline">v^\mathsf{T} F(x) v</span> is concave
+        for all <span class="math inline">v \in \mathbb{R}^N</span> w. r. t.
+        <span class="math inline">x</span>, then the above problem is a convex
+        programming.
+      </li>
+      <li>
+        Reduce to <em>semidefinite programming</em> if
+        <span class="math inline">F(x)</span> is linear w.r.t.
+        <span class="math inline">x</span>, i.e.,
+        <span class="math inline">F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n</span>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="oracle-in-matrix-inequalities">Oracle in Matrix Inequalities</h2>
+    <p>The oracle only needs to:</p>
+    <ul>
+      <li>
+        Perform a <em>row-based</em> $LDL^\mathsf{T}$ factorization such that
+        <span class="math inline">F(x_0) = L D L^\mathsf{T}</span>.
+      </li>
+      <li>
+        Let <span class="math inline">A_{:p,:p}</span> denotes a submatrix
+        <span class="math inline">A(1:p, 1:p) \in \mathbb{R}^{p\times p}</span>.
+      </li>
+      <li>
+        If the process fails at row <span class="math inline">p</span>,
+        <ul>
+          <li>
+            there exists a vector
+            <span class="math inline"
+              >e_p = (0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p</span
+            >, such that
+            <ul>
+              <li>
+                <span class="math inline">v = R_{:p,:p}^{-1} e_p</span>, and
+              </li>
+              <li>
+                <span class="math inline"
+                  >v^\mathsf{T} F_{:p,:p}(x_0) v &lt; 0</span
+                >.
+              </li>
+            </ul>
+          </li>
+          <li>
+            The cut <span class="math inline">(g, \beta)</span> =
+            <span class="math inline"
+              >(-v^\mathsf{T} \partial F_{:p,:p}(x_0) v, -v^\mathsf{T}
+              F_{:p,:p}(x_0) v)</span
+            >
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="lazy-evaluation">Lazy evaluation</h2>
+    <ul>
+      <li><p>Don’t construct the full matrix at each iteration!</p></li>
+      <li>
+        <p>
+          Only O(<span class="math inline">p^3</span>) per iteration,
+          independent of <span class="math inline">N</span>!
+        </p>
+      </li>
+    </ul>
+    <hr />
 
-<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">class</span> lmi_oracle:</span>
+    <div class="sourceCode" id="cb10">
+      <pre
+        class="sourceCode python"
+      ><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">class</span> lmi_oracle:</span>
 <span id="cb10-2"><a href="#cb10-2"></a>    <span class="co">&#39;&#39;&#39; Oracle for LMI constraint F*x &lt;= B &#39;&#39;&#39;</span></span>
 <span id="cb10-3"><a href="#cb10-3"></a></span>
 <span id="cb10-4"><a href="#cb10-4"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, F, B):</span>
@@ -769,77 +1643,129 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb10-19"><a href="#cb10-19"></a>        v, ep <span class="op">=</span> <span class="va">self</span>.Q.witness()</span>
 <span id="cb10-20"><a href="#cb10-20"></a>        g <span class="op">=</span> np.array([<span class="va">self</span>.Q.sym_quad(v, <span class="va">self</span>.F[i])</span>
 <span id="cb10-21"><a href="#cb10-21"></a>                      <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n)])</span>
-<span id="cb10-22"><a href="#cb10-22"></a>        <span class="cf">return</span> (g, ep), <span class="va">False</span></span></code></pre></div>
-<hr />
-<h2 id="google-benchmark-comparison">Google Benchmark Comparison</h2>
-<pre class="terminal"><code>2: ----------------------------------------------------------
+<span id="cb10-22"><a href="#cb10-22"></a>        <span class="cf">return</span> (g, ep), <span class="va">False</span></span></code></pre>
+    </div>
+    <hr />
+    <h2 id="google-benchmark-comparison">Google Benchmark Comparison</h2>
+    <pre
+      class="terminal"
+    ><code>2: ----------------------------------------------------------
 2: Benchmark                Time             CPU   Iterations
 2: ----------------------------------------------------------
 2: BM_LMI_Lazy         131235 ns       131245 ns         4447
 2: BM_LMI_old          196694 ns       196708 ns         3548
 2/4 Test #2: Bench_BM_lmi .....................   Passed    2.57 sec</code></pre>
-<hr />
-<h2 id="example---matrix-norm-minimization">Example - Matrix Norm Minimization</h2>
-<ul>
-<li>Let <span class="math inline">A(x) = A_0 + x_1 A_1 + \cdots + x_n A_n</span></li>
-<li>Problem <span class="math inline">\min_x \| A(x) \|</span> can be reformulated as <span class="math display">\begin{array}{ll}
-     \text{minimize}      &amp; \gamma, \\
-     \text{subject to}    &amp; \left(
- \begin{array}{cc}
-  \gamma\,I   &amp; A(x) \\
-  A^\mathsf{T}(x) &amp; \gamma\,I
- \end{array} \right) \succeq 0,
- \end{array}</span></li>
-<li>Binary search on <span class="math inline">t</span> can be used for this problem.</li>
-</ul>
-<hr />
-<h2 id="example---estimation-of-correlation-function">Example - Estimation of Correlation Function</h2>
-<p><span class="math display">\begin{array}{ll}
-   \min_{{\color{blue}\kappa}, p}   &amp; \| \Sigma({\color{blue}p}) + {\color{blue}\kappa} I - Y \| \\
-   \text{s. t.} &amp; \Sigma({\color{blue}p}) \succcurlyeq 0,  {\color{blue}\kappa} \ge 0 \; .\\
- \end{array}</span></p>
-<ul>
-<li><p>Let <span class="math inline">\rho(h) = \sum_i^n {\color{blue}p}_i \Psi_i(h)</span>, where</p>
-<ul>
-<li><span class="math inline">p_i</span>’s are the unknown coefficients to be fitted</li>
-<li><span class="math inline">\Psi_i</span>’s are a family of basis functions.</li>
-</ul></li>
-<li><p>The covariance matrix <span class="math inline">\Sigma({\color{blue}p})</span> can be recast as: <span class="math display">\Sigma({\color{blue}p}) = {\color{blue}p}_1 F_1 + \cdots + {\color{blue}p}_n F_n</span></p>
-<p>where <span class="math inline">\{F_k\}_{i,j} =\Psi_k( \| s_j - s_i \|_2)</span></p></li>
-</ul>
-<hr />
-<h2 id="experimental-result-i">Experimental Result (I)</h2>
+    <hr />
+    <h2 id="example---matrix-norm-minimization">
+      Example - Matrix Norm Minimization
+    </h2>
+    <ul>
+      <li>
+        Let
+        <span class="math inline">A(x) = A_0 + x_1 A_1 + \cdots + x_n A_n</span>
+      </li>
+      <li>
+        Problem <span class="math inline">\min_x \| A(x) \|</span> can be
+        reformulated as
+        <span class="math display"
+          >\begin{array}{ll} \text{minimize} &amp; \gamma, \\ \text{subject to}
+          &amp; \left( \begin{array}{cc} \gamma\,I &amp; A(x) \\ A^\mathsf{T}(x)
+          &amp; \gamma\,I \end{array} \right) \succeq 0, \end{array}</span
+        >
+      </li>
+      <li>
+        Binary search on <span class="math inline">t</span> can be used for this
+        problem.
+      </li>
+    </ul>
+    <hr />
+    <h2 id="example---estimation-of-correlation-function">
+      Example - Estimation of Correlation Function
+    </h2>
+    <p>
+      <span class="math display"
+        >\begin{array}{ll} \min_{{\color{blue}\kappa}, p} &amp; \|
+        \Sigma({\color{blue}p}) + {\color{blue}\kappa} I - Y \| \\ \text{s. t.}
+        &amp; \Sigma({\color{blue}p}) \succcurlyeq 0, {\color{blue}\kappa} \ge 0
+        \; .\\ \end{array}</span
+      >
+    </p>
+    <ul>
+      <li>
+        <p>
+          Let
+          <span class="math inline"
+            >\rho(h) = \sum_i^n {\color{blue}p}_i \Psi_i(h)</span
+          >, where
+        </p>
+        <ul>
+          <li>
+            <span class="math inline">p_i</span>’s are the unknown coefficients
+            to be fitted
+          </li>
+          <li>
+            <span class="math inline">\Psi_i</span>’s are a family of basis
+            functions.
+          </li>
+        </ul>
+      </li>
+      <li>
+        <p>
+          The covariance matrix
+          <span class="math inline">\Sigma({\color{blue}p})</span> can be recast
+          as:
+          <span class="math display"
+            >\Sigma({\color{blue}p}) = {\color{blue}p}_1 F_1 + \cdots +
+            {\color{blue}p}_n F_n</span
+          >
+        </p>
+        <p>
+          where
+          <span class="math inline"
+            >\{F_k\}_{i,j} =\Psi_k( \| s_j - s_i \|_2)</span
+          >
+        </p>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="experimental-result-i">Experimental Result (I)</h2>
 
-<figure>
-<embed src="ellipsoid.files/iso050.pdf" /><figcaption>Data Sample (kern=0.5)</figcaption>
-</figure>
+    <figure>
+      <embed src="ellipsoid.files/iso050.pdf" />
+      <figcaption>Data Sample (kern=0.5)</figcaption>
+    </figure>
 
-<figure>
-<embed src="ellipsoid.files/result050.pdf" /><figcaption>Least Square Result</figcaption>
-</figure>
+    <figure>
+      <embed src="ellipsoid.files/result050.pdf" />
+      <figcaption>Least Square Result</figcaption>
+    </figure>
 
-<hr />
-<h2 id="experimental-result-ii">Experimental Result (II)</h2>
+    <hr />
+    <h2 id="experimental-result-ii">Experimental Result (II)</h2>
 
-<figure>
-<embed src="ellipsoid.files/iso100.pdf" /><figcaption>Data Sample (kern=1.0)</figcaption>
-</figure>
+    <figure>
+      <embed src="ellipsoid.files/iso100.pdf" />
+      <figcaption>Data Sample (kern=1.0)</figcaption>
+    </figure>
 
-<figure>
-<embed src="ellipsoid.files/result100.pdf" /><figcaption>Least Square Result</figcaption>
-</figure>
+    <figure>
+      <embed src="ellipsoid.files/result100.pdf" />
+      <figcaption>Least Square Result</figcaption>
+    </figure>
 
-<hr />
-<h2 id="experimental-result-iii">Experimental Result (III)</h2>
+    <hr />
+    <h2 id="experimental-result-iii">Experimental Result (III)</h2>
 
-<figure>
-<embed src="ellipsoid.files/iso200.pdf" /><figcaption>Data Sample (kern=2.0)</figcaption>
-</figure>
+    <figure>
+      <embed src="ellipsoid.files/iso200.pdf" />
+      <figcaption>Data Sample (kern=2.0)</figcaption>
+    </figure>
 
-<figure>
-<embed src="ellipsoid.files/result200.pdf" /><figcaption>Least Square Result</figcaption>
-</figure>
+    <figure>
+      <embed src="ellipsoid.files/result200.pdf" />
+      <figcaption>Least Square Result</figcaption>
+    </figure>
 
-<h1 id="reference">Reference</h1>
-</body>
+    <h1 id="reference">Reference</h1>
+  </body>
 </html>

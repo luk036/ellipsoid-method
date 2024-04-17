@@ -1,11 +1,11 @@
 ---
 bibliography:
-- 'Geostatistics.bib'
-- 'statistics.bib'
-- 'ref.bib'
+  - "Geostatistics.bib"
+  - "statistics.bib"
+  - "ref.bib"
 title: |
-    Intra-die Spatial Correlation Extraction with Maximum Likelihood
-    Estimation Method
+  Intra-die Spatial Correlation Extraction with Maximum Likelihood
+  Estimation Method
 ---
 
 \maketitle
@@ -20,8 +20,7 @@ that the proposed method is efficient and practical.
 
 intra-die variations, spatial correlation, maximum likelihood estimation
 
-Introduction
-============
+# Introduction
 
 As the minimum feature size of semiconductor device continues scaling
 down, integrated circuits suffer from increasing variations in the
@@ -34,9 +33,9 @@ statistical analysis and design methodologies to tackle with variation
 problems in the design stages [@Nassif00].
 
 Process variations can be classified into two categories according to
-the spatial scales. *Inter-die variations* affect device parameters with
+the spatial scales. _Inter-die variations_ affect device parameters with
 the same value on a die but with different values beyond the die scope,
-while *intra-die variations* cause device parameter values to vary
+while _intra-die variations_ cause device parameter values to vary
 across different locations within a single die. As technology generation
 marches, intra-die variations exceed inter-die variations and become
 predominant in total process variations. Intra-die variations often show
@@ -57,7 +56,7 @@ aims to extract the characteristic parameters of spatial correlation
 function provided with a large amount of silicon measurement data. It
 consists of two essential issues. Firstly, an appropriate kind of
 function form should be chosen to represent spatial correlation. The
-*positive definiteness* property possessed by a valid spatial
+_positive definiteness_ property possessed by a valid spatial
 correlation function should be satisfied, which means that any
 correlation matrix generated from the correlation function is positive
 semidefinite. Secondly, the unknown parameters in the function should be
@@ -110,24 +109,23 @@ random field theory. In Section 3, the MLE-M method for intra-die
 spatial correlation extraction is proposed. In Section 4, experimental
 results are presented. The paper is concluded in Section 5.
 
-Background Material
-===================
+# Background Material
 
 According to [@Pitchumani05], the intra-die variation $Z$ can be further
 decomposed into three components:
 
 -1ex
 
--   a *deterministic* component $Z_\mathrm{det}$, which is determined by
-    layout context and can be modeled by deliberatively exploring layout
-    patterns;
+- a _deterministic_ component $Z_\mathrm{det}$, which is determined by
+  layout context and can be modeled by deliberatively exploring layout
+  patterns;
 
--   a *correlated random* (or *spatially correlated*) component
-    $Z_\mathrm{cor}$, which is random but shows correlated patterns due
-    to proximity effects;
+- a _correlated random_ (or _spatially correlated_) component
+  $Z_\mathrm{cor}$, which is random but shows correlated patterns due
+  to proximity effects;
 
--   a *purely random* component $Z_\mathrm{rnd}$, which is spatially
-    uncorrelated and can be treated as statistitically random.
+- a _purely random_ component $Z_\mathrm{rnd}$, which is spatially
+  uncorrelated and can be treated as statistitically random.
 
 In this paper, for the sake of simplicity, the deterministic component
 is assumed to be well modeled and taken away from the whole process
@@ -142,27 +140,26 @@ function, which is called nugget effect. We will describe this
 phenomenon and give the modification form of the Matérn correlation
 function in this section.
 
-Random Field [@Schabenberger05]
--------------------------------
+## Random Field [@Schabenberger05]
 
-*Random field*, also known as *stochastic process*, can be regarded as
+_Random field_, also known as _stochastic process_, can be regarded as
 an indexed family of random variables denoted as
 {$Z(\mathbf{s}): \mathbf{s}\in D$}, where $D$ is a subset of
 $d$-dimensional Euclidean space $\mathbb{R}^d$. To specify a stochastic
 process, the joint probability distribution function of any finite
 subset $(Z(\mathbf{s}_1), \ldots, Z(\mathbf{s}_n))$ must be given in a
-consistent way, which is called *distribution* of the process. For ease
-of analysis, a random field is often assumed to be with *Gaussian*
+consistent way, which is called _distribution_ of the process. For ease
+of analysis, a random field is often assumed to be with _Gaussian_
 distribution, and is called Gaussian random field.
 
 A random field has several key properties that are useful in practical
-problems. The field is *stationary* under translations, or
-*homogeneous*, if the distribution is unchanged when the point set is
-translated. The field is *isotropic* if the distribution is invariant
+problems. The field is _stationary_ under translations, or
+_homogeneous_, if the distribution is unchanged when the point set is
+translated. The field is _isotropic_ if the distribution is invariant
 under any rotation of the whole points in the parameter space. We study
 homogeneous isotropic field in this paper.
 
-The *covariance* $C$ and *correlation* $R$ of a stochastic process are
+The _covariance_ $C$ and _correlation_ $R$ of a stochastic process are
 defined by
 $$C(\mathbf{s}_i,\mathbf{s}_j) = \mathrm{cov}(Z(\mathbf{s}_i),Z(\mathbf{s}_j)) = \mathrm{E}\lbrack (Z(\mathbf{s}_i)-\mathrm{E}\lbrack Z(\mathbf{s}_i)\rbrack)(Z(\mathbf{s}_j)-\mathrm{E}\lbrack Z(\mathbf{s}_j)\rbrack)\rbrack \nonumber$$
 and
@@ -174,7 +171,9 @@ only on the separation vector $\mathbf{h}=\mathbf{s}_i-\mathbf{s}_j$.
 Furthermore, it is isotropic if $C$ and $R$ depend upon $\mathbf{h}$
 only through its length $h$, i.e.,
 $$C(\mathbf{s}_i,\mathbf{s}_j)=C(\mathbf{h})=C(h),$$
-$$\label{eqn:corr_def}
+
+$$
+\label{eqn:corr_def}
 R(\mathbf{s}_i,\mathbf{s}_j)=R(\mathbf{h})=R(h)=C(h)/C(0).$$ If we
 denote $C(0)$, the variance of $Z(\mathbf{s})$, as $\sigma^2$, then the
 relationship between covariance and correlation is $C(h)=\sigma^2 R(h)$.
@@ -244,12 +243,14 @@ components as $\tau^2$, the original Matérn correlation function $R(h)$
 should be modified as $$\tilde{R}(h)=\left\{ \begin{array}{l l}
  1 & \textrm{if $h=0$} \\
  \frac{\displaystyle \sigma^2}{\displaystyle \sigma^2+\displaystyle \tau^2}\cdot R(h) = \frac{\displaystyle \sigma^2}{\displaystyle \sigma^2+\displaystyle \tau^2}\cdot \frac{\displaystyle 1}{\displaystyle 2^{\nu-1}\Gamma(\nu)}(\alpha h)^\nu K_\nu(\alpha h) & \textrm{if $h>0$}
-\end{array} \right.$$
-Fig. [\[fig:modi\_Matern\_funs\]](#fig:modi_Matern_funs){reference-type="ref"
+\end{array} \right.
+$$
+
+Fig. [\[fig:modi_Matern_funs\]](#fig:modi_Matern_funs){reference-type="ref"
 reference="fig:modi_Matern_funs"} shows the modified Matérn correlation
 functions considering the nugget effect for the original Matérn
 correlation functions in
-Fig. [\[fig:Matern\_funs\]](#fig:Matern_funs){reference-type="ref"
+Fig. [\[fig:Matern_funs\]](#fig:Matern_funs){reference-type="ref"
 reference="fig:Matern_funs"}.
 
 [\[fig:modi\_Matern\_funs\]]{#fig:modi_Matern_funs
@@ -260,16 +261,14 @@ paper, the proposed method uses the modified form $\tilde{R}(h)$ to
 account for the nugget effect and the extraction results are more
 accurate.
 
-Intra-die Spatial Correlation Extraction Based on MLE Method
-============================================================
+# Intra-die Spatial Correlation Extraction Based on MLE Method
 
 In this section, we will first formulate the problem of spatial
 correlation function extraction. We further deduce the likelihood
 function for multiple samples, and present the extraction method in
 details.
 
-Problem Formulation
--------------------
+## Problem Formulation
 
 In the measurement process, we sample to gather measurement data over a
 batch of $M$ chips, with each chip comprising $N$ measurement sites. The
@@ -288,15 +287,14 @@ inter-die variation should be considered. The objective is to recover
 the spatial correlation function $R(\vec{\psi})$ as accurately as
 possible after plugging the estimated $\vec{\psi}$ into Matérn function.
 
-Spatial Correlation Extraction Based on MLE for Multiple Samples
-----------------------------------------------------------------
+## Spatial Correlation Extraction Based on MLE for Multiple Samples
 
 For a sample $\vec{z}=(z(\mathbf{s}_1),\ldots,z(\mathbf{s}_N))^T$ from
 an $N$-variate Gaussian random field with zero mean vector and
 $N \times N$ covariance matrix $C=\sigma^2 R(\vec{\psi})$, the
 distribution is
 $$p(\vec{z}|\sigma^2,\vec{\psi})=\frac{1}{(2\pi)^{N/2}(\mathrm{det}(\sigma^2 R))^{1/2}} \cdot \mathrm{exp}\left(-\frac{1}{2\sigma^2}\vec{z}^T R^{-1}\vec{z} \right)$$
-*Likelihood function* is defined by reversing the roles of the data
+_Likelihood function_ is defined by reversing the roles of the data
 vector and the parameter vector in the distribution, as
 $L(\sigma^2,\vec{\psi}|\vec{z})$, to represent the likelihood of the
 parameters given the observed data, and $L(\sigma^2,\vec{\psi})$ is
@@ -304,11 +302,15 @@ often used with the understanding that the observed data $\vec{z}$ is
 implicit. In practice, for computational convenience the logarithm of
 the likelihood is taken and estimates are obtained by maximizing the
 log-likelihood function. The log-likelihood function of a sample is
-$$\label{eqn:likhood_uni}
-\log L(\sigma^2,\vec{\psi}) = -\frac{N}{2}\log 2\pi-\frac{N}{2}\log \sigma^2-\frac{1}{2}\log \mathrm{det}~R-\frac{1}{2\sigma^2}\vec{z}^T R^{-1}\vec{z}$$
+
+$$
+\label{eqn:likhood_uni}
+\log L(\sigma^2,\vec{\psi}) = -\frac{N}{2}\log 2\pi-\frac{N}{2}\log \sigma^2-\frac{1}{2}\log \mathrm{det}~R-\frac{1}{2\sigma^2}\vec{z}^T R^{-1}\vec{z}
+$$
+
 As there are $M$ samples obtained in the measurement process,
 in [@Hargreaves08],
-Eq.([\[eqn:likhood\_uni\]](#eqn:likhood_uni){reference-type="ref"
+Eq.([\[eqn:likhood_uni\]](#eqn:likhood_uni){reference-type="ref"
 reference="eqn:likhood_uni"}) is used $M$ times to estimate the unknown
 parameters of each sample separately, resulting in $M$ groups of
 different parameter values unrelated to each other. However, designers
@@ -358,7 +360,7 @@ By setting $\frac{\partial \log L}{\partial \sigma^2}=0$, we can get the
 estimation of $\sigma^2$ as $$\label{eqn:sigma2_est}
 \hat{\sigma}^2(\tilde{R})=\frac{1}{MN}\sum_{m=1}^{M}\vec{z}_m^{*T} \tilde{R}^{-1}\vec{z}_m^*$$
 Substituting
-Eq. ([\[eqn:sigma2\_est\]](#eqn:sigma2_est){reference-type="ref"
+Eq. ([\[eqn:sigma2_est\]](#eqn:sigma2_est){reference-type="ref"
 reference="eqn:sigma2_est"}) back into
 Eq. ([\[eqn:loglik\]](#eqn:loglik){reference-type="ref"
 reference="eqn:loglik"}) and ignoring the constants, we can obtain the
@@ -369,14 +371,18 @@ Regard the scalar $\vec{z}^{*T} \tilde{R}^{-1}\vec{z}^*$ as the trace of
 a $1\times 1$ matrix. Using the property of the trace of a matrix that
 $\mathrm{tr}(AB)=\mathrm{tr}(BA)$ whenever $A$ and $B$ are matrices so
 shaped that both products exist, we can reformulate $\hat{\sigma}^2$ as
-$$\label{eqn:sigma2_est2}
-\hat{\sigma}^2 = \frac{1}{MN}\sum_{m=1}^{M}\mathrm{tr}(\vec{z}_m^{*T} \tilde{R}^{-1}\vec{z}_m^*)=\frac{1}{MN}\sum_{m=1}^{M}\mathrm{tr}(\vec{z}_m^*\vec{z}_m^{*T} \tilde{R}^{-1})=\frac{1}{N}~\mathrm{tr}\left(\frac{1}{M}\sum_{m=1}^{M}\vec{z}_m^*\vec{z}_m^{*T} \tilde{R}^{-1}\right)=\frac{1}{N}~\mathrm{tr}(Y\tilde{R}^{-1})$$
+
+$$
+\label{eqn:sigma2_est2}
+\hat{\sigma}^2 = \frac{1}{MN}\sum_{m=1}^{M}\mathrm{tr}(\vec{z}_m^{*T} \tilde{R}^{-1}\vec{z}_m^*)=\frac{1}{MN}\sum_{m=1}^{M}\mathrm{tr}(\vec{z}_m^*\vec{z}_m^{*T} \tilde{R}^{-1})=\frac{1}{N}~\mathrm{tr}\left(\frac{1}{M}\sum_{m=1}^{M}\vec{z}_m^*\vec{z}_m^{*T} \tilde{R}^{-1}\right)=\frac{1}{N}~\mathrm{tr}(Y\tilde{R}^{-1})
+$$
+
 where
 $$Y=\frac{1}{M}\sum_{m=1}^{M}\vec{z}_m^*\vec{z}_m^{*T} %\in \mathbf{R}^{n\times n}$$
 Substituting
-Eq. ([\[eqn:sigma2\_est2\]](#eqn:sigma2_est2){reference-type="ref"
+Eq. ([\[eqn:sigma2_est2\]](#eqn:sigma2_est2){reference-type="ref"
 reference="eqn:sigma2_est2"}) back into
-Eq. ([\[eqn:con\_loglik\]](#eqn:con_loglik){reference-type="ref"
+Eq. ([\[eqn:con_loglik\]](#eqn:con_loglik){reference-type="ref"
 reference="eqn:con_loglik"}) and ignoring the constant, we obtain the
 log-likelihood function of MLE for multiple samples as
 $$\log L_0(\kappa,\vec{\psi})=-\log \mathrm{det}~\tilde{R} - N\log (\mathrm{tr}(Y\tilde{R}^{-1}) )$$
@@ -404,11 +410,10 @@ taking the absolute value. The finally obtained log-likelihood function
 is in the form as
 $$\log L_0(\kappa,\vec{\psi})=-\sum_{m=1}^M \log |u_{mm}| - N\log (\mathrm{tr}(Y\tilde{R}^{-1}))$$
 This can be solved by any standard nonlinear optimization technique. In
-our implementation, we use the *fmincon* function in MATLAB which is
+our implementation, we use the _fmincon_ function in MATLAB which is
 based on a sequential quadratic programming method.
 
-Experimental Results
-====================
+# Experimental Results
 
 The proposed method was implemented in MATLAB on an Intel machine with
 3.0 GHz XEON CPU. Without real silicon measurement data, we synthesized
@@ -428,7 +433,7 @@ generated as a homogeneous isotropic field with Gaussian distribution
 and Matérn correlation function. The "Cholesky decomposition" method
 described in [@Cressie91] and used in [@Hargreaves08; @Fu08] was also
 utilized for the generation.
-Figure [\[fig:fig2\_a\]](#fig:fig2_a){reference-type="ref"
+Figure [\[fig:fig2_a\]](#fig:fig2_a){reference-type="ref"
 reference="fig:fig2_a"} shows the surface plot of a generated random
 field. The purely random component and measurement error were added as
 Gaussian white noise, whose variances were chosen with different
@@ -438,18 +443,18 @@ component was added to the characteristic values of all sites on a same
 chip. Different chips were added with different global variation values
 from a Gaussian distribution. The above three variation components were
 generated with a set of different variance values.
-Figure [\[fig:fig2\_b\]](#fig:fig2_b){reference-type="ref"
+Figure [\[fig:fig2_b\]](#fig:fig2_b){reference-type="ref"
 reference="fig:fig2_b"} shows the surface plot of the finally generated
 measurement data from a sample chip.
 
 \centering
 \subfigure[random field]{
-    \label{fig:fig2_a} %% label for first subfigure
-    %%\includegraphics[width=0.4\textwidth]{figures/randfield.pdf}
+\label{fig:fig2_a} %% label for first subfigure
+%%\includegraphics[width=0.4\textwidth]{figures/randfield.pdf}
 }
 \subfigure[measurement data]{
-    \label{fig:fig2_b} %% label for second subfigure
-    %%\includegraphics[width=0.4\textwidth]{figures/measuredata.pdf}
+\label{fig:fig2_b} %% label for second subfigure
+%%\includegraphics[width=0.4\textwidth]{figures/measuredata.pdf}
 }
 We implemented the proposed method in two branches for comparison. One
 does not consider nugget effect and use the original $R(h)$ in
@@ -459,14 +464,15 @@ $\tilde{R}(h)$ in likelihood function which is called MLEnug. We also
 implemented the LSE based extraction algorithm in [@Xiong07] named as
 RESCF. We performed multi-runs (30 times) in each experiment and present
 the average results in
-Tables [\[tab:1\_uni\_grid\]](#tab:1_uni_grid){reference-type="ref"
+Tables [\[tab:1_uni_grid\]](#tab:1_uni_grid){reference-type="ref"
 reference="tab:1_uni_grid"}
-and [\[tab:1\_MC\]](#tab:1_MC){reference-type="ref"
+and [\[tab:1_MC\]](#tab:1_MC){reference-type="ref"
 reference="tab:1_MC"}.
 
 [\[tab:1\_uni\_grid\]]{#tab:1_uni_grid label="tab:1_uni_grid"}
 
 \small
+
 <table>
 <tbody>
 <tr class="odd">
@@ -685,6 +691,7 @@ reference="tab:1_MC"}.
 [\[tab:1\_MC\]]{#tab:1_MC label="tab:1_MC"}
 
 \small
+
 <table>
 <tbody>
 <tr class="odd">
@@ -917,15 +924,14 @@ relative errors of the extracted spatial correlation function are above
 effect is considered, MLEnug works well, and achieves better results
 than RESCF for all test cases with less runtime for both two sampling
 schemes. This shows the accuaracy and efficiency of the proposed method.
-Figure [\[fig:corr\_funs\]](#fig:corr_funs){reference-type="ref"
+Figure [\[fig:corr_funs\]](#fig:corr_funs){reference-type="ref"
 reference="fig:corr_funs"} illustrates the correlation functions
 extracted by the three methods compared with the actual correlation
 function in one experiment.
 
 [\[fig:corr\_funs\]]{#fig:corr_funs label="fig:corr_funs"}
 
-Conclusion Remarks
-==================
+# Conclusion Remarks
 
 Intra-die spatial correlation extraction has been a prevailing subject
 these years. In this paper, we propose a novel extraction method using
@@ -940,8 +946,7 @@ algorithm [@Xiong07] for all test cases with less runtime. The proposed
 method is more efficient and stable for spatial correlation extraction
 provided with real silicon data.
 
-Acknowledgment {#acknowledgment .unnumbered .unnumbered}
-==============
+# Acknowledgment {#acknowledgment .unnumbered .unnumbered}
 
 This research is supported partly by NSFC research project
 

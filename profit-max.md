@@ -6,15 +6,14 @@ It is important for firms to pursue profit maximization because economic profit 
 
 ## What is robust optimization and how does it take into account parameter uncertainties?
 
-Robust optimization is a framework that deals with parameter uncertainties in mathematical models. Uncertainties in the real world can render the original model inapplicable. Robust optimization incorporates these uncertainties into the optimization problem by considering the worst-case scenario. It strives to identify a solution that is robust and performs optimally under all plausible parameter values within a given uncertainty set. 
+Robust optimization is a framework that deals with parameter uncertainties in mathematical models. Uncertainties in the real world can render the original model inapplicable. Robust optimization incorporates these uncertainties into the optimization problem by considering the worst-case scenario. It strives to identify a solution that is robust and performs optimally under all plausible parameter values within a given uncertainty set.
 
 In the context of profit maximization, this document considers uncertainties on the model parameters over a given interval. The robust counterpart of the problem is not currently solvable in an efficient or tractable form. Therefore, the authors propose using piecewise convex linear approximations as a close approximation of the robust counterpart. By implementing this technique, the problem can be converted into a geometric programming problem, leading to more efficient solvability using interior point algorithms[1][2][9].
 
 Overall, robust optimization considers parameter uncertainties by formulating problems that account for worst-case scenarios. This approach allows for more reliable and robust solutions when dealing with uncertainty. The study presented in this paper addresses profit maximization using a robust geometric programming approach with interval uncertainty. The authors examine the established Cobb-Douglas production function and introduce an approximate equivalent of the robust counterpart using piecewise convex linear approximations. This approximation takes the form of a geometric programming problem. An example is utilized to demonstrate the effects of uncertainties.
 
-
 ## Others
 
 Interval uncertainties refer to uncertainties in model parameters that are represented as intervals. The authors of this study consider interval uncertainties on the model parameters. Upper and lower piecewise convex linear approximations of the robust counterpart are presented, which are efficiently solvable using interior point methods. These approximations are utilized to incorporate the interval uncertainties into the model.
 
-The Cobb-Douglas production function is a widely accepted model used to represent the relationship between inputs and outputs in production. The current study analyzes the problem of maximizing profit by the authors using the known Cobb-Douglas production function. Its corresponding geometric programming form is provided. 
+The Cobb-Douglas production function is a widely accepted model used to represent the relationship between inputs and outputs in production. The current study analyzes the problem of maximizing profit by the authors using the known Cobb-Douglas production function. Its corresponding geometric programming form is provided.

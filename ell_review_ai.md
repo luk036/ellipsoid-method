@@ -1,4 +1,4 @@
-The PDF contains a technical report on optimization methods, specifically focusing on the ellipsoid method and the cutting-plane method. The report is divided into several sections, including an introduction, a review of the cutting-plane method, a review of the ellipsoid method, and a comparison of the two methods. 
+The PDF contains a technical report on optimization methods, specifically focusing on the ellipsoid method and the cutting-plane method. The report is divided into several sections, including an introduction, a review of the cutting-plane method, a review of the ellipsoid method, and a comparison of the two methods.
 
 The introduction provides an overview of optimization and its importance in various fields, such as engineering, economics, and computer science. It also introduces the two methods that are the focus of the report, the cutting-plane method and the ellipsoid method.
 

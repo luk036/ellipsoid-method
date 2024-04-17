@@ -8,18 +8,16 @@ The Ellipsoid Method has a wide range of practical applications in operations re
 
 ## Are there any limitations or drawbacks to using the Ellipsoid Method?
 
-There are some limitations and drawbacks to using the Ellipsoid Method. One limitation is that the method can be computationally expensive, especially for high-dimensional problems. The high dimensionality of the problem can slow convergence, and the initial ellipsoid may need to be very large to cover the feasible region. Additionally, the method may require perturbation of the problem or modification of the algorithm to handle cases where the feasible set has zero volume. Another drawback is that the rate of convergence of the Ellipsoid Method can be rather slow, especially when compared to the simplex method. Finally, from a practical standpoint, analytical and computational investigations of the Ellipsoid Method have not been encouraging. 
+There are some limitations and drawbacks to using the Ellipsoid Method. One limitation is that the method can be computationally expensive, especially for high-dimensional problems. The high dimensionality of the problem can slow convergence, and the initial ellipsoid may need to be very large to cover the feasible region. Additionally, the method may require perturbation of the problem or modification of the algorithm to handle cases where the feasible set has zero volume. Another drawback is that the rate of convergence of the Ellipsoid Method can be rather slow, especially when compared to the simplex method. Finally, from a practical standpoint, analytical and computational investigations of the Ellipsoid Method have not been encouraging.
 
 ## What is Parallel Cut?
 
-In the context of the Ellipsoid Method, a parallel cut refers to a pair of linear constraints of the form aTx <= b and -aTx <= -b, where a is a vector of coefficients and b is a scalar constant. These constraints are said to be parallel because they have the same normal vector a, but opposite signs. When a parallel cut is encountered during the Ellipsoid Method, both constraints can be used simultaneously to generate a new ellipsoid. This can improve the convergence rate of the method, especially for problems with many parallel constraints. 
+In the context of the Ellipsoid Method, a parallel cut refers to a pair of linear constraints of the form aTx <= b and -aTx <= -b, where a is a vector of coefficients and b is a scalar constant. These constraints are said to be parallel because they have the same normal vector a, but opposite signs. When a parallel cut is encountered during the Ellipsoid Method, both constraints can be used simultaneously to generate a new ellipsoid. This can improve the convergence rate of the method, especially for problems with many parallel constraints.
 
 ## What is a shallow cut?
 
 In the context of the Ellipsoid Method, a shallow cut refers to a linear constraint that cuts off less than half of the current ellipsoid. Shallow cuts are used in algorithms where subgradients are not available and must be approximated by using function values. By cutting off less than half of the current ellipsoid, the algorithm can still guarantee that the desired solution is contained in the new ellipsoid in spite of the use of approximate subgradients. However, shallow cuts may result in slower convergence compared to deeper cuts.
 
-
 ## What is the meaning of quasi-convex?
 
 A function f: R^n -> R is quasi-convex if its sublevel sets {x | f(x) <= gamma} are convex for all gamma in R. In other words, a function is quasi-convex if the region below any of its level sets is a convex set. Intuitively, this means that the function does not have any "holes" or disjoint regions in its domain where the function takes on smaller values. Quasi-convex functions are important in optimization because they share many of the desirable properties of convex functions, such as having a unique global minimum, while still allowing for some non-convexity in the function.
-

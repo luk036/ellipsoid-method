@@ -1,270 +1,833 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
-<head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="pandoc" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="author" content="Wai-Shing Luk" />
-  <meta name="keywords" content="Ellipsoid method, Cutting plane method, Separation oracle, Cholesky Factorization" />
-  <title>Ellipsoid Method and the Amazing Oracles</title>
-  <style>
-      code{white-space: pre-wrap;}
-      span.smallcaps{font-variant: small-caps;}
-      span.underline{text-decoration: underline;}
-      div.column{display: inline-block; vertical-align: top; width: 50%;}
-  </style>
-  <style>
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-  </style>
-  <script src="katex/katex.min.js"></script>
-  <script>document.addEventListener("DOMContentLoaded", function () {
-    var mathElements = document.getElementsByClassName("math");
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") { katex.render(texText.data, mathElements[i], { displayMode: mathElements[i].classList.contains("display"), throwOnError: false } );
-    }}});</script>
-  <link rel="stylesheet" href="katex/katex.min.css" />
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-  <![endif]-->
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-</head>
-<body>
-<header id="title-block-header">
-<h1 class="title">Ellipsoid Method and the Amazing Oracles</h1>
-<p class="author">Wai-Shing Luk</p>
-</header>
-<h1 id="sec:introduction"><span class="header-section-number">1</span> Introduction</h1>
-<p>The reputation of the ellipsoid method is bad. It is commonly believed that the method is slow for large-scale convex problems compared with the interior point methods <span class="citation" data-cites="unknown">[<a href="#ref-unknown" role="doc-biblioref">1</a>]</span>. And this is unfair.</p>
-<p>First, unlike the interior point methods, the ellipsode method does not require evaluation of all the constraint functions explicitly at each iteration. All it needs is a <em>separation oracle</em> that provides a <em>cutting-plane</em> (§ 2). This can make the method attractive for certain problems in which the number of constraints is large or even infinite.</p>
-<p>Second, although the ellipsoid method itself cannot exploit the sparsity of the problem, the separation oracle can exploit certain types of structure of them…</p>
-<p>In § 3.1, robust optimization…</p>
-<p>In § 3.2, we show for the network parametric problems, the cutting-plane can be obtained by finding the negative cycle of a directed graph. Efficient algorithms exist, in which the locality of network and the associativity of variables are utilized.</p>
-<p>In § 3.3, problems involving matrix inequalities are discussed. Recall that the checking of the positive definiteness of a symmetry matrix can be done efficiently using Cholesky or more precisely <span class="math inline">LDL^\mathsf{T}</span> factorization*. Let a symmetric matrix <span class="math inline">A \in \mathbb{R}^{m \times m}</span>. Recall that if the factorization stops at row <span class="math inline">p</span> while a negative diagonal entry is encountered, then <span class="math inline">A</span> is not positive definite. In addition, with lazy evalution technique, one can construct a cutting plane in <span class="math inline">O(p^2)</span>, no matter how large the value of <span class="math inline">m</span> is. Thus, it can be used for efficient oracle implementation.</p>
-<p>Implemention issues of the ellipsoid method is discussed in § 4. The method is a kind of cutting-plane methods, where the search space is an ellipsoid, usually represented by: <span class="math display">\{ x \mid (x-x_c)P^{-1}(x-x_c) \le 1 \},</span> where <span class="math inline">x_c \in \mathbb{R}^n</span> is the center of the ellipsoid, and <span class="math inline">P \in \mathbb{R}^{n \times n}</span> is symmetric positive definite. At each iteration, <span class="math inline">x_c</span> and <span class="math inline">P</span> are updated according to the cut. Although the updating of the ellipsoid is simple and the implementation has been found for decades, we show that one can reduce <span class="math inline">n^2</span> flops (floating point operations) by splitting <span class="math inline">P</span> into <span class="math inline">\alpha</span> times <span class="math inline">Q</span>. Moreover, the use of parallel cuts is discussed in Section 4.2. When a pair of parallel inequalities, one of which is violated, it is possible to use both constraints simultaneously to update the ellipsoid. Some papers reported that this technique did not provide significant improvement. We show that, for some cases when the upper and lower bounds of the constraints are tight, such as those for the filter designs, the use of parallel cuts could in fact improve the run time dramatically. Furthermore, we show that if the method is implemented correctly, at most one square-root operation is needed per update, no matter deep cut or parallel cut is used.</p>
-<p>In many practice engineering problems, some design variables may be restricted in discrete forms. Since all the cutting-plane method request is separation oracle, it works for discrete problems as well.</p>
-<p>This article is organized as follows. The cutting-plane method is revisited in § 2. Examples of three extreounary separation oracles are presented in § 3.</p>
-<h1 id="sec:cutting-plane"><span class="header-section-number">2</span> Cutting-plane Method Revisited</h1>
-<h2 id="sec:convex-feasibility-problem"><span class="header-section-number">2.1</span> Convex Feasibility Problem</h2>
-<p>Let <span class="math inline">\mathcal{K} \subseteq \mathbb{R}^n</span> be a convex set. Consider the feasibility problem:</p>
-<ol type="1">
-<li><p>Find a point <span class="math inline">x^* \in \mathbb{R}^n</span> in <span class="math inline">\mathcal{K}</span>, or</p></li>
-<li><p>Determine that <span class="math inline">\mathcal{K}</span> is empty (i.e., no feasible solution)</p></li>
-</ol>
-<p>When a <em>separation oracle</em> <span class="math inline">\Omega</span> is <em>queried</em> at <span class="math inline">x_0</span>, it either</p>
-<ol type="1">
-<li><p>Asserts that <span class="math inline">x_0 \in \mathcal{K}</span>, or</p></li>
-<li><p>Returns a separating hyperplane between <span class="math inline">x_0</span> and <span class="math inline">\mathcal{K}</span>: <span id="eq:cut"><span class="math display">g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \ge 0, g \neq 0, \; \forall x \in \mathcal{K}.\qquad(1)</span></span></p></li>
-</ol>
-<p>The pair <span class="math inline">(g, \beta)</span> is called a <em>cutting-plane</em>, since it eliminates the half-space <span class="math inline">\{x \mid g^\mathsf{T} (x - x_0) + \beta &gt; 0\}</span> from our search. We have the following observations:</p>
-<ul>
-<li><p>If <span class="math inline">\beta=0</span> (<span class="math inline">x_0</span> is on the boundary of half-space that is cut), cutting-plane is called <em>neutral-cut</em>.</p></li>
-<li><p>If <span class="math inline">\beta&gt;0</span> (<span class="math inline">x_0</span> lies in the interior of half-space that is cut), cutting-plane is called **.</p></li>
-<li><p>If <span class="math inline">\beta&lt;0</span> (<span class="math inline">x_0</span> lies in the exterior of half-space that is cut), cutting-plane is called <em>shadow-cut</em>.</p></li>
-</ul>
-<p>The <span class="math inline">\mathcal{K}</span> is usually given by a set of inequalities <span class="math inline">f_j(x) \le 0</span> or <span class="math inline">f_j(x) &lt; 0</span> for <span class="math inline">j = 1 \cdots m</span>, where <span class="math inline">f_j(x)</span> is a convex function. A vector <span class="math inline">g \equiv \partial f(x_0)</span> is called a <em>sub-gradient</em> of a convex function <span class="math inline">f</span> at <span class="math inline">x_0</span> if <span class="math inline">f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)</span>. Hence, the cut <span class="math inline">(g, \beta)</span> is given by <span class="math inline">(\partial f(x_0), f(x_0))</span>.</p>
-<p>Note that if <span class="math inline">f(x)</span> is differentiable, we can simply take <span class="math inline">\partial f(x_0) = \nabla f(x_0)</span>. Cutting-plane method comprises two key components: separation oracle <span class="math inline">\Omega</span> and a search space <span class="math inline">\mathcal{S}</span> initially big enough to cover <span class="math inline">\mathcal{K}</span>. For example,</p>
-<ul>
-<li><p>Polyhedron <span class="math inline">\mathcal{P}</span> = <span class="math inline">\{z \mid C z \preceq d \}</span>.</p></li>
-<li><p>Interval <span class="math inline">\mathcal{I}</span> = <span class="math inline">[l, u]</span> (for one-dimensional problem).</p></li>
-<li><p>Ellipsoid <span class="math inline">\mathcal{E}</span> = <span class="math inline">\{z \mid (z-x_c)P^{-1}(z-x_c) \le 1 \}</span>.</p></li>
-</ul>
-<p>Generic Cutting-plane method:</p>
-<ul>
-<li><p><strong>Given</strong> initial <span class="math inline">\mathcal{S}</span> known to contain <span class="math inline">\mathcal{K}</span>.</p></li>
-<li><p><strong>Repeat</strong></p>
-<ol type="1">
-<li><p>Choose a point <span class="math inline">x_0</span> in <span class="math inline">\mathcal{S}</span>.</p></li>
-<li><p>Query the separation oracle at <span class="math inline">x_0</span>.</p></li>
-<li><p><strong>If</strong> <span class="math inline">x_0 \in \mathcal{K}</span>, quit.</p></li>
-<li><p><strong>Else</strong>, update <span class="math inline">\mathcal{S}</span> to a smaller set that covers: <span class="math display">\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\}.</span></p></li>
-<li><p><strong>If</strong> <span class="math inline">\mathcal{S}^+ = \emptyset</span> or it is small enough, quit.</p></li>
-</ol></li>
-</ul>
-<p>Todo: What if the search space is large enough?</p>
-<h2 id="sec:from-feasibility-to-optimization"><span class="header-section-number">2.2</span> From Feasibility to Optimization</h2>
-<p>Consider: <span id="eq:convex-optimization"><span class="math display">\begin{array}{ll}
-    \text{minimize}     &amp; f_0(x), \\
-    \text{subject to}   &amp; x \in \mathcal{K}.
-  \end{array}
-\qquad(2)</span></span> We treat the optimization problem as a feasibility problem with an additional constraint <span class="math inline">f_0(x) \le \gamma</span>. Here, <span class="math inline">f_0(x)</span> could be a convex function or a quasi-convex function. <span class="math inline">t</span> is the best-so-far value of <span class="math inline">f_0(x)</span>. We can reformulate the problem as: <span id="eq:cvx-in-feasibility-form"><span class="math display">\begin{array}{ll}
-    \text{minimize}   &amp; \gamma, \\
-    \text{subject to} &amp; \Phi(x, \gamma) \le 0, \\
-                      &amp; x \in \mathcal{K},
-  \end{array}
-\qquad(3)</span></span> where <span class="math inline">\Phi(x, \gamma) \le 0</span> is the <span class="math inline">t</span>-sublevel set of <span class="math inline">f_0(x)</span>.</p>
-<p>For each <span class="math inline">x</span>, <span class="math inline">\Phi(x, t)</span> is a nonincreasing function of <span class="math inline">t</span>, <em>i.e.</em>, <span class="math inline">\Phi(x, \gamma') \le \Phi(x, \gamma) whenever \gamma' \ge t</span>. Note that <span class="math inline">\mathcal{K}_\gamma \subseteq \mathcal{K}_u</span> if and only if <span class="math inline">\gamma \le u</span> (monotonicity). One easy way to solve the optimization problem is to apply the binary search on <span class="math inline">t</span>.</p>
-<p>Another possible way is, to update the best-so-far <span class="math inline">t</span> whenever a feasible solution <span class="math inline">x_0</span> is found such that <span class="math inline">\Phi(x_0, \gamma) = 0</span>. We assume that the oracle takes responsibility for that.</p>
-<p>Generic Cutting-plane method (Optim)</p>
-<ul>
-<li><p><strong>Given</strong> initial <span class="math inline">\mathcal{S}</span> known to contain <span class="math inline">\mathcal{K}_\gamma</span>.</p></li>
-<li><p><strong>Repeat</strong></p>
-<ol type="1">
-<li><p>Choose a point <span class="math inline">x_0</span> in <span class="math inline">\mathcal{S}</span></p></li>
-<li><p>Query the separation oracle at <span class="math inline">x_0</span></p></li>
-<li><p><strong>If</strong> <span class="math inline">x_0 \in \mathcal{K}_\gamma</span>, update <span class="math inline">t</span> such that <span class="math inline">\Phi(x_0, \gamma) = 0</span>.</p></li>
-<li><p>Update <span class="math inline">\mathcal{S}</span> to a smaller set that covers: <span class="math display">\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\} </span></p></li>
-<li><p><strong>If</strong> <span class="math inline">\mathcal{S}^+ = \emptyset</span> or it is small enough, quit.</p></li>
-</ol></li>
-</ul>
-<h2 id="sec:profit"><span class="header-section-number">2.3</span> Example: Profit Maximization</h2>
-<p>This example is taken from <span class="citation" data-cites="Aliabadi2013Robust">[<a href="#ref-Aliabadi2013Robust" role="doc-biblioref">2</a>]</span>. Consider the following short-run profit maximization problem: <span id="eq:profit-max-in-original-form"><span class="math display">\begin{array}{ll}
-   \text{maximize}   &amp; p(A x_1^\alpha x_2^\beta) - v_1 x_1 - v_2 x_2, \\
-   \text{subject to} &amp; x_1 \le k, \\
-                     &amp; x_1 &gt; 0, x_2 &gt; 0,
-  \end{array}
-\qquad(4)</span></span> where <span class="math inline">p</span> is the market price per unit, <span class="math inline">A</span> is the scale of production, <span class="math inline">\alpha</span> and <span class="math inline">\beta</span> are the output elasticities, <span class="math inline">x_i</span> and <span class="math inline">v_i</span> are <span class="math inline">i</span>th input quantity and output price, <span class="math inline">A x_1^\alpha x_2^\beta</span> is the Cobb-Douglas production function, and <span class="math inline">k</span> is a constant that restricts the quantity of <span class="math inline">x_1</span>.</p>
-<p>The above formulation is not in a convex form. First, we rewrite the problem: <span class="math display">\begin{array}{ll}
-    \text{maximize}   &amp; \gamma, \\
-    \text{subject to} &amp; \gamma  + v_1 x_1  + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}, \\
-                      &amp; x_1 \le k, \\
-                      &amp; x_1 &gt; 0, x_2 &gt; 0.
-  \end{array}
-</span></p>
-<p>By the change of variables, we have the following convex form of <strong>???</strong>:</p>
-<p><span id="eq:profit-in-cvx-form"><span class="math display">\begin{array}{ll}
-    \text{maximize}   &amp; \gamma, \\
-    \text{subject to} &amp; \log(\gamma + v_1 e^{y_1} + v_2 e^{y_2}) -
-                    (\alpha y_1 + \beta y_2) \le \log(p\,A), \\
-                      &amp; y_1 \le \log k,
-  \end{array}
-\qquad(5)</span></span> where <span class="math inline">y_1 = \log x_1</span> and <span class="math inline">y_2 = \log x_2</span>.</p>
-<p>Some readers may recognize that we can also write the problem in a geometric program by introducing one additional variable <span class="citation" data-cites="Aliabadi2013Robust">[<a href="#ref-Aliabadi2013Robust" role="doc-biblioref">2</a>]</span>.</p>
-<h1 id="sec:oracles"><span class="header-section-number">3</span> Amazing Oracles</h1>
-<ul>
-<li>Robust convex optimization
-<ul>
-<li>oracle technique: affine arithmetic</li>
-</ul></li>
-<li>Parametric network potential problem
-<ul>
-<li>oracle technique: negative cycle detection</li>
-</ul></li>
-<li>Semidefinite programming
-<ul>
-<li>oracle technique: Cholesky factorization</li>
-</ul></li>
-</ul>
-<h2 id="sec:robust"><span class="header-section-number">3.1</span> Robust Convex Optimization</h2>
-<p>Consider: <span id="eq:robust-optim"><span class="math display">\begin{array}{ll}
-    \text{minimize}   &amp; \sup_{q \in \mathcal Q} f_0(x, q), \\
-    \text{subject to} &amp; f_j(x, q) \le 0, \;
-            \forall q \in \mathcal{Q}, \; j = 1,2,\cdots, m,
-  \end{array}
-\qquad(6)</span></span> where <span class="math inline">q</span> represents a set of varying parameters. We can reformulate the problem as: <span class="math display">\begin{array}{ll}
-    \text{minimize}   &amp; \gamma, \\
-    \text{subject to} &amp; f_0(x, q) \le \gamma,  \\
-                      &amp; f_j(x, q) \le 0, \;
-            \forall q \in \mathcal{Q}, \; j = 1,2,\cdots,m.
-  \end{array}
-</span></p>
-<h3 id="sec:algorithm"><span class="header-section-number">3.1.1</span> Algorithm</h3>
-<p>The oracle only needs to determine:</p>
-<ul>
-<li><p>If <span class="math inline">f_j(x_0, q) &gt; 0</span> for some <span class="math inline">j</span> and <span class="math inline">q = q_0</span>, then</p></li>
-<li><p>the cut <span class="math inline">(g, \beta)</span> = <span class="math inline">(\partial f_j(x_0, q_0), f_j(x_0, q_0))</span></p></li>
-<li><p>If <span class="math inline">f_0(x_0, q) \ge t</span> for some <span class="math inline">q = q_0</span>, then</p></li>
-<li><p>the cut <span class="math inline">(g, \beta)</span> = <span class="math inline">(\partial f_0(x_0, q_0), f_0(x_0, q_0) - t)</span></p></li>
-<li><p>Otherwise, <span class="math inline">x_0</span> is feasible, then</p></li>
-<li><p>Let <span class="math inline">q_{\max} = \text{argmax}_{q \in \mathcal Q} f_0(x_0, q)</span>.</p></li>
-<li><p><span class="math inline">t := f_0(x_0, q_{\max})</span>.</p></li>
-<li><p>The cut <span class="math inline">(g, \beta)</span> = <span class="math inline">(\partial f_0(x_0, q_{\max}), 0)</span></p></li>
-</ul>
-<h3 id="sec:profit-rb"><span class="header-section-number">3.1.2</span> Example: Robust Profit Maximization</h3>
-<p>Consider again the profit maximization problem in § 2.3. Now suppose the parameters <span class="math inline">\{\alpha, \beta, p, v_1, v_2, k\}</span> are subject to interval uncertainties: <span class="math display">\begin{array}{rcl}
-\alpha - \varepsilon_1 \le &amp; \hat{\alpha} &amp; \le \alpha + \varepsilon_1 \\
-\beta  - \varepsilon_2 \le &amp; \hat{\beta}  &amp; \le \beta  + \varepsilon_2 \\
-p   - \varepsilon_3 \le  &amp; \hat{p}    &amp; \le p   + \varepsilon_3 \\
-v_1 - \varepsilon_4 \le  &amp; \hat{v}_1  &amp; \le v_1 + \varepsilon_4 \\
-v_2 - \varepsilon_5 \le  &amp; \hat{v}_2  &amp; \le v_2 + \varepsilon_5 \\
-k   - \varepsilon_6 \le  &amp; \hat{k}    &amp; \le k   + \varepsilon_6
-\end{array}
-</span> The robust counterpart considering the worst-case scenario is given by: <span class="math display">\begin{array}{ll}
-    \text{max}  &amp; \gamma \\
-    \text{s.t.} &amp; \log(\gamma + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) -
-                        (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A)  \\
-                &amp; y_1 \le \log \hat{k}.
-  \end{array}
-</span> In <span class="citation" data-cites="Aliabadi2013Robust">[<a href="#ref-Aliabadi2013Robust" role="doc-biblioref">2</a>]</span>, the authors proposed a <em>piecewise linear approximation</em> approach. It involves a lot of programming effort but the result is inaccurate. However, this can easily be done using the cutting-plane method. Note that in this simple example, the worst case happens when:</p>
-<ul>
-<li><p><span class="math inline">\hat{p} = p - e_3</span>, <span class="math inline">k = \bar{k} - e_3</span></p></li>
-<li><p><span class="math inline">v_1 = \bar{v}_1 + e_3</span>, <span class="math inline">v_2 = \bar{v}_2 + e_3</span>,</p></li>
-<li><p>if <span class="math inline">y_1 &gt; 0</span>, <span class="math inline">\alpha = \bar{\alpha} - e_1</span>, else <span class="math inline">\alpha = \bar{\alpha} + e_1</span></p></li>
-<li><p>if <span class="math inline">y_2 &gt; 0</span>, <span class="math inline">\beta = \bar{\beta} - e_2</span>, else <span class="math inline">\beta = \bar{\beta} + e_2</span></p></li>
-</ul>
-<p>We can even reuse the original oracle to compose the robust counterpart.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">class</span> profit_rb_oracle:</span>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <meta name="author" content="Wai-Shing Luk" />
+    <meta
+      name="keywords"
+      content="Ellipsoid method, Cutting plane method, Separation oracle, Cholesky Factorization"
+    />
+    <title>Ellipsoid Method and the Amazing Oracles</title>
+    <style>
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+    <style>
+      code.sourceCode > span {
+        display: inline-block;
+        line-height: 1.25;
+      }
+      code.sourceCode > span {
+        color: inherit;
+        text-decoration: inherit;
+      }
+      code.sourceCode > span:empty {
+        height: 1.2em;
+      }
+      .sourceCode {
+        overflow: visible;
+      }
+      code.sourceCode {
+        white-space: pre;
+        position: relative;
+      }
+      div.sourceCode {
+        margin: 1em 0;
+      }
+      pre.sourceCode {
+        margin: 0;
+      }
+      @media screen {
+        div.sourceCode {
+          overflow: auto;
+        }
+      }
+      @media print {
+        code.sourceCode {
+          white-space: pre-wrap;
+        }
+        code.sourceCode > span {
+          text-indent: -5em;
+          padding-left: 5em;
+        }
+      }
+      pre.numberSource code {
+        counter-reset: source-line 0;
+      }
+      pre.numberSource code > span {
+        position: relative;
+        left: -4em;
+        counter-increment: source-line;
+      }
+      pre.numberSource code > span > a:first-child::before {
+        content: counter(source-line);
+        position: relative;
+        left: -1em;
+        text-align: right;
+        vertical-align: baseline;
+        border: none;
+        display: inline-block;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        padding: 0 4px;
+        width: 4em;
+        color: #aaaaaa;
+      }
+      pre.numberSource {
+        margin-left: 3em;
+        border-left: 1px solid #aaaaaa;
+        padding-left: 4px;
+      }
+      div.sourceCode {
+      }
+      @media screen {
+        code.sourceCode > span > a:first-child::before {
+          text-decoration: underline;
+        }
+      }
+      code span.al {
+        color: #ff0000;
+        font-weight: bold;
+      } /* Alert */
+      code span.an {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Annotation */
+      code span.at {
+        color: #7d9029;
+      } /* Attribute */
+      code span.bn {
+        color: #40a070;
+      } /* BaseN */
+      code span.bu {
+      } /* BuiltIn */
+      code span.cf {
+        color: #007020;
+        font-weight: bold;
+      } /* ControlFlow */
+      code span.ch {
+        color: #4070a0;
+      } /* Char */
+      code span.cn {
+        color: #880000;
+      } /* Constant */
+      code span.co {
+        color: #60a0b0;
+        font-style: italic;
+      } /* Comment */
+      code span.cv {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* CommentVar */
+      code span.do {
+        color: #ba2121;
+        font-style: italic;
+      } /* Documentation */
+      code span.dt {
+        color: #902000;
+      } /* DataType */
+      code span.dv {
+        color: #40a070;
+      } /* DecVal */
+      code span.er {
+        color: #ff0000;
+        font-weight: bold;
+      } /* Error */
+      code span.ex {
+      } /* Extension */
+      code span.fl {
+        color: #40a070;
+      } /* Float */
+      code span.fu {
+        color: #06287e;
+      } /* Function */
+      code span.im {
+      } /* Import */
+      code span.in {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Information */
+      code span.kw {
+        color: #007020;
+        font-weight: bold;
+      } /* Keyword */
+      code span.op {
+        color: #666666;
+      } /* Operator */
+      code span.ot {
+        color: #007020;
+      } /* Other */
+      code span.pp {
+        color: #bc7a00;
+      } /* Preprocessor */
+      code span.sc {
+        color: #4070a0;
+      } /* SpecialChar */
+      code span.ss {
+        color: #bb6688;
+      } /* SpecialString */
+      code span.st {
+        color: #4070a0;
+      } /* String */
+      code span.va {
+        color: #19177c;
+      } /* Variable */
+      code span.vs {
+        color: #4070a0;
+      } /* VerbatimString */
+      code span.wa {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Warning */
+    </style>
+    <script src="katex/katex.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        var mathElements = document.getElementsByClassName("math");
+        for (var i = 0; i < mathElements.length; i++) {
+          var texText = mathElements[i].firstChild;
+          if (mathElements[i].tagName == "SPAN") {
+            katex.render(texText.data, mathElements[i], {
+              displayMode: mathElements[i].classList.contains("display"),
+              throwOnError: false,
+            });
+          }
+        }
+      });
+    </script>
+    <link rel="stylesheet" href="katex/katex.min.css" />
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <header id="title-block-header">
+      <h1 class="title">Ellipsoid Method and the Amazing Oracles</h1>
+      <p class="author">Wai-Shing Luk</p>
+    </header>
+    <h1 id="sec:introduction">
+      <span class="header-section-number">1</span> Introduction
+    </h1>
+    <p>
+      The reputation of the ellipsoid method is bad. It is commonly believed
+      that the method is slow for large-scale convex problems compared with the
+      interior point methods
+      <span class="citation" data-cites="unknown"
+        >[<a href="#ref-unknown" role="doc-biblioref">1</a>]</span
+      >. And this is unfair.
+    </p>
+    <p>
+      First, unlike the interior point methods, the ellipsode method does not
+      require evaluation of all the constraint functions explicitly at each
+      iteration. All it needs is a <em>separation oracle</em> that provides a
+      <em>cutting-plane</em> (§ 2). This can make the method attractive for
+      certain problems in which the number of constraints is large or even
+      infinite.
+    </p>
+    <p>
+      Second, although the ellipsoid method itself cannot exploit the sparsity
+      of the problem, the separation oracle can exploit certain types of
+      structure of them…
+    </p>
+    <p>In § 3.1, robust optimization…</p>
+    <p>
+      In § 3.2, we show for the network parametric problems, the cutting-plane
+      can be obtained by finding the negative cycle of a directed graph.
+      Efficient algorithms exist, in which the locality of network and the
+      associativity of variables are utilized.
+    </p>
+    <p>
+      In § 3.3, problems involving matrix inequalities are discussed. Recall
+      that the checking of the positive definiteness of a symmetry matrix can be
+      done efficiently using Cholesky or more precisely
+      <span class="math inline">LDL^\mathsf{T}</span> factorization*. Let a
+      symmetric matrix
+      <span class="math inline">A \in \mathbb{R}^{m \times m}</span>. Recall
+      that if the factorization stops at row
+      <span class="math inline">p</span> while a negative diagonal entry is
+      encountered, then <span class="math inline">A</span> is not positive
+      definite. In addition, with lazy evalution technique, one can construct a
+      cutting plane in <span class="math inline">O(p^2)</span>, no matter how
+      large the value of <span class="math inline">m</span> is. Thus, it can be
+      used for efficient oracle implementation.
+    </p>
+    <p>
+      Implemention issues of the ellipsoid method is discussed in § 4. The
+      method is a kind of cutting-plane methods, where the search space is an
+      ellipsoid, usually represented by:
+      <span class="math display">\{ x \mid (x-x_c)P^{-1}(x-x_c) \le 1 \},</span>
+      where <span class="math inline">x_c \in \mathbb{R}^n</span> is the center
+      of the ellipsoid, and
+      <span class="math inline">P \in \mathbb{R}^{n \times n}</span> is
+      symmetric positive definite. At each iteration,
+      <span class="math inline">x_c</span> and
+      <span class="math inline">P</span> are updated according to the cut.
+      Although the updating of the ellipsoid is simple and the implementation
+      has been found for decades, we show that one can reduce
+      <span class="math inline">n^2</span> flops (floating point operations) by
+      splitting <span class="math inline">P</span> into
+      <span class="math inline">\alpha</span> times
+      <span class="math inline">Q</span>. Moreover, the use of parallel cuts is
+      discussed in Section 4.2. When a pair of parallel inequalities, one of
+      which is violated, it is possible to use both constraints simultaneously
+      to update the ellipsoid. Some papers reported that this technique did not
+      provide significant improvement. We show that, for some cases when the
+      upper and lower bounds of the constraints are tight, such as those for the
+      filter designs, the use of parallel cuts could in fact improve the run
+      time dramatically. Furthermore, we show that if the method is implemented
+      correctly, at most one square-root operation is needed per update, no
+      matter deep cut or parallel cut is used.
+    </p>
+    <p>
+      In many practice engineering problems, some design variables may be
+      restricted in discrete forms. Since all the cutting-plane method request
+      is separation oracle, it works for discrete problems as well.
+    </p>
+    <p>
+      This article is organized as follows. The cutting-plane method is
+      revisited in § 2. Examples of three extreounary separation oracles are
+      presented in § 3.
+    </p>
+    <h1 id="sec:cutting-plane">
+      <span class="header-section-number">2</span> Cutting-plane Method
+      Revisited
+    </h1>
+    <h2 id="sec:convex-feasibility-problem">
+      <span class="header-section-number">2.1</span> Convex Feasibility Problem
+    </h2>
+    <p>
+      Let <span class="math inline">\mathcal{K} \subseteq \mathbb{R}^n</span> be
+      a convex set. Consider the feasibility problem:
+    </p>
+    <ol type="1">
+      <li>
+        <p>
+          Find a point <span class="math inline">x^* \in \mathbb{R}^n</span> in
+          <span class="math inline">\mathcal{K}</span>, or
+        </p>
+      </li>
+      <li>
+        <p>
+          Determine that <span class="math inline">\mathcal{K}</span> is empty
+          (i.e., no feasible solution)
+        </p>
+      </li>
+    </ol>
+    <p>
+      When a <em>separation oracle</em>
+      <span class="math inline">\Omega</span> is <em>queried</em> at
+      <span class="math inline">x_0</span>, it either
+    </p>
+    <ol type="1">
+      <li>
+        <p>
+          Asserts that <span class="math inline">x_0 \in \mathcal{K}</span>, or
+        </p>
+      </li>
+      <li>
+        <p>
+          Returns a separating hyperplane between
+          <span class="math inline">x_0</span> and
+          <span class="math inline">\mathcal{K}</span>:
+          <span id="eq:cut"
+            ><span class="math display"
+              >g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \ge 0, g \neq 0, \;
+              \forall x \in \mathcal{K}.\qquad(1)</span
+            ></span
+          >
+        </p>
+      </li>
+    </ol>
+    <p>
+      The pair <span class="math inline">(g, \beta)</span> is called a
+      <em>cutting-plane</em>, since it eliminates the half-space
+      <span class="math inline"
+        >\{x \mid g^\mathsf{T} (x - x_0) + \beta &gt; 0\}</span
+      >
+      from our search. We have the following observations:
+    </p>
+    <ul>
+      <li>
+        <p>
+          If <span class="math inline">\beta=0</span> (<span class="math inline"
+            >x_0</span
+          >
+          is on the boundary of half-space that is cut), cutting-plane is called
+          <em>neutral-cut</em>.
+        </p>
+      </li>
+      <li>
+        <p>
+          If <span class="math inline">\beta&gt;0</span> (<span
+            class="math inline"
+            >x_0</span
+          >
+          lies in the interior of half-space that is cut), cutting-plane is
+          called **.
+        </p>
+      </li>
+      <li>
+        <p>
+          If <span class="math inline">\beta&lt;0</span> (<span
+            class="math inline"
+            >x_0</span
+          >
+          lies in the exterior of half-space that is cut), cutting-plane is
+          called <em>shadow-cut</em>.
+        </p>
+      </li>
+    </ul>
+    <p>
+      The <span class="math inline">\mathcal{K}</span> is usually given by a set
+      of inequalities <span class="math inline">f_j(x) \le 0</span> or
+      <span class="math inline">f_j(x) &lt; 0</span> for
+      <span class="math inline">j = 1 \cdots m</span>, where
+      <span class="math inline">f_j(x)</span> is a convex function. A vector
+      <span class="math inline">g \equiv \partial f(x_0)</span> is called a
+      <em>sub-gradient</em> of a convex function
+      <span class="math inline">f</span> at
+      <span class="math inline">x_0</span> if
+      <span class="math inline">f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)</span>.
+      Hence, the cut <span class="math inline">(g, \beta)</span> is given by
+      <span class="math inline">(\partial f(x_0), f(x_0))</span>.
+    </p>
+    <p>
+      Note that if <span class="math inline">f(x)</span> is differentiable, we
+      can simply take
+      <span class="math inline">\partial f(x_0) = \nabla f(x_0)</span>.
+      Cutting-plane method comprises two key components: separation oracle
+      <span class="math inline">\Omega</span> and a search space
+      <span class="math inline">\mathcal{S}</span> initially big enough to cover
+      <span class="math inline">\mathcal{K}</span>. For example,
+    </p>
+    <ul>
+      <li>
+        <p>
+          Polyhedron <span class="math inline">\mathcal{P}</span> =
+          <span class="math inline">\{z \mid C z \preceq d \}</span>.
+        </p>
+      </li>
+      <li>
+        <p>
+          Interval <span class="math inline">\mathcal{I}</span> =
+          <span class="math inline">[l, u]</span> (for one-dimensional problem).
+        </p>
+      </li>
+      <li>
+        <p>
+          Ellipsoid <span class="math inline">\mathcal{E}</span> =
+          <span class="math inline">\{z \mid (z-x_c)P^{-1}(z-x_c) \le 1 \}</span
+          >.
+        </p>
+      </li>
+    </ul>
+    <p>Generic Cutting-plane method:</p>
+    <ul>
+      <li>
+        <p>
+          <strong>Given</strong> initial
+          <span class="math inline">\mathcal{S}</span> known to contain
+          <span class="math inline">\mathcal{K}</span>.
+        </p>
+      </li>
+      <li>
+        <p><strong>Repeat</strong></p>
+        <ol type="1">
+          <li>
+            <p>
+              Choose a point <span class="math inline">x_0</span> in
+              <span class="math inline">\mathcal{S}</span>.
+            </p>
+          </li>
+          <li>
+            <p>
+              Query the separation oracle at
+              <span class="math inline">x_0</span>.
+            </p>
+          </li>
+          <li>
+            <p>
+              <strong>If</strong>
+              <span class="math inline">x_0 \in \mathcal{K}</span>, quit.
+            </p>
+          </li>
+          <li>
+            <p>
+              <strong>Else</strong>, update
+              <span class="math inline">\mathcal{S}</span> to a smaller set that
+              covers:
+              <span class="math display"
+                >\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z -
+                x_0) + \beta \le 0\}.</span
+              >
+            </p>
+          </li>
+          <li>
+            <p>
+              <strong>If</strong>
+              <span class="math inline">\mathcal{S}^+ = \emptyset</span> or it
+              is small enough, quit.
+            </p>
+          </li>
+        </ol>
+      </li>
+    </ul>
+    <p>Todo: What if the search space is large enough?</p>
+    <h2 id="sec:from-feasibility-to-optimization">
+      <span class="header-section-number">2.2</span> From Feasibility to
+      Optimization
+    </h2>
+    <p>
+      Consider:
+      <span id="eq:convex-optimization"
+        ><span class="math display"
+          >\begin{array}{ll} \text{minimize} &amp; f_0(x), \\ \text{subject to}
+          &amp; x \in \mathcal{K}. \end{array} \qquad(2)</span
+        ></span
+      >
+      We treat the optimization problem as a feasibility problem with an
+      additional constraint <span class="math inline">f_0(x) \le \gamma</span>.
+      Here, <span class="math inline">f_0(x)</span> could be a convex function
+      or a quasi-convex function. <span class="math inline">t</span> is the
+      best-so-far value of <span class="math inline">f_0(x)</span>. We can
+      reformulate the problem as:
+      <span id="eq:cvx-in-feasibility-form"
+        ><span class="math display"
+          >\begin{array}{ll} \text{minimize} &amp; \gamma, \\ \text{subject to}
+          &amp; \Phi(x, \gamma) \le 0, \\ &amp; x \in \mathcal{K}, \end{array}
+          \qquad(3)</span
+        ></span
+      >
+      where <span class="math inline">\Phi(x, \gamma) \le 0</span> is the
+      <span class="math inline">t</span>-sublevel set of
+      <span class="math inline">f_0(x)</span>.
+    </p>
+    <p>
+      For each <span class="math inline">x</span>,
+      <span class="math inline">\Phi(x, t)</span> is a nonincreasing function of
+      <span class="math inline">t</span>, <em>i.e.</em>,
+      <span class="math inline"
+        >\Phi(x, \gamma') \le \Phi(x, \gamma) whenever \gamma' \ge t</span
+      >. Note that
+      <span class="math inline"
+        >\mathcal{K}_\gamma \subseteq \mathcal{K}_u</span
+      >
+      if and only if
+      <span class="math inline">\gamma \le u</span> (monotonicity). One easy way
+      to solve the optimization problem is to apply the binary search on
+      <span class="math inline">t</span>.
+    </p>
+    <p>
+      Another possible way is, to update the best-so-far
+      <span class="math inline">t</span> whenever a feasible solution
+      <span class="math inline">x_0</span> is found such that
+      <span class="math inline">\Phi(x_0, \gamma) = 0</span>. We assume that the
+      oracle takes responsibility for that.
+    </p>
+    <p>Generic Cutting-plane method (Optim)</p>
+    <ul>
+      <li>
+        <p>
+          <strong>Given</strong> initial
+          <span class="math inline">\mathcal{S}</span> known to contain
+          <span class="math inline">\mathcal{K}_\gamma</span>.
+        </p>
+      </li>
+      <li>
+        <p><strong>Repeat</strong></p>
+        <ol type="1">
+          <li>
+            <p>
+              Choose a point <span class="math inline">x_0</span> in
+              <span class="math inline">\mathcal{S}</span>
+            </p>
+          </li>
+          <li>
+            <p>
+              Query the separation oracle at
+              <span class="math inline">x_0</span>
+            </p>
+          </li>
+          <li>
+            <p>
+              <strong>If</strong>
+              <span class="math inline">x_0 \in \mathcal{K}_\gamma</span>,
+              update <span class="math inline">t</span> such that
+              <span class="math inline">\Phi(x_0, \gamma) = 0</span>.
+            </p>
+          </li>
+          <li>
+            <p>
+              Update <span class="math inline">\mathcal{S}</span> to a smaller
+              set that covers:
+              <span class="math display"
+                >\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z -
+                x_0) + \beta \le 0\}
+              </span>
+            </p>
+          </li>
+          <li>
+            <p>
+              <strong>If</strong>
+              <span class="math inline">\mathcal{S}^+ = \emptyset</span> or it
+              is small enough, quit.
+            </p>
+          </li>
+        </ol>
+      </li>
+    </ul>
+    <h2 id="sec:profit">
+      <span class="header-section-number">2.3</span> Example: Profit
+      Maximization
+    </h2>
+    <p>
+      This example is taken from
+      <span class="citation" data-cites="Aliabadi2013Robust"
+        >[<a href="#ref-Aliabadi2013Robust" role="doc-biblioref">2</a>]</span
+      >. Consider the following short-run profit maximization problem:
+      <span id="eq:profit-max-in-original-form"
+        ><span class="math display"
+          >\begin{array}{ll} \text{maximize} &amp; p(A x_1^\alpha x_2^\beta) -
+          v_1 x_1 - v_2 x_2, \\ \text{subject to} &amp; x_1 \le k, \\ &amp; x_1
+          &gt; 0, x_2 &gt; 0, \end{array} \qquad(4)</span
+        ></span
+      >
+      where <span class="math inline">p</span> is the market price per unit,
+      <span class="math inline">A</span> is the scale of production,
+      <span class="math inline">\alpha</span> and
+      <span class="math inline">\beta</span> are the output elasticities,
+      <span class="math inline">x_i</span> and
+      <span class="math inline">v_i</span> are
+      <span class="math inline">i</span>th input quantity and output price,
+      <span class="math inline">A x_1^\alpha x_2^\beta</span> is the
+      Cobb-Douglas production function, and
+      <span class="math inline">k</span> is a constant that restricts the
+      quantity of <span class="math inline">x_1</span>.
+    </p>
+    <p>
+      The above formulation is not in a convex form. First, we rewrite the
+      problem:
+      <span class="math display"
+        >\begin{array}{ll} \text{maximize} &amp; \gamma, \\ \text{subject to}
+        &amp; \gamma + v_1 x_1 + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}, \\
+        &amp; x_1 \le k, \\ &amp; x_1 &gt; 0, x_2 &gt; 0. \end{array}
+      </span>
+    </p>
+    <p>
+      By the change of variables, we have the following convex form
+      of <strong>???</strong>:
+    </p>
+    <p>
+      <span id="eq:profit-in-cvx-form"
+        ><span class="math display"
+          >\begin{array}{ll} \text{maximize} &amp; \gamma, \\ \text{subject to}
+          &amp; \log(\gamma + v_1 e^{y_1} + v_2 e^{y_2}) - (\alpha y_1 + \beta
+          y_2) \le \log(p\,A), \\ &amp; y_1 \le \log k, \end{array}
+          \qquad(5)</span
+        ></span
+      >
+      where <span class="math inline">y_1 = \log x_1</span> and
+      <span class="math inline">y_2 = \log x_2</span>.
+    </p>
+    <p>
+      Some readers may recognize that we can also write the problem in a
+      geometric program by introducing one additional variable
+      <span class="citation" data-cites="Aliabadi2013Robust"
+        >[<a href="#ref-Aliabadi2013Robust" role="doc-biblioref">2</a>]</span
+      >.
+    </p>
+    <h1 id="sec:oracles">
+      <span class="header-section-number">3</span> Amazing Oracles
+    </h1>
+    <ul>
+      <li>
+        Robust convex optimization
+        <ul>
+          <li>oracle technique: affine arithmetic</li>
+        </ul>
+      </li>
+      <li>
+        Parametric network potential problem
+        <ul>
+          <li>oracle technique: negative cycle detection</li>
+        </ul>
+      </li>
+      <li>
+        Semidefinite programming
+        <ul>
+          <li>oracle technique: Cholesky factorization</li>
+        </ul>
+      </li>
+    </ul>
+    <h2 id="sec:robust">
+      <span class="header-section-number">3.1</span> Robust Convex Optimization
+    </h2>
+    <p>
+      Consider:
+      <span id="eq:robust-optim"
+        ><span class="math display"
+          >\begin{array}{ll} \text{minimize} &amp; \sup_{q \in \mathcal Q}
+          f_0(x, q), \\ \text{subject to} &amp; f_j(x, q) \le 0, \; \forall q
+          \in \mathcal{Q}, \; j = 1,2,\cdots, m, \end{array} \qquad(6)</span
+        ></span
+      >
+      where <span class="math inline">q</span> represents a set of varying
+      parameters. We can reformulate the problem as:
+      <span class="math display"
+        >\begin{array}{ll} \text{minimize} &amp; \gamma, \\ \text{subject to}
+        &amp; f_0(x, q) \le \gamma, \\ &amp; f_j(x, q) \le 0, \; \forall q \in
+        \mathcal{Q}, \; j = 1,2,\cdots,m. \end{array}
+      </span>
+    </p>
+    <h3 id="sec:algorithm">
+      <span class="header-section-number">3.1.1</span> Algorithm
+    </h3>
+    <p>The oracle only needs to determine:</p>
+    <ul>
+      <li>
+        <p>
+          If <span class="math inline">f_j(x_0, q) &gt; 0</span> for some
+          <span class="math inline">j</span> and
+          <span class="math inline">q = q_0</span>, then
+        </p>
+      </li>
+      <li>
+        <p>
+          the cut <span class="math inline">(g, \beta)</span> =
+          <span class="math inline"
+            >(\partial f_j(x_0, q_0), f_j(x_0, q_0))</span
+          >
+        </p>
+      </li>
+      <li>
+        <p>
+          If <span class="math inline">f_0(x_0, q) \ge t</span> for some
+          <span class="math inline">q = q_0</span>, then
+        </p>
+      </li>
+      <li>
+        <p>
+          the cut <span class="math inline">(g, \beta)</span> =
+          <span class="math inline"
+            >(\partial f_0(x_0, q_0), f_0(x_0, q_0) - t)</span
+          >
+        </p>
+      </li>
+      <li>
+        <p>Otherwise, <span class="math inline">x_0</span> is feasible, then</p>
+      </li>
+      <li>
+        <p>
+          Let
+          <span class="math inline"
+            >q_{\max} = \text{argmax}_{q \in \mathcal Q} f_0(x_0, q)</span
+          >.
+        </p>
+      </li>
+      <li>
+        <p><span class="math inline">t := f_0(x_0, q_{\max})</span>.</p>
+      </li>
+      <li>
+        <p>
+          The cut <span class="math inline">(g, \beta)</span> =
+          <span class="math inline">(\partial f_0(x_0, q_{\max}), 0)</span>
+        </p>
+      </li>
+    </ul>
+    <h3 id="sec:profit-rb">
+      <span class="header-section-number">3.1.2</span> Example: Robust Profit
+      Maximization
+    </h3>
+    <p>
+      Consider again the profit maximization problem in § 2.3. Now suppose the
+      parameters
+      <span class="math inline">\{\alpha, \beta, p, v_1, v_2, k\}</span> are
+      subject to interval uncertainties:
+      <span class="math display"
+        >\begin{array}{rcl} \alpha - \varepsilon_1 \le &amp; \hat{\alpha} &amp;
+        \le \alpha + \varepsilon_1 \\ \beta - \varepsilon_2 \le &amp;
+        \hat{\beta} &amp; \le \beta + \varepsilon_2 \\ p - \varepsilon_3 \le
+        &amp; \hat{p} &amp; \le p + \varepsilon_3 \\ v_1 - \varepsilon_4 \le
+        &amp; \hat{v}_1 &amp; \le v_1 + \varepsilon_4 \\ v_2 - \varepsilon_5 \le
+        &amp; \hat{v}_2 &amp; \le v_2 + \varepsilon_5 \\ k - \varepsilon_6 \le
+        &amp; \hat{k} &amp; \le k + \varepsilon_6 \end{array}
+      </span>
+      The robust counterpart considering the worst-case scenario is given by:
+      <span class="math display"
+        >\begin{array}{ll} \text{max} &amp; \gamma \\ \text{s.t.} &amp;
+        \log(\gamma + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) - (\hat{\alpha} y_1
+        + \hat{\beta} y_2) \le \log(\hat{p}\,A) \\ &amp; y_1 \le \log \hat{k}.
+        \end{array}
+      </span>
+      In
+      <span class="citation" data-cites="Aliabadi2013Robust"
+        >[<a href="#ref-Aliabadi2013Robust" role="doc-biblioref">2</a>]</span
+      >, the authors proposed a
+      <em>piecewise linear approximation</em> approach. It involves a lot of
+      programming effort but the result is inaccurate. However, this can easily
+      be done using the cutting-plane method. Note that in this simple example,
+      the worst case happens when:
+    </p>
+    <ul>
+      <li>
+        <p>
+          <span class="math inline">\hat{p} = p - e_3</span>,
+          <span class="math inline">k = \bar{k} - e_3</span>
+        </p>
+      </li>
+      <li>
+        <p>
+          <span class="math inline">v_1 = \bar{v}_1 + e_3</span>,
+          <span class="math inline">v_2 = \bar{v}_2 + e_3</span>,
+        </p>
+      </li>
+      <li>
+        <p>
+          if <span class="math inline">y_1 &gt; 0</span>,
+          <span class="math inline">\alpha = \bar{\alpha} - e_1</span>, else
+          <span class="math inline">\alpha = \bar{\alpha} + e_1</span>
+        </p>
+      </li>
+      <li>
+        <p>
+          if <span class="math inline">y_2 &gt; 0</span>,
+          <span class="math inline">\beta = \bar{\beta} - e_2</span>, else
+          <span class="math inline">\beta = \bar{\beta} + e_2</span>
+        </p>
+      </li>
+    </ul>
+    <p>
+      We can even reuse the original oracle to compose the robust counterpart.
+    </p>
+    <div class="sourceCode" id="cb1">
+      <pre
+        class="sourceCode python"
+      ><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">class</span> profit_rb_oracle:</span>
 <span id="cb1-2"><a href="#cb1-2"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, params, a, v, vparams):</span>
 <span id="cb1-3"><a href="#cb1-3"></a>        p, A, k <span class="op">=</span> params</span>
 <span id="cb1-4"><a href="#cb1-4"></a>        e1, e2, e3, e4, e5 <span class="op">=</span> vparams</span>
@@ -281,99 +844,264 @@ k   - \varepsilon_6 \le  &amp; \hat{k}    &amp; \le k   + \varepsilon_6
 <span id="cb1-15"><a href="#cb1-15"></a>            <span class="cf">else</span>:</span>
 <span id="cb1-16"><a href="#cb1-16"></a>                a_rb[i] <span class="op">-=</span> <span class="va">self</span>.e[i]</span>
 <span id="cb1-17"><a href="#cb1-17"></a>        <span class="va">self</span>.P.a <span class="op">=</span> a_rb</span>
-<span id="cb1-18"><a href="#cb1-18"></a>        <span class="cf">return</span> <span class="va">self</span>.P(y, t)</span></code></pre></div>
-<p>Note that the `argmax’ can be non-convex and hence difficult to solved. For more complicated problems, affine arithmetic could be used <span class="citation" data-cites="liu2007robust">[<a href="#ref-liu2007robust" role="doc-biblioref">3</a>]</span>.</p>
-<h2 id="sec:network"><span class="header-section-number">3.2</span> Multi-parameter Network Problems</h2>
-<p>Given a network represented by a directed graph <span class="math inline">G = (V, E)</span>. Consider : <span class="math display">\begin{array}{ll}
-    \text{minimize} &amp; \gamma, \\
-    \text{subject to} &amp; u_i - u_j \le h_{ij}(x, \gamma), \; \forall (i, j) \in E,\\
-    \text{variables} &amp;x, u,
-  \end{array}
-</span> where <span class="math inline">h_{ij}(x, t)</span> is the weight function of edge <span class="math inline">(i,j)</span>.</p>
-<p>Assume that the network is large but the number of parameters is small. Given <span class="math inline">x</span> and <span class="math inline">t</span>, the problem has a feasible solution if and only if <span class="math inline">G</span> contains no negative cycle. Let <span class="math inline">\mathcal{C}</span> be a set of all cycles of <span class="math inline">G</span>. We can formulate the problem as: <span class="math display">\begin{array}{ll}
-    \text{minimize} &amp; \gamma, \\
-    \text{subject to} &amp; W_k(x, \gamma) \ge 0, \forall C_k \in C ,\\
-       \text{variables} &amp; x,
-\end{array}
-</span> where <span class="math inline">C_k</span> is a cycle of <span class="math inline">G</span>: <span class="math display">W_k(x, \gamma) = \sum_{ (i,j)\in C_k} h_{ij}(x, \gamma).
-</span></p>
-<h3 id="sec:negative-cycle-detection-algorithm"><span class="header-section-number">3.2.1</span> Negative Cycle Detection Algorithm</h3>
-<p>The negative cycle detection is the most time-consuming part of the proposed method, so it is very important to choose the proper negative cycle detection algorithm. There are lots of methods to detect negative cycles in a weighted graph <span class="citation" data-cites="cherkassky1999negative">[<a href="#ref-cherkassky1999negative" role="doc-biblioref">4</a>]</span>, in which Tarjan’s algorithm <span class="citation" data-cites="Tarjan1981negcycle">[<a href="#ref-Tarjan1981negcycle" role="doc-biblioref">5</a>]</span> is one of the fastest algorithms in practice <span class="citation" data-cites="alg:dasdan_mcr cherkassky1999negative">[<a href="#ref-cherkassky1999negative" role="doc-biblioref">4</a>,<a href="#ref-alg:dasdan_mcr" role="doc-biblioref">6</a>]</span>.</p>
-<p>The separation oracle only needs to determine:</p>
-<ul>
-<li><p>If there exists a negative cycle <span class="math inline">C_k</span> under <span class="math inline">x_0</span>, then</p></li>
-<li><p>the cut <span class="math inline">(g, \beta)</span> = <span class="math inline">(-\partial W_k(x_0), -W_k(x_0))</span></p></li>
-<li><p>If <span class="math inline">f_0(x_0) \ge t</span>, then the cut <span class="math inline">(g, \beta)</span> = <span class="math inline">(\partial f_0(x_0), f_0(x_0) - t)</span>.</p></li>
-<li><p>Otherwise, <span class="math inline">x_0</span> is feasible, then</p>
-<ul>
-<li><span class="math inline">t := f_0(x_0)</span>.</li>
-<li>The cut <span class="math inline">(g, \beta)</span> = <span class="math inline">(\partial f_0(x_0), 0)</span></li>
-</ul></li>
-</ul>
-<h3 id="sec:example-optimal-matrix-scaling"><span class="header-section-number">3.2.2</span> Example: Optimal Matrix Scaling</h3>
-<p>We take this example from <span class="citation" data-cites="orlin1985computing">[<a href="#ref-orlin1985computing" role="doc-biblioref">7</a>]</span>. Given a matrix <span class="math inline">A = [a_{ij}] \in \mathbb{R}^{N\times N}</span>. A <em>symmetric scaling</em> of <span class="math inline">A</span> is a matrix <span class="math inline">B</span> of the form <span class="math inline">U A U^{-1}</span> where <span class="math inline">U</span> is a nonnegative diagonal matrix having the same dimension. Under the <em>min-max criterion</em>, the aim is to minimize the largest absolute value of the element of <span class="math inline">B</span>. We can reformulate the symmetric scaling problem under such a criterion as a single-parameter monotropic linear network optimization problem.</p>
-<p>Another possible criterion is to minimize the ratio of largest absolute value of the element <span class="math inline">B</span> to the smallest. The motivation for using this criterion is that high ratios cause difficulties in performing the simplex method. Under this <em>min-max-ratio</em> criterion, the symmetric scaling problem can be formulated as: <span class="math display">\begin{array}{ll}
-    \text{minimize}   &amp;  \pi/\psi  \\
-    \text{subject to} &amp;  \psi \le u_i |a_{ij}| u_j^{-1} \le \pi, \;
-                                            \forall a_{ij} \neq 0 , \\
-                      &amp;  \pi, \psi, u \, \text{positive} \\
-    \text{variables}  &amp;  \pi, \psi, u \, .
-  \end{array}
-</span></p>
-<p>Let <span class="math inline">k’</span> denotes <span class="math inline">\log( | k | )</span>. By taking the logarithms of variables, we can transform the above programming into a two-parameter network optimization problem: <span class="math display">\begin{array}{ll}
-    \text{minimize}   &amp;  \pi’ - \psi’ \\
-    \text{subject to} &amp;  u_i’ - u_j’  \le \pi’ - a_{ij}’, \; \forall a_{ij} \neq 0 \,, \\
-                      &amp;  u_j’ - u_i’ \le a_{ij}’ - \psi’, \; \forall a_{ij} \neq 0 \,, \\
-    \text{variables}  &amp;  \pi’, \psi’, u’ \, .
-  \end{array}
-</span> where <span class="math inline">x = (\pi’, \psi’ )^\mathsf{T}</span>.</p>
-<p>The authors of <span class="citation" data-cites="orlin1985computing">[<a href="#ref-orlin1985computing" role="doc-biblioref">7</a>]</span> claimed that they had developed efficient algorithms for solving such multi-parameter problem, but we cannot find any follow-up publications about this.</p>
-<p>Interestingly, by using the cutting-plane method, one can easily extend the single-parameter network algorithm to the multi-parameter one.</p>
-<p>In this application, <span class="math inline">h_{ij}(x)</span> is:</p>
-<p><span class="math display">{h}_{ij}(x) = \left\{ \begin{array}{cll}
-     -\pi’ + a_{ij}’, &amp; \forall a_{ij} \neq 0 \, ,\\
-     \psi’ -a_{ji}’,  &amp; \forall a_{ji} \neq 0 \, ,\\
-\end{array} \right.
-</span></p>
-<p>We can find fast algorithms for finding negative cycle in <span class="citation" data-cites="dasdan1998faster dasdan2004experimental">[<a href="#ref-dasdan1998faster" role="doc-biblioref">8</a>,<a href="#ref-dasdan2004experimental" role="doc-biblioref">9</a>]</span>. It can find more application in clock skew scheduling in <span class="citation" data-cites="zhou2015multi">[<a href="#ref-zhou2015multi" role="doc-biblioref">10</a>]</span>.</p>
-<h2 id="sec:lmi"><span class="header-section-number">3.3</span> Problems Involving Matrix Inequalities</h2>
-<p>Consider the following problem: <span class="math display">\begin{array}{ll}
-    \text{find}        &amp; x, \\
-    \text{subject to}  &amp; F(x) \succeq 0,
-  \end{array}
-</span> where <span class="math inline">F(x)</span> is a matrix-valued function, <span class="math inline">A \succeq 0</span> denotes <span class="math inline">A</span> is positive semidefinite. Recall that a matrix <span class="math inline">A</span> is positive semidefinite if and only if <span class="math inline">v^\mathsf{T} A v \ge 0</span> for all <span class="math inline">v \in \mathbb{R}^N</span>. We can transform the problem into: <span class="math display">\begin{array}{ll}
-        \text{find}          &amp; x, \\
-        \text{subject to}    &amp; v^\mathsf{T} F(x) v \ge 0, \; \forall v \in \mathbb{R}^N.
-  \end{array}
-</span> Consider <span class="math inline">v^\mathsf{T} F(x) v</span> is concave for all <span class="math inline">v \in \mathbb{R}^N</span> w.r.t. <span class="math inline">x</span>, then the above problem is a convex programming. Reduce to <em>semidefinite programming</em> if <span class="math inline">F(x)</span> is linear w.r.t. <span class="math inline">x</span>, i.e., <span class="math inline">F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n</span>.</p>
-<h3 id="sec:cholesky-factorization-algorithm"><span class="header-section-number">3.3.1</span> Cholesky Factorization Algorithm</h3>
-<p>An alternative form, eliminating the need to take square roots, is the symmetric indefinite factorization:</p>
-<p><span class="math display">\begin{aligned}
-\mathbf{A} = \mathbf{LDL}^\mathsf{T} &amp; =
-\begin{pmatrix}   1 &amp; 0 &amp; 0 \\
-   L_{21} &amp; 1 &amp; 0 \\
-   L_{31} &amp; L_{32} &amp; 1\\
-\end{pmatrix}
-\begin{pmatrix}   D_1 &amp; 0 &amp; 0 \\
-   0 &amp; D_2 &amp; 0 \\
-   0 &amp; 0 &amp; D_3\\
-\end{pmatrix}
-\begin{pmatrix}   1 &amp; L_{21} &amp; L_{31} \\
-   0 &amp; 1 &amp; L_{32} \\
-   0 &amp; 0 &amp; 1\\
-\end{pmatrix} \\
-&amp; = \begin{pmatrix}   D_1 &amp;   &amp;(\mathrm{symmetric})   \\
-   L_{21}D_1 &amp; L_{21}^2D_1 + D_2&amp; \\
-   L_{31}D_1 &amp; L_{31}L_{21}D_{1}+L_{32}D_2 &amp; L_{31}^2D_1 + L_{32}^2D_2+D_3.
-\end{pmatrix}.
-\end{aligned}
-</span></p>
-<p>If <span class="math inline">A</span> is real, the following recursive relations apply for the entries of <span class="math inline">D</span> and <span class="math inline">L</span>:</p>
-<p><span class="math display"> D_{j} = A_{jj} - \sum_{k=1}^{j-1} L_{jk}L_{jk}^* D_k, </span> <span class="math display"> L_{ij} = \frac{1}{D_j} \left( A_{ij} - \sum_{k=1}^{j-1} L_{ik} L_{jk}^* D_k \right) \quad \text{for } i&gt;j.
-</span></p>
-<p>Again, the pattern of access allows the entire computation to be performed in-place if desired.</p>
-<p>The following is the algorithm written in Python:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">def</span> factor(<span class="va">self</span>, getA):</span>
+<span id="cb1-18"><a href="#cb1-18"></a>        <span class="cf">return</span> <span class="va">self</span>.P(y, t)</span></code></pre>
+    </div>
+    <p>
+      Note that the `argmax’ can be non-convex and hence difficult to solved.
+      For more complicated problems, affine arithmetic could be used
+      <span class="citation" data-cites="liu2007robust"
+        >[<a href="#ref-liu2007robust" role="doc-biblioref">3</a>]</span
+      >.
+    </p>
+    <h2 id="sec:network">
+      <span class="header-section-number">3.2</span> Multi-parameter Network
+      Problems
+    </h2>
+    <p>
+      Given a network represented by a directed graph
+      <span class="math inline">G = (V, E)</span>. Consider :
+      <span class="math display"
+        >\begin{array}{ll} \text{minimize} &amp; \gamma, \\ \text{subject to}
+        &amp; u_i - u_j \le h_{ij}(x, \gamma), \; \forall (i, j) \in E,\\
+        \text{variables} &amp;x, u, \end{array}
+      </span>
+      where <span class="math inline">h_{ij}(x, t)</span> is the weight function
+      of edge <span class="math inline">(i,j)</span>.
+    </p>
+    <p>
+      Assume that the network is large but the number of parameters is small.
+      Given <span class="math inline">x</span> and
+      <span class="math inline">t</span>, the problem has a feasible solution if
+      and only if <span class="math inline">G</span> contains no negative cycle.
+      Let <span class="math inline">\mathcal{C}</span> be a set of all cycles of
+      <span class="math inline">G</span>. We can formulate the problem as:
+      <span class="math display"
+        >\begin{array}{ll} \text{minimize} &amp; \gamma, \\ \text{subject to}
+        &amp; W_k(x, \gamma) \ge 0, \forall C_k \in C ,\\ \text{variables} &amp;
+        x, \end{array}
+      </span>
+      where <span class="math inline">C_k</span> is a cycle of
+      <span class="math inline">G</span>:
+      <span class="math display"
+        >W_k(x, \gamma) = \sum_{ (i,j)\in C_k} h_{ij}(x, \gamma).
+      </span>
+    </p>
+    <h3 id="sec:negative-cycle-detection-algorithm">
+      <span class="header-section-number">3.2.1</span> Negative Cycle Detection
+      Algorithm
+    </h3>
+    <p>
+      The negative cycle detection is the most time-consuming part of the
+      proposed method, so it is very important to choose the proper negative
+      cycle detection algorithm. There are lots of methods to detect negative
+      cycles in a weighted graph <span
+        class="citation"
+        data-cites="cherkassky1999negative"
+        >[<a href="#ref-cherkassky1999negative" role="doc-biblioref">4</a
+        >]</span
+      >, in which Tarjan’s algorithm <span
+        class="citation"
+        data-cites="Tarjan1981negcycle"
+        >[<a href="#ref-Tarjan1981negcycle" role="doc-biblioref">5</a>]</span
+      >
+      is one of the fastest algorithms in practice
+      <span class="citation" data-cites="alg:dasdan_mcr cherkassky1999negative"
+        >[<a href="#ref-cherkassky1999negative" role="doc-biblioref">4</a>,<a
+          href="#ref-alg:dasdan_mcr"
+          role="doc-biblioref"
+          >6</a
+        >]</span
+      >.
+    </p>
+    <p>The separation oracle only needs to determine:</p>
+    <ul>
+      <li>
+        <p>
+          If there exists a negative cycle
+          <span class="math inline">C_k</span> under
+          <span class="math inline">x_0</span>, then
+        </p>
+      </li>
+      <li>
+        <p>
+          the cut <span class="math inline">(g, \beta)</span> =
+          <span class="math inline">(-\partial W_k(x_0), -W_k(x_0))</span>
+        </p>
+      </li>
+      <li>
+        <p>
+          If <span class="math inline">f_0(x_0) \ge t</span>, then the cut
+          <span class="math inline">(g, \beta)</span> =
+          <span class="math inline">(\partial f_0(x_0), f_0(x_0) - t)</span>.
+        </p>
+      </li>
+      <li>
+        <p>Otherwise, <span class="math inline">x_0</span> is feasible, then</p>
+        <ul>
+          <li><span class="math inline">t := f_0(x_0)</span>.</li>
+          <li>
+            The cut <span class="math inline">(g, \beta)</span> =
+            <span class="math inline">(\partial f_0(x_0), 0)</span>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <h3 id="sec:example-optimal-matrix-scaling">
+      <span class="header-section-number">3.2.2</span> Example: Optimal Matrix
+      Scaling
+    </h3>
+    <p>
+      We take this example from
+      <span class="citation" data-cites="orlin1985computing"
+        >[<a href="#ref-orlin1985computing" role="doc-biblioref">7</a>]</span
+      >. Given a matrix
+      <span class="math inline">A = [a_{ij}] \in \mathbb{R}^{N\times N}</span>.
+      A <em>symmetric scaling</em> of <span class="math inline">A</span> is a
+      matrix <span class="math inline">B</span> of the form
+      <span class="math inline">U A U^{-1}</span> where
+      <span class="math inline">U</span> is a nonnegative diagonal matrix having
+      the same dimension. Under the <em>min-max criterion</em>, the aim is to
+      minimize the largest absolute value of the element of
+      <span class="math inline">B</span>. We can reformulate the symmetric
+      scaling problem under such a criterion as a single-parameter monotropic
+      linear network optimization problem.
+    </p>
+    <p>
+      Another possible criterion is to minimize the ratio of largest absolute
+      value of the element <span class="math inline">B</span> to the smallest.
+      The motivation for using this criterion is that high ratios cause
+      difficulties in performing the simplex method. Under this
+      <em>min-max-ratio</em> criterion, the symmetric scaling problem can be
+      formulated as:
+      <span class="math display"
+        >\begin{array}{ll} \text{minimize} &amp; \pi/\psi \\ \text{subject to}
+        &amp; \psi \le u_i |a_{ij}| u_j^{-1} \le \pi, \; \forall a_{ij} \neq 0 ,
+        \\ &amp; \pi, \psi, u \, \text{positive} \\ \text{variables} &amp; \pi,
+        \psi, u \, . \end{array}
+      </span>
+    </p>
+    <p>
+      Let <span class="math inline">k’</span> denotes
+      <span class="math inline">\log( | k | )</span>. By taking the logarithms
+      of variables, we can transform the above programming into a two-parameter
+      network optimization problem:
+      <span class="math display"
+        >\begin{array}{ll} \text{minimize} &amp; \pi’ - \psi’ \\ \text{subject
+        to} &amp; u_i’ - u_j’ \le \pi’ - a_{ij}’, \; \forall a_{ij} \neq 0 \,,
+        \\ &amp;  u_j’ - u_i’ \le a_{ij}’ - \psi’, \; \forall a_{ij} \neq 0 \,,
+        \\ \text{variables} &amp; \pi’, \psi’, u’ \, . \end{array}
+      </span>
+      where <span class="math inline">x = (\pi’, \psi’ )^\mathsf{T}</span>.
+    </p>
+    <p>
+      The authors of
+      <span class="citation" data-cites="orlin1985computing"
+        >[<a href="#ref-orlin1985computing" role="doc-biblioref">7</a>]</span
+      >
+      claimed that they had developed efficient algorithms for solving such
+      multi-parameter problem, but we cannot find any follow-up publications
+      about this.
+    </p>
+    <p>
+      Interestingly, by using the cutting-plane method, one can easily extend
+      the single-parameter network algorithm to the multi-parameter one.
+    </p>
+    <p>In this application, <span class="math inline">h_{ij}(x)</span> is:</p>
+    <p>
+      <span class="math display"
+        >{h}_{ij}(x) = \left\{ \begin{array}{cll}      -\pi’ + a_{ij}’, &amp;
+        \forall a_{ij} \neq 0 \, ,\\ \psi’ -a_{ji}’, &amp; \forall a_{ji} \neq 0
+        \, ,\\ \end{array} \right.
+      </span>
+    </p>
+    <p>
+      We can find fast algorithms for finding negative cycle in
+      <span
+        class="citation"
+        data-cites="dasdan1998faster dasdan2004experimental"
+        >[<a href="#ref-dasdan1998faster" role="doc-biblioref">8</a>,<a
+          href="#ref-dasdan2004experimental"
+          role="doc-biblioref"
+          >9</a
+        >]</span
+      >. It can find more application in clock skew scheduling in
+      <span class="citation" data-cites="zhou2015multi"
+        >[<a href="#ref-zhou2015multi" role="doc-biblioref">10</a>]</span
+      >.
+    </p>
+    <h2 id="sec:lmi">
+      <span class="header-section-number">3.3</span> Problems Involving Matrix
+      Inequalities
+    </h2>
+    <p>
+      Consider the following problem:
+      <span class="math display"
+        >\begin{array}{ll} \text{find} &amp; x, \\ \text{subject to} &amp; F(x)
+        \succeq 0, \end{array}
+      </span>
+      where <span class="math inline">F(x)</span> is a matrix-valued function,
+      <span class="math inline">A \succeq 0</span> denotes
+      <span class="math inline">A</span> is positive semidefinite. Recall that a
+      matrix <span class="math inline">A</span> is positive semidefinite if and
+      only if <span class="math inline">v^\mathsf{T} A v \ge 0</span> for all
+      <span class="math inline">v \in \mathbb{R}^N</span>. We can transform the
+      problem into:
+      <span class="math display"
+        >\begin{array}{ll} \text{find} &amp; x, \\ \text{subject to} &amp;
+        v^\mathsf{T} F(x) v \ge 0, \; \forall v \in \mathbb{R}^N. \end{array}
+      </span>
+      Consider <span class="math inline">v^\mathsf{T} F(x) v</span> is concave
+      for all <span class="math inline">v \in \mathbb{R}^N</span> w.r.t.
+      <span class="math inline">x</span>, then the above problem is a convex
+      programming. Reduce to <em>semidefinite programming</em> if
+      <span class="math inline">F(x)</span> is linear w.r.t.
+      <span class="math inline">x</span>, i.e.,
+      <span class="math inline">F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n</span>.
+    </p>
+    <h3 id="sec:cholesky-factorization-algorithm">
+      <span class="header-section-number">3.3.1</span> Cholesky Factorization
+      Algorithm
+    </h3>
+    <p>
+      An alternative form, eliminating the need to take square roots, is the
+      symmetric indefinite factorization:
+    </p>
+    <p>
+      <span class="math display"
+        >\begin{aligned} \mathbf{A} = \mathbf{LDL}^\mathsf{T} &amp; =
+        \begin{pmatrix} 1 &amp; 0 &amp; 0 \\ L_{21} &amp; 1 &amp; 0 \\ L_{31}
+        &amp; L_{32} &amp; 1\\ \end{pmatrix} \begin{pmatrix} D_1 &amp; 0 &amp; 0
+        \\ 0 &amp; D_2 &amp; 0 \\ 0 &amp; 0 &amp; D_3\\ \end{pmatrix}
+        \begin{pmatrix} 1 &amp; L_{21} &amp; L_{31} \\ 0 &amp; 1 &amp; L_{32} \\
+        0 &amp; 0 &amp; 1\\ \end{pmatrix} \\ &amp; = \begin{pmatrix} D_1 &amp;
+        &amp;(\mathrm{symmetric}) \\ L_{21}D_1 &amp; L_{21}^2D_1 + D_2&amp; \\
+        L_{31}D_1 &amp; L_{31}L_{21}D_{1}+L_{32}D_2 &amp; L_{31}^2D_1 +
+        L_{32}^2D_2+D_3. \end{pmatrix}. \end{aligned}
+      </span>
+    </p>
+    <p>
+      If <span class="math inline">A</span> is real, the following recursive
+      relations apply for the entries of <span class="math inline">D</span> and
+      <span class="math inline">L</span>:
+    </p>
+    <p>
+      <span class="math display">
+        D_{j} = A_{jj} - \sum_{k=1}^{j-1} L_{jk}L_{jk}^* D_k,
+      </span>
+      <span class="math display">
+        L_{ij} = \frac{1}{D_j} \left( A_{ij} - \sum_{k=1}^{j-1} L_{ik} L_{jk}^*
+        D_k \right) \quad \text{for } i&gt;j.
+      </span>
+    </p>
+    <p>
+      Again, the pattern of access allows the entire computation to be performed
+      in-place if desired.
+    </p>
+    <p>The following is the algorithm written in Python:</p>
+    <div class="sourceCode" id="cb2">
+      <pre
+        class="sourceCode python"
+      ><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">def</span> factor(<span class="va">self</span>, getA):</span>
 <span id="cb2-2"><a href="#cb2-2"></a>    T <span class="op">=</span> <span class="va">self</span>.T</span>
 <span id="cb2-3"><a href="#cb2-3"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.n):  <span class="co"># from 0 to n-1</span></span>
 <span id="cb2-4"><a href="#cb2-4"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(i<span class="op">+</span><span class="dv">1</span>): <span class="co"># from 0 to i</span></span>
@@ -384,268 +1112,938 @@ k   - \varepsilon_6 \le  &amp; \hat{k}    &amp; \le k   + \varepsilon_6
 <span id="cb2-9"><a href="#cb2-9"></a>        <span class="cf">if</span> d <span class="op">&lt;=</span> <span class="fl">0.</span>:  <span class="co"># strictly positive</span></span>
 <span id="cb2-10"><a href="#cb2-10"></a>            <span class="va">self</span>.p <span class="op">=</span> i</span>
 <span id="cb2-11"><a href="#cb2-11"></a>            <span class="cf">return</span></span>
-<span id="cb2-12"><a href="#cb2-12"></a>    <span class="va">self</span>.p <span class="op">=</span> <span class="va">self</span>.n</span></code></pre></div>
-<p>The vector <span class="math inline">v</span> can be found. The following is the algorithm written in Python:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">def</span> witness(<span class="va">self</span>):</span>
+<span id="cb2-12"><a href="#cb2-12"></a>    <span class="va">self</span>.p <span class="op">=</span> <span class="va">self</span>.n</span></code></pre>
+    </div>
+    <p>
+      The vector <span class="math inline">v</span> can be found. The following
+      is the algorithm written in Python:
+    </p>
+    <div class="sourceCode" id="cb3">
+      <pre
+        class="sourceCode python"
+      ><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">def</span> witness(<span class="va">self</span>):</span>
 <span id="cb3-2"><a href="#cb3-2"></a>    p <span class="op">=</span> <span class="va">self</span>.p</span>
 <span id="cb3-3"><a href="#cb3-3"></a>    n <span class="op">=</span> p <span class="op">+</span> <span class="dv">1</span></span>
 <span id="cb3-4"><a href="#cb3-4"></a>    v <span class="op">=</span> np.zeros(n)</span>
 <span id="cb3-5"><a href="#cb3-5"></a>    v[p] <span class="op">=</span> <span class="dv">1</span></span>
 <span id="cb3-6"><a href="#cb3-6"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(p, <span class="dv">0</span>, <span class="dv">-1</span>): <span class="co"># backward substitution</span></span>
 <span id="cb3-7"><a href="#cb3-7"></a>        v[i<span class="dv">-1</span>] <span class="op">=</span> <span class="op">-</span>np.dot(<span class="va">self</span>.T[i<span class="dv">-1</span>, i:n], v[i:n])</span>
-<span id="cb3-8"><a href="#cb3-8"></a>    <span class="cf">return</span> v, <span class="op">-</span><span class="va">self</span>.T[p, p]</span></code></pre></div>
-<p>The oracle only needs to:</p>
-<ul>
-<li><p>Perform a <em>row-based</em> Cholesky factorization such that <span class="math inline">F(x_0) = R^\mathsf{T} R</span>.</p></li>
-<li><p>Let <span class="math inline">A_{:p,:p}</span> denotes a submatrix <span class="math inline">A(1:p, 1:p) \in \mathbb{R}^{p\times p}</span>.</p></li>
-<li><p>If Cholesky factorization fails at row <span class="math inline">p</span>,</p>
-<ul>
-<li>there exists a vector <span class="math inline">e_p = (0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p</span>, such that
-<ul>
-<li><span class="math inline">v = R_{:p,:p}^{-1} e_p</span>, and</li>
-<li><span class="math inline">v^\mathsf{T} F_{:p,:p}(x_0) v &lt; 0</span>.</li>
-</ul></li>
-<li>The cut <span class="math inline">(g, \beta)</span> = <span class="math inline">(-v^\mathsf{T} \partial F_{:p,:p}(x_0) v, -v^\mathsf{T} F_{:p,:p}(x_0) v)</span></li>
-</ul></li>
-</ul>
-<h3 id="sec:example-matrix-norm-minimization"><span class="header-section-number">3.3.2</span> Example: Matrix Norm Minimization</h3>
-<p>Let <span class="math inline">A(x) = A_0 + x_1 A_1 + \cdots + x_n A_n</span>. Problem <span class="math inline">\min_x \| A(x) \|</span> can be reformulated as <span class="math display">\begin{array}{ll}
-    \text{minimize}      &amp; \gamma, \\
-    \text{subject to}    &amp; \begin{pmatrix}
-                             \gamma\,I_m   &amp; A(x) \\
-                             A^\mathsf{T}(x) &amp; \gamma\,I_n
-                            \end{pmatrix} \succeq 0.
-  \end{array}
-</span> Binary search on <span class="math inline">t</span> can be used for this problem.</p>
-<h3 id="sec:example-estimation-of-correlation-function"><span class="header-section-number">3.3.3</span> Example: Estimation of Correlation Function</h3>
-<h2 id="sec:random-field-schabenberger05"><span class="header-section-number">3.4</span> Random Field <span class="citation" data-cites="Schabenberger05">[<a href="#ref-Schabenberger05" role="doc-biblioref">11</a>]</span></h2>
-<p><em>Random field</em>, also known as <em>stochastic process</em>, can be regarded as an indexed family of random variables denoted as {<span class="math inline">Z(\mathbf{s}): \mathbf{s}\in D</span>}, where <span class="math inline">D</span> is a subset of <span class="math inline">d</span>-dimensional Euclidean space <span class="math inline">\mathbb{R}^d</span>. To specify a stochastic process, the joint probability distribution function of any finite subset <span class="math inline">(Z(\mathbf{s}_1), \ldots, Z(\mathbf{s}_n))</span> must be given in a consistent way, which is called <em>distribution</em> of the process. For ease of analysis, a random field is often assumed to be with <em>Gaussian</em> distribution and is called Gaussian random field.</p>
-<p>A random field has several key properties useful in practical problems. The field is <em>stationary</em> under translations, or <em>homogeneous</em>, if the distribution is unchanged when the point set is translated. The field is <em>isotropic</em> if the distribution is invariant under any rotation of the whole points in the parameter space. We study the homogeneous isotropic field in this paper.</p>
-<p>The <em>covariance</em> <span class="math inline">C</span> and <em>correlation</em> <span class="math inline">R</span> of a stochastic process are defined by <span class="math display">C(\mathbf{s}_i,\mathbf{s}_j) = \mathrm{cov}(Z(\mathbf{s}_i),Z(\mathbf{s}_j)) = \mathrm{E}\lbrack (Z(\mathbf{s}_i)-\mathrm{E}\lbrack Z(\mathbf{s}_i)\rbrack)(Z(\mathbf{s}_j)-\mathrm{E}\lbrack Z(\mathbf{s}_j)\rbrack)\rbrack
-</span> and <span class="math display">R(\mathbf{s}_i,\mathbf{s}_j)=C(\mathbf{s}_i,\mathbf{s}_j)/ \sqrt{C(\mathbf{s}_i,\mathbf{s}_i)C(\mathbf{s}_j,\mathbf{s}_j)}
-</span> respectively for all <span class="math inline">\mathbf{s}_i,\mathbf{s}_j\in D</span>, where <span class="math inline">\mathrm{E}\lbrack Z(\mathbf{s})\rbrack</span> denotes the expectation of <span class="math inline">Z(\mathbf{s})</span>. Thus a process is homogeneous if <span class="math inline">C</span> and <span class="math inline">R</span> depend only on the separation vector <span class="math inline">\mathbf{h}=\mathbf{s}_i-\mathbf{s}_j</span>. Furthermore, it is isotropic if <span class="math inline">C</span> and <span class="math inline">R</span> depend upon <span class="math inline">\mathbf{h}</span> only through its length <span class="math inline">h</span>, i.e., <span class="math display">C(\mathbf{s}_i,\mathbf{s}_j)=C(\mathbf{h})=C(h),
-</span></p>
-<p><span id="eq:corr_def"><span class="math display">R(\mathbf{s}_i,\mathbf{s}_j)=R(\mathbf{h})=R(h)=C(h)/C(0).
-\qquad(7)</span></span> If we denote <span class="math inline">C(0)</span>, the variance of <span class="math inline">Z(\mathbf{s})</span>, as <span class="math inline">\sigma^2</span>, then the relationship between covariance and correlation is <span class="math inline">C(h)=\sigma^2 R(h)</span>.</p>
-<p>When the two components are considered, the measurement data can still be regarded as a Gaussian random field, but the correlation function will have a discontinuity at the origin. We call this phenomenon “nugget effect” <span class="citation" data-cites="Diggle07">[<a href="#ref-Diggle07" role="doc-biblioref">12</a>]</span>.</p>
-<p><span class="math display">\begin{array}{ll}
-   \min_{\kappa, p}   &amp; \| \Omega(p) + \kappa I - Y \| \\
-   \text{s.
-t.} &amp; \Omega(p) \succcurlyeq 0,  \kappa \ge 0 \; .\\
-  \end{array}
-</span> Let <span class="math inline">\rho(h) = \sum_i^n p_i \Psi_i(h)</span>, where <span class="math inline">p_i</span>’s are the unknown coefficients to be fitted <span class="math inline">\Psi_i</span>’s are a family of basis functions. The covariance matrix <span class="math inline">\Omega(p)</span> can be recast as: <span class="math display">\Omega(p) = p_1 F_1 + \cdots + p_n F_n, </span> where <span class="math inline">\{F_k\}_{i,j} =\Psi_k( \| s_j - s_i \|_2)</span>.</p>
-<h1 id="sec:ellipsoid"><span class="header-section-number">4</span> Ellipsoid Method Revisited</h1>
-<p>Some History of Ellipsoid Method <span class="citation" data-cites="BGT81">[<a href="#ref-BGT81" role="doc-biblioref">13</a>]</span>. Introduced by Shor and Yudin and Nemirovskii in 1976. Used to show that linear programming (LP) is polynomial-time solvable (Kachiyan 1979), settled the long-standing problem of determining the theoretical complexity of LP. In practice, however, the simplex method runs much faster than the method, although its worst-case complexity is exponential.</p>
-<h2 id="sec:basic-ellipsoid-method"><span class="header-section-number">4.1</span> Basic Ellipsoid Method</h2>
-<p>An ellipsoid <span class="math inline">\mathcal{E}_k(x_k, P_k)</span> is specified as a set <span class="math display">\{x \mid (x-x_k) P^{-1}_k (x - x_k) \le 1 \}, </span> where <span class="math inline">x_k \in \mathbb{R}^n</span> is the center of the ellipsoid and <span class="math inline">P_k \in \mathbb{R}^{n \times n}</span> is a positive definite matrix.</p>
+<span id="cb3-8"><a href="#cb3-8"></a>    <span class="cf">return</span> v, <span class="op">-</span><span class="va">self</span>.T[p, p]</span></code></pre>
+    </div>
+    <p>The oracle only needs to:</p>
+    <ul>
+      <li>
+        <p>
+          Perform a <em>row-based</em> Cholesky factorization such that
+          <span class="math inline">F(x_0) = R^\mathsf{T} R</span>.
+        </p>
+      </li>
+      <li>
+        <p>
+          Let <span class="math inline">A_{:p,:p}</span> denotes a submatrix
+          <span class="math inline">A(1:p, 1:p) \in \mathbb{R}^{p\times p}</span
+          >.
+        </p>
+      </li>
+      <li>
+        <p>
+          If Cholesky factorization fails at row
+          <span class="math inline">p</span>,
+        </p>
+        <ul>
+          <li>
+            there exists a vector
+            <span class="math inline"
+              >e_p = (0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p</span
+            >, such that
+            <ul>
+              <li>
+                <span class="math inline">v = R_{:p,:p}^{-1} e_p</span>, and
+              </li>
+              <li>
+                <span class="math inline"
+                  >v^\mathsf{T} F_{:p,:p}(x_0) v &lt; 0</span
+                >.
+              </li>
+            </ul>
+          </li>
+          <li>
+            The cut <span class="math inline">(g, \beta)</span> =
+            <span class="math inline"
+              >(-v^\mathsf{T} \partial F_{:p,:p}(x_0) v, -v^\mathsf{T}
+              F_{:p,:p}(x_0) v)</span
+            >
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <h3 id="sec:example-matrix-norm-minimization">
+      <span class="header-section-number">3.3.2</span> Example: Matrix Norm
+      Minimization
+    </h3>
+    <p>
+      Let
+      <span class="math inline">A(x) = A_0 + x_1 A_1 + \cdots + x_n A_n</span>.
+      Problem <span class="math inline">\min_x \| A(x) \|</span> can be
+      reformulated as
+      <span class="math display"
+        >\begin{array}{ll} \text{minimize} &amp; \gamma, \\ \text{subject to}
+        &amp; \begin{pmatrix}         \gamma\,I_m &amp; A(x) \\ A^\mathsf{T}(x)
+        &amp; \gamma\,I_n \end{pmatrix} \succeq 0. \end{array}
+      </span>
+      Binary search on <span class="math inline">t</span> can be used for this
+      problem.
+    </p>
+    <h3 id="sec:example-estimation-of-correlation-function">
+      <span class="header-section-number">3.3.3</span> Example: Estimation of
+      Correlation Function
+    </h3>
+    <h2 id="sec:random-field-schabenberger05">
+      <span class="header-section-number">3.4</span> Random Field <span
+        class="citation"
+        data-cites="Schabenberger05"
+        >[<a href="#ref-Schabenberger05" role="doc-biblioref">11</a>]</span
+      >
+    </h2>
+    <p>
+      <em>Random field</em>, also known as <em>stochastic process</em>, can be
+      regarded as an indexed family of random variables denoted as {<span
+        class="math inline"
+        >Z(\mathbf{s}): \mathbf{s}\in D</span
+      >}, where <span class="math inline">D</span> is a subset of
+      <span class="math inline">d</span>-dimensional Euclidean space
+      <span class="math inline">\mathbb{R}^d</span>. To specify a stochastic
+      process, the joint probability distribution function of any finite subset
+      <span class="math inline"
+        >(Z(\mathbf{s}_1), \ldots, Z(\mathbf{s}_n))</span
+      >
+      must be given in a consistent way, which is called
+      <em>distribution</em> of the process. For ease of analysis, a random field
+      is often assumed to be with <em>Gaussian</em> distribution and is called
+      Gaussian random field.
+    </p>
+    <p>
+      A random field has several key properties useful in practical problems.
+      The field is <em>stationary</em> under translations, or
+      <em>homogeneous</em>, if the distribution is unchanged when the point set
+      is translated. The field is <em>isotropic</em> if the distribution is
+      invariant under any rotation of the whole points in the parameter space.
+      We study the homogeneous isotropic field in this paper.
+    </p>
+    <p>
+      The <em>covariance</em> <span class="math inline">C</span> and
+      <em>correlation</em> <span class="math inline">R</span> of a stochastic
+      process are defined by
+      <span class="math display"
+        >C(\mathbf{s}_i,\mathbf{s}_j) =
+        \mathrm{cov}(Z(\mathbf{s}_i),Z(\mathbf{s}_j)) = \mathrm{E}\lbrack
+        (Z(\mathbf{s}_i)-\mathrm{E}\lbrack
+        Z(\mathbf{s}_i)\rbrack)(Z(\mathbf{s}_j)-\mathrm{E}\lbrack
+        Z(\mathbf{s}_j)\rbrack)\rbrack
+      </span>
+      and
+      <span class="math display"
+        >R(\mathbf{s}_i,\mathbf{s}_j)=C(\mathbf{s}_i,\mathbf{s}_j)/
+        \sqrt{C(\mathbf{s}_i,\mathbf{s}_i)C(\mathbf{s}_j,\mathbf{s}_j)}
+      </span>
+      respectively for all
+      <span class="math inline">\mathbf{s}_i,\mathbf{s}_j\in D</span>, where
+      <span class="math inline">\mathrm{E}\lbrack Z(\mathbf{s})\rbrack</span>
+      denotes the expectation of <span class="math inline">Z(\mathbf{s})</span>.
+      Thus a process is homogeneous if <span class="math inline">C</span> and
+      <span class="math inline">R</span> depend only on the separation vector
+      <span class="math inline">\mathbf{h}=\mathbf{s}_i-\mathbf{s}_j</span>.
+      Furthermore, it is isotropic if <span class="math inline">C</span> and
+      <span class="math inline">R</span> depend upon
+      <span class="math inline">\mathbf{h}</span> only through its length
+      <span class="math inline">h</span>, i.e.,
+      <span class="math display"
+        >C(\mathbf{s}_i,\mathbf{s}_j)=C(\mathbf{h})=C(h),
+      </span>
+    </p>
+    <p>
+      <span id="eq:corr_def"
+        ><span class="math display"
+          >R(\mathbf{s}_i,\mathbf{s}_j)=R(\mathbf{h})=R(h)=C(h)/C(0).
+          \qquad(7)</span
+        ></span
+      >
+      If we denote <span class="math inline">C(0)</span>, the variance of
+      <span class="math inline">Z(\mathbf{s})</span>, as
+      <span class="math inline">\sigma^2</span>, then the relationship between
+      covariance and correlation is
+      <span class="math inline">C(h)=\sigma^2 R(h)</span>.
+    </p>
+    <p>
+      When the two components are considered, the measurement data can still be
+      regarded as a Gaussian random field, but the correlation function will
+      have a discontinuity at the origin. We call this phenomenon “nugget
+      effect” <span class="citation" data-cites="Diggle07"
+        >[<a href="#ref-Diggle07" role="doc-biblioref">12</a>]</span
+      >.
+    </p>
+    <p>
+      <span class="math display"
+        >\begin{array}{ll} \min_{\kappa, p} &amp; \| \Omega(p) + \kappa I - Y \|
+        \\ \text{s. t.} &amp; \Omega(p) \succcurlyeq 0, \kappa \ge 0 \; .\\
+        \end{array}
+      </span>
+      Let <span class="math inline">\rho(h) = \sum_i^n p_i \Psi_i(h)</span>,
+      where <span class="math inline">p_i</span>’s are the unknown coefficients
+      to be fitted <span class="math inline">\Psi_i</span>’s are a family of
+      basis functions. The covariance matrix
+      <span class="math inline">\Omega(p)</span> can be recast as:
+      <span class="math display">\Omega(p) = p_1 F_1 + \cdots + p_n F_n, </span>
+      where
+      <span class="math inline">\{F_k\}_{i,j} =\Psi_k( \| s_j - s_i \|_2)</span
+      >.
+    </p>
+    <h1 id="sec:ellipsoid">
+      <span class="header-section-number">4</span> Ellipsoid Method Revisited
+    </h1>
+    <p>
+      Some History of Ellipsoid Method
+      <span class="citation" data-cites="BGT81"
+        >[<a href="#ref-BGT81" role="doc-biblioref">13</a>]</span
+      >. Introduced by Shor and Yudin and Nemirovskii in 1976. Used to show that
+      linear programming (LP) is polynomial-time solvable (Kachiyan 1979),
+      settled the long-standing problem of determining the theoretical
+      complexity of LP. In practice, however, the simplex method runs much
+      faster than the method, although its worst-case complexity is exponential.
+    </p>
+    <h2 id="sec:basic-ellipsoid-method">
+      <span class="header-section-number">4.1</span> Basic Ellipsoid Method
+    </h2>
+    <p>
+      An ellipsoid <span class="math inline">\mathcal{E}_k(x_k, P_k)</span> is
+      specified as a set
+      <span class="math display"
+        >\{x \mid (x-x_k) P^{-1}_k (x - x_k) \le 1 \},
+      </span>
+      where <span class="math inline">x_k \in \mathbb{R}^n</span> is the center
+      of the ellipsoid and
+      <span class="math inline">P_k \in \mathbb{R}^{n \times n}</span> is a
+      positive definite matrix.
+    </p>
 
-<p>Updating the ellipsoid (deep-cut)</p>
-<p>Calculation of minimum volume ellipsoid covering: <span class="math display">\mathcal{E}_k \cap \{z \mid g^\mathsf{T} (z - x_k) + \beta \le 0 \}
-</span> Let <span class="math inline">\tilde{g} = P_k\,g</span>, <span class="math inline">\tau^2 = g^\mathsf{T} P_k g</span>. We can make the following observations:</p>
-<ol type="1">
-<li><p>If <span class="math inline">n \cdot \beta &lt; -\tau</span> (shallow cut), then no smaller ellipsoid can be found.</p></li>
-<li><p>If <span class="math inline">\beta &gt; \tau</span>, then intersection is empty.</p></li>
-<li><p>Otherwise, <span class="math display">x_c^+ = x_c - \frac{\rho}{ \tau^2 } \tilde{g}, \qquad
-  P^+ = \delta\cdot\left(P - \frac{\sigma}{ \tau^2 } \tilde{g}\tilde{g}^\mathsf{T}\right)
-</span> where <span class="math display">\rho = \frac{ \tau+nh}{n+1}, \qquad
-  \sigma = \frac{2\rho}{ \tau+\beta}, \qquad
-  \delta = \frac{n^2(\tau^2 - \beta^2)}{(n^2 - 1)\tau^2}
-</span></p></li>
-</ol>
-<p>Even better, split <span class="math inline">P</span> into two variables <span class="math inline">\kappa \cdot Q</span>. Let <span class="math inline">\tilde{g} = Q \cdot g</span>, <span class="math inline">\omega = g^\mathsf{T}\tilde{g}</span>, <span class="math inline">\tau = \sqrt{\kappa\cdot\omega}</span>. <span class="math display">x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
-  Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad
-  \kappa^+ =  \delta\cdot\kappa
-</span> Reduce <span class="math inline">n^2</span> multiplications per iteration. Note that:</p>
-<ul>
-<li><p>The determinant of <span class="math inline">Q</span> decreases monotonically.</p></li>
-<li><p>The range of <span class="math inline">\delta</span> is <span class="math inline">(0, \frac{n^2}{n^2 - 1})</span></p></li>
-</ul>
-<h2 id="sec:central-cut"><span class="header-section-number">4.2</span> Central Cut</h2>
-<p>A Special case of when <span class="math inline">\beta = 0</span>. Deserve a separate implement because it is much simpler. Let <span class="math inline">\tilde{g} = Q\,g</span>, <span class="math inline">\tau = \sqrt{\kappa\cdot\omega}</span>,</p>
-<p><span class="math display">\rho = \frac{\tau}{n+1}, \qquad
-  \sigma = \frac{2}{n+1}, \qquad
-  \delta = \frac{n^2}{n^2 - 1}.
-</span></p>
-<h2 id="sec:parallel-cuts"><span class="header-section-number">4.3</span> Parallel Cuts</h2>
-<p>Oracle returns a pair of cuts instead of just one. The pair of cuts is given by <span class="math inline">g</span> and <span class="math inline">(\beta_1, \beta_2)</span> such that: <span class="math display">\begin{array}{l}
-    g^\mathsf{T} (x - x_c) + \beta_1 \le 0,  \\
-    g^\mathsf{T} (x - x_c) + \beta_2 \ge 0,
-  \end{array}
-</span> for all <span class="math inline">x \in \mathcal{K}</span>.</p>
-<p>Only linear inequality constraint can produce such parallel cut: <span class="math display"> l \le a^\mathsf{T} x + b \le u, \qquad L \preceq F(x) \preceq U.
-</span></p>
-<p>Usually, provide faster convergence.</p>
-<figure>
-<img src="ellipsoid.files/parallel_cut.svg" id="fig:parallel_cut" style="width:80.0%" alt="" /><figcaption>Parallel cuts</figcaption>
-</figure>
-<p>Updating the ellipsoid.</p>
-<p>Let <span class="math inline">\tilde{g} = Q\,g</span>, <span class="math inline">\tau^2 = \kappa\cdot\omega</span>.</p>
-<ul>
-<li><p>If <span class="math inline">\beta_1 &gt; \beta_2</span>, intersection is empty.</p></li>
-<li><p>If <span class="math inline">\beta_1 \beta_2 &lt; -\tau^2/n</span>, no smaller ellipsoid can be found.</p></li>
-<li><p>If <span class="math inline">\beta_2^2 &gt; \tau^2</span>, it reduces to deep-cut with <span class="math inline">\alpha = \alpha_1</span>.</p></li>
-</ul>
-<p>Otherwise, <span class="math display">x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
-    Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad
-    \kappa^+ =  \delta \kappa.
-</span> where <span class="math display">\begin{array}{lll}
-      \bar{\beta} &amp;=&amp; (\beta_1 + \beta_2)/2 \\
-      \xi^2 &amp;=&amp; (\tau^2 - \beta_1^2)(\tau^2 - \beta_2^2) + (n(\beta_2 - \beta_1)\bar{\beta})^2, \\
-      \sigma &amp;=&amp; (n + (\tau^2 - \beta_1\beta_2 - \xi)/(2\bar{\beta}^2)) / (n + 1), \\
-      \rho &amp;=&amp; \bar{\beta}\cdot\sigma, \\
-      \delta &amp;=&amp; (n^2/(n^2-1)) (\tau^2 - (\beta_1^2 + \beta_2^2)/2 + \xi/n) / \tau^2 .
-\end{array}
-</span></p>
-<h3 id="sec:example-fir-filter-design"><span class="header-section-number">4.3.1</span> Example: FIR filter design</h3>
-<p>A typical structure of digital Finite Impulse Response (FIR) filter is shown in Fig. 2, where the coefficients <span class="math inline">h[0], h[1], \ldots, h[n-1]</span> must be determined to meet given specifications. Usually, they can be manually designed using windowing or frequency-sampling techniques <span class="citation" data-cites="oppenheim1989discrete">[<a href="#ref-oppenheim1989discrete" role="doc-biblioref">14</a>]</span>.</p>
-<p>However, the experience and knowledge of designers are highly demanded in this kind of design methods. Moreover, there is no guarantee about the design’s quality. Therefore, the optimization-based techniques (e.g. <span class="citation" data-cites="wu1999fir">[<a href="#ref-wu1999fir" role="doc-biblioref">15</a>]</span>, more reference) have attracted tons of research effort. In this kind of methods, facilitated with growing computing resource and efficient optimization algorithms, the solution space can be effectively explored.</p>
-<figure>
-<img src="ellipsoid.files/fir_strctr.svg" id="fig:fir-strctr" style="width:80.0%" alt="" /><figcaption>A typical structure of an FIR filter <span class="citation" data-cites="mitra2006digital">[<a href="#ref-mitra2006digital" role="doc-biblioref">16</a>]</span>.</figcaption>
-</figure>
-<p>In optimization algorithms, what is particularly interesting is the convex optimization. If a problem is in a convex form, it can be efficiently and optimally solved. Convex optimization techniques are also implementable in designing FIR filters, including Parks-McClellan algorithm <span class="citation" data-cites="park1972chebyshev">[<a href="#ref-park1972chebyshev" role="doc-biblioref">17</a>]</span>, METEOR <span class="citation" data-cites="steiglitz1992meteor">[<a href="#ref-steiglitz1992meteor" role="doc-biblioref">18</a>]</span> and peak-constrained least-squares (PCLS) <span class="citation" data-cites="selesnick1996constrained adams1998peak">[<a href="#ref-selesnick1996constrained" role="doc-biblioref">19</a>,<a href="#ref-adams1998peak" role="doc-biblioref">20</a>]</span>. In the mentioned articles, with the help of exchange algorithms (e.g. Remez exchange algorithm), certain FIR filter design problems can be formed as linear or quadratic programs. They are two simple forms of convex optimization problems, which can be optimally solved with existing algorithms, such as the interior-point method <span class="citation" data-cites="boyd2009convex">[<a href="#ref-boyd2009convex" role="doc-biblioref">21</a>]</span>. Tempted by the optimality, more efforts were devoted to form the problem convex. Particularly, in <span class="citation" data-cites="wu1999fir">[<a href="#ref-wu1999fir" role="doc-biblioref">15</a>]</span>, via spectral factorization <span class="citation" data-cites="goodman1997spectral">[<a href="#ref-goodman1997spectral" role="doc-biblioref">22</a>]</span>, the problem of designing an FIR filter with magnitude constraints on frequency-domain is formulated as a convex optimization problem. More examples are provided in <span class="citation" data-cites="davidson2010enriching">[<a href="#ref-davidson2010enriching" role="doc-biblioref">23</a>]</span>.</p>
-<p>Its time response is <span id="eq:t_res"><span class="math display">y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]}
-\qquad(8)</span></span> where <span class="math inline">\mathbf{h} = (h(0), h(1),..., h(n-1))</span> is the filter coefficients. Its frequency response <span class="math inline">H: [0,\pi] \rightarrow \mathbb{C}</span> is <span id="eq:f_res"><span class="math display">H(\omega) = \sum_{m=0}^{n-1}{h(m)e^{-jm\omega}}
-\qquad(9)</span></span> where <span class="math inline">j = \sqrt{-1}</span>, <span class="math inline">n</span> is the order of the filter. The design of a filter with magnitude constraints is often formulated as a constraint optimization problem as the form <span id="eq:ori"><span class="math display">\begin{aligned}
-  \min            &amp;  \gamma \\
-  \mathrm{s.t.}   &amp;  f(\mathbf{x}) \le \gamma \\
-                  &amp;  g(\mathbf{x}) \le 0.\end{aligned}
-\qquad(10)</span></span> where <span class="math inline">\mathbf{x}</span> is the vector of design variables, <span class="math inline">g(\mathbf{x})</span> represents the characteristics of the desirable filter and <span class="math inline">f(\mathbf{x})</span> is the performance metric to be optimized. For example, the magnitude constraints on frequency domain are expressed as <span id="eq:mag_cons"><span class="math display">L(\omega) \le |H(\omega)| \le U(\omega), \forall \omega\in(-\infty,+\infty)
-\qquad(11)</span></span> where <span class="math inline">L(\omega)</span> and <span class="math inline">U(\omega)</span> are the lower and upper (nonnegative) bounds at frequency <span class="math inline">\omega</span> respectively. Note that <span class="math inline">H(\omega)</span> is <span class="math inline">2\pi</span> periodic and <span class="math inline">H(\omega)=\overline{H(-\omega)}</span>. Therefore, we can only consider the magnitude constraint on <span class="math inline">[0,\pi]</span> <span class="citation" data-cites="wu1999fir">[<a href="#ref-wu1999fir" role="doc-biblioref">15</a>]</span>.</p>
-<p>Generally, the problem might be difficult to solve, since we can only obtain the global optimal solution with resource consuming methods, such as branch-and-bound <span class="citation" data-cites="davidson2010enriching">[<a href="#ref-davidson2010enriching" role="doc-biblioref">23</a>]</span>. However, the situation is totally different if the problem is convex, where <span class="math inline">f(\mathbf{x})</span> and <span class="math inline">g(\mathbf{x})</span> are convex functions. In such a case, the problem can be optimally solved with many efficient algorithms.</p>
-<p>Attracted by the benefits, the authors of <span class="citation" data-cites="wu1999fir">[<a href="#ref-wu1999fir" role="doc-biblioref">15</a>]</span> transformed (?), originally non-convex, into a convex form via spectral factorization:</p>
-<p><span id="eq:r_con"><span class="math display">L^2(\omega) \le R(\omega) \le U^2(\omega), \forall \omega\in(0,\pi)\qquad(12)</span></span> where <span class="math inline">R(\omega)=\sum_{i=-n+1}^{n-1}{r(t)e^{-j{\omega}t}}=|H(\omega)|^2</span> and <span class="math inline">\mathbf{r}=(r(-n+1),r(-n+2),\ldots,r(n-1))</span> are the autocorrelation coefficients. Especially, <span class="math inline">\mathbf{r}</span> can be determined by <span class="math inline">\mathbf{h}</span>, with the following equation vice versa <span class="citation" data-cites="wu1999fir">[<a href="#ref-wu1999fir" role="doc-biblioref">15</a>]</span>:</p>
-<p><span id="eq:h_r"><span class="math display">r(t) = \sum_{i=-n+1}^{n-1}{h(i)h(i+t)}, t\in\mathbb{Z}.\qquad(13)</span></span> where <span class="math inline">h(t)=0</span> for <span class="math inline">t&lt;0</span> or <span class="math inline">t&gt;n-1</span>.</p>
-<figure>
-<img src="ellipsoid.files/lowpass.svg" id="fig:lowpass" style="width:80.0%" alt="" /><figcaption>Result</figcaption>
-</figure>
-<h3 id="sec:example-maximum-likelihood-estimation"><span class="header-section-number">4.3.2</span> Example: Maximum Likelihood estimation</h3>
-<p>Consider <span class="math display">\begin{array}{ll}
-    \min_{\kappa, p}  &amp; \log\det(\Omega(p) + \kappa\cdot I) +
-                \mathrm{Tr}((\Omega(p) + \kappa\cdot I)^{-1}Y), \\
-    \text{s.t.}       &amp; \Omega(p) \succeq 0, \kappa \ge 0 .
-\\
-  \end{array}
-</span> Note that the 1st term is concave, the 2nd term is convex. However, if there are enough samples such that <span class="math inline">Y</span> is a positive definite matrix, then the function is convex within <span class="math inline">[0, 2Y]</span>. Therefore, the following problem is convex: <span class="math display">\begin{array}{ll}
-    \min_{\kappa, p}  &amp; \log\det V(p) + \mathrm{Tr}(V(p)^{-1}Y),\\
-    \text{s.t.}       &amp; \Omega(p) + \kappa \cdot I = V(p) \\
-                      &amp; 0 \preceq V(p) \preceq 2Y, \kappa {&gt;} 0.
-  \end{array}
-</span></p>
-<h2 id="sec:discrete-optimization"><span class="header-section-number">4.4</span> Discrete Optimization</h2>
-<p>Many engineering problems can be formulated as a convex/geometric programming, e.g. digital circuit sizing. Yet in an ASIC design, often there is only a limited set of choices from the cell library. In other words, some design variables are discrete. We can formulate the discrete version as Mixed-Integer Convex programming (MICP) by mapping the design variables to integers.</p>
-<p>What’s wrong with the existing methods? Mostly based on relaxation. Then use the relaxed solution as a lower bound and use the branch-and-bound method for the discrete optimal solution. Note that the branch-and-bound method does not utilize the convexity of the problem. What if I can only evaluate constraints on discrete data?</p>
-<p>Usually a relaxed optimal solution (convex) is obtained first. Then the optimized discrete solution is obtained by searching exhaustively the neighborhood. However, sometimes the constraints are tight so that the relaxed continuous optimal solution is far from the discrete one. Enumeration of the discrete domain is difficult.</p>
-<p>Consider: <span class="math display">\begin{array}{ll}
-        \text{minimize}      &amp; f_0(x), \\
-        \text{subject to}    &amp; f_j(x) \le 0, \; \forall j=1,2,\ldots, \\
-                             &amp; x \in \mathbb{D},
-  \end{array}</span> where <span class="math inline">f_0(x)</span> and <span class="math inline">f_j(x)</span> are “convex”. Note that some design variables are discrete. The oracle looks for the nearby discrete solution <span class="math inline">x_d</span> of <span class="math inline">x_c</span> with the cutting-plane: <span class="math display"> g^\mathsf{T} (x - x_d) + \beta \le 0, \beta \ge 0, g \neq 0.
-</span> Note that the cut may be a shallow cut. Suggestion: use different cuts as possible for each iteration (e.g. round-robin the evaluation of constraints).</p>
-<h3 id="sec:example-multiplier-less-fir-filter-design"><span class="header-section-number">4.4.1</span> Example: Multiplier-less FIR Filter Design</h3>
-<p>However, there are still many filter design problems that are non-convex, such as multiplier-less FIR filter design problems. Note that in Fig. 2, each coefficient associated with a multiplier unit makes the filter power hungry, especially in Application Specific Integrated Circuits (ASIC). Fortunately, it can be implemented multiplier-less if each coefficient is quantized and represented as a sum of Singed Power-of-Two (SPT). Such a coefficient can be uniquely represented by a Canonic Signed-Digit (CSD) code <span class="citation" data-cites="george1960csd">[<a href="#ref-george1960csd" role="doc-biblioref">24</a>]</span> with the smallest number of non-zero digits. In such a case, it confines the multiplication to add and shift operations. An example is shown in Fig. <strong>¿fig:multi-shift?</strong>. A coefficient 0.40625 = 13/32 can be written as <span class="math inline">2^{-1} - 2^{-3} + 2^{-5}</span>. Consequently, as shown in Fig. <strong>¿fig:shift?</strong>, the multiplier can be replaced with three shifters and two adders, which are with much lower cost. However, the coefficient quantization constraint, which is non-convex, makes the convex optimization algorithm cannot be directly applied. A similar scenario is considering the finite word-length effect <span class="citation" data-cites="lim1982finite">[<a href="#ref-lim1982finite" role="doc-biblioref">25</a>]</span>.</p>
-<p>Attracted by the benefits of this “multiplierlessness”, many efforts have been devoted to its design techniques. For its general problems, integer programming (e.g. <span class="citation" data-cites="kodek1980design lim1982finite lim1983fir lim1999signed">[<a href="#ref-lim1982finite" role="doc-biblioref">25</a>–<a href="#ref-lim1999signed" role="doc-biblioref">28</a>]</span>) can be implemented to achieve the optimal solution. However, it demands excessive computing resources. Other heuristic techniques, such as genetic algorithm <span class="citation" data-cites="xu1995design">[<a href="#ref-xu1995design" role="doc-biblioref">29</a>]</span> and dynamic-programming-like method <span class="citation" data-cites="chen1999trellis">[<a href="#ref-chen1999trellis" role="doc-biblioref">30</a>]</span>, are also with low efficiency. If the quantization constraint is the only non-convex constraint in the design problem, a lower bound can be efficiently obtained by solving the relaxed problem <span class="citation" data-cites="davidson2010enriching">[<a href="#ref-davidson2010enriching" role="doc-biblioref">23</a>]</span>. Then to make the solution feasible, it can be rounded to the nearest CSD codes or treated as a starting point of a local search algorithm for a better solution <span class="citation" data-cites="kodek1981comparison">[<a href="#ref-kodek1981comparison" role="doc-biblioref">31</a>]</span>. However, both of the methods can not guarantee the feasibility of the final solution. Besides, the local search problem is still non-convex. Therefore, the adopted algorithm could also be inefficient, such as branch-and-bound in <span class="citation" data-cites="kodek1981comparison">[<a href="#ref-kodek1981comparison" role="doc-biblioref">31</a>]</span>.</p>
-<figure>
-<img src="ellipsoid.files/csdlowpass.svg" id="fig:csdlowpass" style="width:80.0%" alt="" /><figcaption>Result</figcaption>
-</figure>
-<h1 id="sec:concluding-remarks"><span class="header-section-number">5</span> Concluding Remarks</h1>
-<p>Should be known to student. Ellipsoid method is not competitor but companion of interior point methods.</p>
-<p>TBD.</p>
-<h1 id="sec:references" class="unnumbered">References</h1>
-<p> </p>
-<div id="refs" class="references" role="doc-bibliography">
-<div id="ref-unknown">
-<p>[1] Unknown, Unknown, Unknown. 29 (1981) 1039–1091.</p>
-</div>
-<div id="ref-Aliabadi2013Robust">
-<p>[2] H. Aliabadi, M. Salahi, Robust geometric programming approach to profit maximization with interval uncertainty, Computer Science Journal of Moldova. 21 (2013) 86–96.</p>
-</div>
-<div id="ref-liu2007robust">
-<p>[3] X. Liu, W.-S. Luk, Y. Song, P. Tang, X. Zeng, Robust analog circuit sizing using ellipsoid method and affine arithmetic, in: Proceedings of the 2007 Asia and South Pacific Design Automation Conference, IEEE Computer Society, 2007: pp. 203–208.</p>
-</div>
-<div id="ref-cherkassky1999negative">
-<p>[4] B.V. Cherkassky, A.V. Goldberg, Negative-cycle detection algorithms, Mathematical Programming. 85 (1999) 277–311.</p>
-</div>
-<div id="ref-Tarjan1981negcycle">
-<p>[5] R. Tarjan, Shortest paths, AT&amp;T Bell Laboratories, 1981.</p>
-</div>
-<div id="ref-alg:dasdan_mcr">
-<p>[6] A. Dasdan, Experimental analysis of the fastest optimum cycle ratio and mean algorithms, ACM Transactions on Design Automation of Electronic Systems. 9 (2004) 385–418.</p>
-</div>
-<div id="ref-orlin1985computing">
-<p>[7] J.B. Orlin, U.G. Rothblum, Computing optimal scalings by parametric network algorithms, Mathematical Programming. 32 (1985) 1–10.</p>
-</div>
-<div id="ref-dasdan1998faster">
-<p>[8] A. Dasdan, R.K. Gupta, Faster maximum and minimum mean cycle algorithms for system-performance analysis, IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems. 17 (1998) 889–899.</p>
-</div>
-<div id="ref-dasdan2004experimental">
-<p>[9] A. Dasdan, Experimental analysis of the fastest optimum cycle ratio and mean algorithms, ACM Transactions on Design Automation of Electronic Systems (TODAES). 9 (2004) 385–418.</p>
-</div>
-<div id="ref-zhou2015multi">
-<p>[10] X. Zhou, W.-S. Luk, H. Zhou, F. Yang, C. Yan, X. Zeng, Multi-parameter clock skew scheduling, Integration, the VLSI Journal. 48 (2015) 129–137.</p>
-</div>
-<div id="ref-Schabenberger05">
-<p>[11] O. Schabenberger, C.A. Gotway, Statistical Methods for Spatial Data Analysis, Chapman &amp; Hall/CRC, Florida, 2005.</p>
-</div>
-<div id="ref-Diggle07">
-<p>[12] P.J. Diggle, P.J.R. Jr., Model-based Geostatistics, Springer, New York, 2007.</p>
-</div>
-<div id="ref-BGT81">
-<p>[13] R.G. Bland, D. Goldfarb, M.J. Todd, The ellipsoid method: A survey, Operations Research. 29 (1981) 1039–1091.</p>
-</div>
-<div id="ref-oppenheim1989discrete">
-<p>[14] A.V. Oppenheim, R.W. Schafer, J.R. Buck, others, Discrete-time signal processing, Prentice hall Englewood Cliffs, NJ, 1989.</p>
-</div>
-<div id="ref-wu1999fir">
-<p>[15] S.-P. Wu, S. Boyd, L. Vandenberghe, FIR filter design via spectral factorization and convex optimization, in: Applied and Computational Control, Signals, and Circuits, Springer, 1999: pp. 215–245.</p>
-</div>
-<div id="ref-mitra2006digital">
-<p>[16] S.K. Mitra, Y. Kuo, Digital signal processing: A computer-based approach, McGraw-Hill New York, 2006.</p>
-</div>
-<div id="ref-park1972chebyshev">
-<p>[17] T.W. Parks, J.H. McClellan, Chebyshev approximation for nonrecursive digital filters with linear phase, Circuit Theory, IEEE Transactions on. CT-19 (1972) 189–194.</p>
-</div>
-<div id="ref-steiglitz1992meteor">
-<p>[18] K. Steiglitz, T.W. Parks, J.F. Kaiser, METEOR: A constraint-based FIR filter design program, Signal Processing, IEEE Transactions on. 40 (1992) 1901–1909.</p>
-</div>
-<div id="ref-selesnick1996constrained">
-<p>[19] I.W. Selesnick, M. Lang, C.S. Burrus, Constrained least square design for FIR filters without specified transition bands, Signal Processing, IEEE Transactions on. 44 (1996) 1879–1892.</p>
-</div>
-<div id="ref-adams1998peak">
-<p>[20] J.W. Adams, J.L. Sullivan, Peak-constrained least-squares optimization, Signal Processing, IEEE Transactions on. 46 (1998) 306–321.</p>
-</div>
-<div id="ref-boyd2009convex">
-<p>[21] S. Boyd, L. Vandenberghe, Convex optimization, Cambridge university press, 2009.</p>
-</div>
-<div id="ref-goodman1997spectral">
-<p>[22] T.N.T. Goodman, C.A. Micchelli, G. Rodriguez, and S. Seatzu, Spectral factorization of laurent polynomials, Advances Comput. Math. 7 (1997) 429–454.</p>
-</div>
-<div id="ref-davidson2010enriching">
-<p>[23] T.N. Davidson, Enriching the art of FIR filter design via convex optimization, Signal Processing Magazine, IEEE. 27 (2010) 89–101.</p>
-</div>
-<div id="ref-george1960csd">
-<p>[24] G.W. Reitwiesner, Binary Arithmetic, Advances in Computers. 1 (1960) 231–308.</p>
-</div>
-<div id="ref-lim1982finite">
-<p>[25] Y.C. Lim, S. Parker, A. Constantinides, Finite word length FIR filter design using integer programming over a discrete coefficient space, Acoustics, Speech and Signal Processing, IEEE Transactions on. 30 (1982) 661–664.</p>
-</div>
-<div id="ref-kodek1980design">
-<p>[26] D.M. Kodek, Design of optimal finite wordlength FIR digital filters using integer programming techniques, Acoustics, Speech and Signal Processing, IEEE Transactions on. 28 (1980) 304–308.</p>
-</div>
-<div id="ref-lim1983fir">
-<p>[27] Y. Lim, S. Parker, FIR filter design over a discrete powers-of-two coefficient space, Acoustics, Speech and Signal Processing, IEEE Transactions on. 31 (1983) 583–591.</p>
-</div>
-<div id="ref-lim1999signed">
-<p>[28] Y.C. Lim, R. Yang, D. Li, J. Song, Signed power-of-two term allocation scheme for the design of digital filters, Circuits and Systems II: Analog and Digital Signal Processing, IEEE Transactions on. 46 (1999) 577–584.</p>
-</div>
-<div id="ref-xu1995design">
-<p>[29] D.J. Xu, M.L. Daley, Design of optimal digital filter using a parallel genetic algorithm, Circuits and Systems II: Analog and Digital Signal Processing, IEEE Transactions on. 42 (1995) 673–675.</p>
-</div>
-<div id="ref-chen1999trellis">
-<p>[30] C.-L. Chen, A.N. Willson Jr, A trellis search algorithm for the design of FIR filters with signed-powers-of-two coefficients, Circuits and Systems II: Analog and Digital Signal Processing, IEEE Transactions on. 46 (1999) 29–39.</p>
-</div>
-<div id="ref-kodek1981comparison">
-<p>[31] D. Kodek, K. Steiglitz, Comparison of optimal and local search methods for designing finite wordlength FIR digital filters, Circuits and Systems, IEEE Transactions on. 28 (1981) 28–32.</p>
-</div>
-</div>
-</body>
+    <p>Updating the ellipsoid (deep-cut)</p>
+    <p>
+      Calculation of minimum volume ellipsoid covering:
+      <span class="math display"
+        >\mathcal{E}_k \cap \{z \mid g^\mathsf{T} (z - x_k) + \beta \le 0 \}
+      </span>
+      Let <span class="math inline">\tilde{g} = P_k\,g</span>,
+      <span class="math inline">\tau^2 = g^\mathsf{T} P_k g</span>. We can make
+      the following observations:
+    </p>
+    <ol type="1">
+      <li>
+        <p>
+          If <span class="math inline">n \cdot \beta &lt; -\tau</span> (shallow
+          cut), then no smaller ellipsoid can be found.
+        </p>
+      </li>
+      <li>
+        <p>
+          If <span class="math inline">\beta &gt; \tau</span>, then intersection
+          is empty.
+        </p>
+      </li>
+      <li>
+        <p>
+          Otherwise,
+          <span class="math display"
+            >x_c^+ = x_c - \frac{\rho}{ \tau^2 } \tilde{g}, \qquad P^+ =
+            \delta\cdot\left(P - \frac{\sigma}{ \tau^2 }
+            \tilde{g}\tilde{g}^\mathsf{T}\right)
+          </span>
+          where
+          <span class="math display"
+            >\rho = \frac{ \tau+nh}{n+1}, \qquad \sigma = \frac{2\rho}{
+            \tau+\beta}, \qquad \delta = \frac{n^2(\tau^2 - \beta^2)}{(n^2 -
+            1)\tau^2}
+          </span>
+        </p>
+      </li>
+    </ol>
+    <p>
+      Even better, split <span class="math inline">P</span> into two variables
+      <span class="math inline">\kappa \cdot Q</span>. Let
+      <span class="math inline">\tilde{g} = Q \cdot g</span>,
+      <span class="math inline">\omega = g^\mathsf{T}\tilde{g}</span>,
+      <span class="math inline">\tau = \sqrt{\kappa\cdot\omega}</span>.
+      <span class="math display"
+        >x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad Q^+ = Q -
+        \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad \kappa^+ =
+        \delta\cdot\kappa
+      </span>
+      Reduce <span class="math inline">n^2</span> multiplications per iteration.
+      Note that:
+    </p>
+    <ul>
+      <li>
+        <p>
+          The determinant of <span class="math inline">Q</span> decreases
+          monotonically.
+        </p>
+      </li>
+      <li>
+        <p>
+          The range of <span class="math inline">\delta</span> is
+          <span class="math inline">(0, \frac{n^2}{n^2 - 1})</span>
+        </p>
+      </li>
+    </ul>
+    <h2 id="sec:central-cut">
+      <span class="header-section-number">4.2</span> Central Cut
+    </h2>
+    <p>
+      A Special case of when <span class="math inline">\beta = 0</span>. Deserve
+      a separate implement because it is much simpler. Let
+      <span class="math inline">\tilde{g} = Q\,g</span>,
+      <span class="math inline">\tau = \sqrt{\kappa\cdot\omega}</span>,
+    </p>
+    <p>
+      <span class="math display"
+        >\rho = \frac{\tau}{n+1}, \qquad \sigma = \frac{2}{n+1}, \qquad \delta =
+        \frac{n^2}{n^2 - 1}.
+      </span>
+    </p>
+    <h2 id="sec:parallel-cuts">
+      <span class="header-section-number">4.3</span> Parallel Cuts
+    </h2>
+    <p>
+      Oracle returns a pair of cuts instead of just one. The pair of cuts is
+      given by <span class="math inline">g</span> and
+      <span class="math inline">(\beta_1, \beta_2)</span> such that:
+      <span class="math display"
+        >\begin{array}{l}     g^\mathsf{T} (x - x_c) + \beta_1 \le 0, \\    
+        g^\mathsf{T} (x - x_c) + \beta_2 \ge 0, \end{array}
+      </span>
+      for all <span class="math inline">x \in \mathcal{K}</span>.
+    </p>
+    <p>
+      Only linear inequality constraint can produce such parallel cut:
+      <span class="math display">
+        l \le a^\mathsf{T} x + b \le u, \qquad L \preceq F(x) \preceq U.
+      </span>
+    </p>
+    <p>Usually, provide faster convergence.</p>
+    <figure>
+      <img
+        src="ellipsoid.files/parallel_cut.svg"
+        id="fig:parallel_cut"
+        style="width: 80%"
+        alt=""
+      />
+      <figcaption>Parallel cuts</figcaption>
+    </figure>
+    <p>Updating the ellipsoid.</p>
+    <p>
+      Let <span class="math inline">\tilde{g} = Q\,g</span>,
+      <span class="math inline">\tau^2 = \kappa\cdot\omega</span>.
+    </p>
+    <ul>
+      <li>
+        <p>
+          If <span class="math inline">\beta_1 &gt; \beta_2</span>, intersection
+          is empty.
+        </p>
+      </li>
+      <li>
+        <p>
+          If <span class="math inline">\beta_1 \beta_2 &lt; -\tau^2/n</span>, no
+          smaller ellipsoid can be found.
+        </p>
+      </li>
+      <li>
+        <p>
+          If <span class="math inline">\beta_2^2 &gt; \tau^2</span>, it reduces
+          to deep-cut with <span class="math inline">\alpha = \alpha_1</span>.
+        </p>
+      </li>
+    </ul>
+    <p>
+      Otherwise,
+      <span class="math display"
+        >x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad Q^+ = Q -
+        \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad \kappa^+ =
+        \delta \kappa.
+      </span>
+      where
+      <span class="math display"
+        >\begin{array}{lll} \bar{\beta} &amp;=&amp; (\beta_1 + \beta_2)/2 \\
+        \xi^2 &amp;=&amp; (\tau^2 - \beta_1^2)(\tau^2 - \beta_2^2) + (n(\beta_2
+        - \beta_1)\bar{\beta})^2, \\ \sigma &amp;=&amp; (n + (\tau^2 -
+        \beta_1\beta_2 - \xi)/(2\bar{\beta}^2)) / (n + 1), \\ \rho &amp;=&amp;
+        \bar{\beta}\cdot\sigma, \\ \delta &amp;=&amp; (n^2/(n^2-1)) (\tau^2 -
+        (\beta_1^2 + \beta_2^2)/2 + \xi/n) / \tau^2 . \end{array}
+      </span>
+    </p>
+    <h3 id="sec:example-fir-filter-design">
+      <span class="header-section-number">4.3.1</span> Example: FIR filter
+      design
+    </h3>
+    <p>
+      A typical structure of digital Finite Impulse Response (FIR) filter is
+      shown in Fig. 2, where the coefficients
+      <span class="math inline">h[0], h[1], \ldots, h[n-1]</span> must be
+      determined to meet given specifications. Usually, they can be manually
+      designed using windowing or frequency-sampling techniques <span
+        class="citation"
+        data-cites="oppenheim1989discrete"
+        >[<a href="#ref-oppenheim1989discrete" role="doc-biblioref">14</a
+        >]</span
+      >.
+    </p>
+    <p>
+      However, the experience and knowledge of designers are highly demanded in
+      this kind of design methods. Moreover, there is no guarantee about the
+      design’s quality. Therefore, the optimization-based techniques (e.g. <span
+        class="citation"
+        data-cites="wu1999fir"
+        >[<a href="#ref-wu1999fir" role="doc-biblioref">15</a>]</span
+      >, more reference) have attracted tons of research effort. In this kind
+      of methods, facilitated with growing computing resource and efficient
+      optimization algorithms, the solution space can be effectively explored.
+    </p>
+    <figure>
+      <img
+        src="ellipsoid.files/fir_strctr.svg"
+        id="fig:fir-strctr"
+        style="width: 80%"
+        alt=""
+      />
+      <figcaption>
+        A typical structure of an FIR filter <span
+          class="citation"
+          data-cites="mitra2006digital"
+          >[<a href="#ref-mitra2006digital" role="doc-biblioref">16</a>]</span
+        >.
+      </figcaption>
+    </figure>
+    <p>
+      In optimization algorithms, what is particularly interesting is the convex
+      optimization. If a problem is in a convex form, it can be efficiently and
+      optimally solved. Convex optimization techniques are also implementable in
+      designing FIR filters, including Parks-McClellan algorithm <span
+        class="citation"
+        data-cites="park1972chebyshev"
+        >[<a href="#ref-park1972chebyshev" role="doc-biblioref">17</a>]</span
+      >, METEOR <span class="citation" data-cites="steiglitz1992meteor"
+        >[<a href="#ref-steiglitz1992meteor" role="doc-biblioref">18</a>]</span
+      >
+      and peak-constrained least-squares (PCLS) <span
+        class="citation"
+        data-cites="selesnick1996constrained adams1998peak"
+        >[<a href="#ref-selesnick1996constrained" role="doc-biblioref">19</a>,<a
+          href="#ref-adams1998peak"
+          role="doc-biblioref"
+          >20</a
+        >]</span
+      >. In the mentioned articles, with the help of exchange
+      algorithms (e.g. Remez exchange algorithm), certain FIR filter design
+      problems can be formed as linear or quadratic programs. They are two
+      simple forms of convex optimization problems, which can be optimally
+      solved with existing algorithms, such as the interior-point method <span
+        class="citation"
+        data-cites="boyd2009convex"
+        >[<a href="#ref-boyd2009convex" role="doc-biblioref">21</a>]</span
+      >. Tempted by the optimality, more efforts were devoted to form the
+      problem convex. Particularly, in <span
+        class="citation"
+        data-cites="wu1999fir"
+        >[<a href="#ref-wu1999fir" role="doc-biblioref">15</a>]</span
+      >, via spectral factorization <span
+        class="citation"
+        data-cites="goodman1997spectral"
+        >[<a href="#ref-goodman1997spectral" role="doc-biblioref">22</a>]</span
+      >, the problem of designing an FIR filter with magnitude constraints on
+      frequency-domain is formulated as a convex optimization problem. More
+      examples are provided in <span
+        class="citation"
+        data-cites="davidson2010enriching"
+        >[<a href="#ref-davidson2010enriching" role="doc-biblioref">23</a
+        >]</span
+      >.
+    </p>
+    <p>
+      Its time response is
+      <span id="eq:t_res"
+        ><span class="math display"
+          >y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]} \qquad(8)</span
+        ></span
+      >
+      where
+      <span class="math inline">\mathbf{h} = (h(0), h(1),..., h(n-1))</span> is
+      the filter coefficients. Its frequency response
+      <span class="math inline">H: [0,\pi] \rightarrow \mathbb{C}</span> is
+      <span id="eq:f_res"
+        ><span class="math display"
+          >H(\omega) = \sum_{m=0}^{n-1}{h(m)e^{-jm\omega}} \qquad(9)</span
+        ></span
+      >
+      where <span class="math inline">j = \sqrt{-1}</span>,
+      <span class="math inline">n</span> is the order of the filter. The design
+      of a filter with magnitude constraints is often formulated as a constraint
+      optimization problem as the form
+      <span id="eq:ori"
+        ><span class="math display"
+          >\begin{aligned} \min &amp; \gamma \\ \mathrm{s.t.} &amp;
+           f(\mathbf{x}) \le \gamma \\ &amp;  g(\mathbf{x}) \le 0.\end{aligned}
+          \qquad(10)</span
+        ></span
+      >
+      where <span class="math inline">\mathbf{x}</span> is the vector of design
+      variables, <span class="math inline">g(\mathbf{x})</span> represents the
+      characteristics of the desirable filter and
+      <span class="math inline">f(\mathbf{x})</span> is the performance metric
+      to be optimized. For example, the magnitude constraints on frequency
+      domain are expressed as
+      <span id="eq:mag_cons"
+        ><span class="math display"
+          >L(\omega) \le |H(\omega)| \le U(\omega), \forall
+          \omega\in(-\infty,+\infty) \qquad(11)</span
+        ></span
+      >
+      where <span class="math inline">L(\omega)</span> and
+      <span class="math inline">U(\omega)</span> are the lower and
+      upper (nonnegative) bounds at frequency
+      <span class="math inline">\omega</span> respectively. Note that
+      <span class="math inline">H(\omega)</span> is
+      <span class="math inline">2\pi</span> periodic and
+      <span class="math inline">H(\omega)=\overline{H(-\omega)}</span>.
+      Therefore, we can only consider the magnitude constraint on
+      <span class="math inline">[0,\pi]</span>
+      <span class="citation" data-cites="wu1999fir"
+        >[<a href="#ref-wu1999fir" role="doc-biblioref">15</a>]</span
+      >.
+    </p>
+    <p>
+      Generally, the problem might be difficult to solve, since we can only
+      obtain the global optimal solution with resource consuming methods, such
+      as branch-and-bound <span
+        class="citation"
+        data-cites="davidson2010enriching"
+        >[<a href="#ref-davidson2010enriching" role="doc-biblioref">23</a
+        >]</span
+      >. However, the situation is totally different if the problem is convex,
+      where <span class="math inline">f(\mathbf{x})</span> and
+      <span class="math inline">g(\mathbf{x})</span> are convex functions. In
+      such a case, the problem can be optimally solved with many efficient
+      algorithms.
+    </p>
+    <p>
+      Attracted by the benefits, the authors of <span
+        class="citation"
+        data-cites="wu1999fir"
+        >[<a href="#ref-wu1999fir" role="doc-biblioref">15</a>]</span
+      >
+      transformed (?), originally non-convex, into a convex form via spectral
+      factorization:
+    </p>
+    <p>
+      <span id="eq:r_con"
+        ><span class="math display"
+          >L^2(\omega) \le R(\omega) \le U^2(\omega), \forall
+          \omega\in(0,\pi)\qquad(12)</span
+        ></span
+      >
+      where
+      <span class="math inline"
+        >R(\omega)=\sum_{i=-n+1}^{n-1}{r(t)e^{-j{\omega}t}}=|H(\omega)|^2</span
+      >
+      and
+      <span class="math inline"
+        >\mathbf{r}=(r(-n+1),r(-n+2),\ldots,r(n-1))</span
+      >
+      are the autocorrelation coefficients. Especially,
+      <span class="math inline">\mathbf{r}</span> can be determined by
+      <span class="math inline">\mathbf{h}</span>, with the following equation
+      vice versa <span class="citation" data-cites="wu1999fir"
+        >[<a href="#ref-wu1999fir" role="doc-biblioref">15</a>]</span
+      >:
+    </p>
+    <p>
+      <span id="eq:h_r"
+        ><span class="math display"
+          >r(t) = \sum_{i=-n+1}^{n-1}{h(i)h(i+t)},
+          t\in\mathbb{Z}.\qquad(13)</span
+        ></span
+      >
+      where <span class="math inline">h(t)=0</span> for
+      <span class="math inline">t&lt;0</span> or
+      <span class="math inline">t&gt;n-1</span>.
+    </p>
+    <figure>
+      <img
+        src="ellipsoid.files/lowpass.svg"
+        id="fig:lowpass"
+        style="width: 80%"
+        alt=""
+      />
+      <figcaption>Result</figcaption>
+    </figure>
+    <h3 id="sec:example-maximum-likelihood-estimation">
+      <span class="header-section-number">4.3.2</span> Example: Maximum
+      Likelihood estimation
+    </h3>
+    <p>
+      Consider
+      <span class="math display"
+        >\begin{array}{ll} \min_{\kappa, p} &amp; \log\det(\Omega(p) +
+        \kappa\cdot I) + \mathrm{Tr}((\Omega(p) + \kappa\cdot I)^{-1}Y), \\
+        \text{s.t.} &amp; \Omega(p) \succeq 0, \kappa \ge 0 . \\ \end{array}
+      </span>
+      Note that the 1st term is concave, the 2nd term is convex. However, if
+      there are enough samples such that <span class="math inline">Y</span> is a
+      positive definite matrix, then the function is convex within
+      <span class="math inline">[0, 2Y]</span>. Therefore, the following problem
+      is convex:
+      <span class="math display"
+        >\begin{array}{ll} \min_{\kappa, p} &amp; \log\det V(p) +
+        \mathrm{Tr}(V(p)^{-1}Y),\\ \text{s.t.} &amp; \Omega(p) + \kappa \cdot I
+        = V(p) \\ &amp; 0 \preceq V(p) \preceq 2Y, \kappa {&gt;} 0. \end{array}
+      </span>
+    </p>
+    <h2 id="sec:discrete-optimization">
+      <span class="header-section-number">4.4</span> Discrete Optimization
+    </h2>
+    <p>
+      Many engineering problems can be formulated as a convex/geometric
+      programming, e.g. digital circuit sizing. Yet in an ASIC design, often
+      there is only a limited set of choices from the cell library. In other
+      words, some design variables are discrete. We can formulate the discrete
+      version as Mixed-Integer Convex programming (MICP) by mapping the design
+      variables to integers.
+    </p>
+    <p>
+      What’s wrong with the existing methods? Mostly based on relaxation. Then
+      use the relaxed solution as a lower bound and use the branch-and-bound
+      method for the discrete optimal solution. Note that the branch-and-bound
+      method does not utilize the convexity of the problem. What if I can only
+      evaluate constraints on discrete data?
+    </p>
+    <p>
+      Usually a relaxed optimal solution (convex) is obtained first. Then the
+      optimized discrete solution is obtained by searching exhaustively the
+      neighborhood. However, sometimes the constraints are tight so that the
+      relaxed continuous optimal solution is far from the discrete one.
+      Enumeration of the discrete domain is difficult.
+    </p>
+    <p>
+      Consider:
+      <span class="math display"
+        >\begin{array}{ll} \text{minimize} &amp; f_0(x), \\ \text{subject to}
+        &amp; f_j(x) \le 0, \; \forall j=1,2,\ldots, \\ &amp; x \in \mathbb{D},
+        \end{array}</span
+      >
+      where <span class="math inline">f_0(x)</span> and
+      <span class="math inline">f_j(x)</span> are “convex”. Note that some
+      design variables are discrete. The oracle looks for the nearby discrete
+      solution <span class="math inline">x_d</span> of
+      <span class="math inline">x_c</span> with the cutting-plane:
+      <span class="math display">
+        g^\mathsf{T} (x - x_d) + \beta \le 0, \beta \ge 0, g \neq 0.
+      </span>
+      Note that the cut may be a shallow cut. Suggestion: use different cuts as
+      possible for each iteration (e.g. round-robin the evaluation of
+      constraints).
+    </p>
+    <h3 id="sec:example-multiplier-less-fir-filter-design">
+      <span class="header-section-number">4.4.1</span> Example: Multiplier-less
+      FIR Filter Design
+    </h3>
+    <p>
+      However, there are still many filter design problems that are non-convex,
+      such as multiplier-less FIR filter design problems. Note that in Fig. 2,
+      each coefficient associated with a multiplier unit makes the filter power
+      hungry, especially in Application Specific Integrated Circuits (ASIC).
+      Fortunately, it can be implemented multiplier-less if each coefficient is
+      quantized and represented as a sum of Singed Power-of-Two (SPT). Such a
+      coefficient can be uniquely represented by a Canonic Signed-Digit (CSD)
+      code <span class="citation" data-cites="george1960csd"
+        >[<a href="#ref-george1960csd" role="doc-biblioref">24</a>]</span
+      >
+      with the smallest number of non-zero digits. In such a case, it confines
+      the multiplication to add and shift operations. An example is shown in
+      Fig. <strong>¿fig:multi-shift?</strong>. A coefficient 0.40625 = 13/32 can
+      be written as <span class="math inline">2^{-1} - 2^{-3} + 2^{-5}</span>.
+      Consequently, as shown in Fig. <strong>¿fig:shift?</strong>, the
+      multiplier can be replaced with three shifters and two adders, which are
+      with much lower cost. However, the coefficient quantization constraint,
+      which is non-convex, makes the convex optimization algorithm cannot be
+      directly applied. A similar scenario is considering the finite word-length
+      effect <span class="citation" data-cites="lim1982finite"
+        >[<a href="#ref-lim1982finite" role="doc-biblioref">25</a>]</span
+      >.
+    </p>
+    <p>
+      Attracted by the benefits of this “multiplierlessness”, many efforts have
+      been devoted to its design techniques. For its general problems, integer
+      programming (e.g. <span
+        class="citation"
+        data-cites="kodek1980design lim1982finite lim1983fir lim1999signed"
+        >[<a href="#ref-lim1982finite" role="doc-biblioref">25</a>–<a
+          href="#ref-lim1999signed"
+          role="doc-biblioref"
+          >28</a
+        >]</span
+      >) can be implemented to achieve the optimal solution. However, it demands
+      excessive computing resources. Other heuristic techniques, such as genetic
+      algorithm <span class="citation" data-cites="xu1995design"
+        >[<a href="#ref-xu1995design" role="doc-biblioref">29</a>]</span
+      >
+      and dynamic-programming-like method <span
+        class="citation"
+        data-cites="chen1999trellis"
+        >[<a href="#ref-chen1999trellis" role="doc-biblioref">30</a>]</span
+      >, are also with low efficiency. If the quantization constraint is the
+      only non-convex constraint in the design problem, a lower bound can be
+      efficiently obtained by solving the relaxed problem <span
+        class="citation"
+        data-cites="davidson2010enriching"
+        >[<a href="#ref-davidson2010enriching" role="doc-biblioref">23</a
+        >]</span
+      >. Then to make the solution feasible, it can be rounded to the nearest
+      CSD codes or treated as a starting point of a local search algorithm for a
+      better solution <span class="citation" data-cites="kodek1981comparison"
+        >[<a href="#ref-kodek1981comparison" role="doc-biblioref">31</a>]</span
+      >. However, both of the methods can not guarantee the feasibility of the
+      final solution. Besides, the local search problem is still non-convex.
+      Therefore, the adopted algorithm could also be inefficient, such as
+      branch-and-bound in <span
+        class="citation"
+        data-cites="kodek1981comparison"
+        >[<a href="#ref-kodek1981comparison" role="doc-biblioref">31</a>]</span
+      >.
+    </p>
+    <figure>
+      <img
+        src="ellipsoid.files/csdlowpass.svg"
+        id="fig:csdlowpass"
+        style="width: 80%"
+        alt=""
+      />
+      <figcaption>Result</figcaption>
+    </figure>
+    <h1 id="sec:concluding-remarks">
+      <span class="header-section-number">5</span> Concluding Remarks
+    </h1>
+    <p>
+      Should be known to student. Ellipsoid method is not competitor but
+      companion of interior point methods.
+    </p>
+    <p>TBD.</p>
+    <h1 id="sec:references" class="unnumbered">References</h1>
+    <p> </p>
+    <div id="refs" class="references" role="doc-bibliography">
+      <div id="ref-unknown">
+        <p>[1] Unknown, Unknown, Unknown. 29 (1981) 1039–1091.</p>
+      </div>
+      <div id="ref-Aliabadi2013Robust">
+        <p>
+          [2] H. Aliabadi, M. Salahi, Robust geometric programming approach to
+          profit maximization with interval uncertainty, Computer Science
+          Journal of Moldova. 21 (2013) 86–96.
+        </p>
+      </div>
+      <div id="ref-liu2007robust">
+        <p>
+          [3] X. Liu, W.-S. Luk, Y. Song, P. Tang, X. Zeng, Robust analog
+          circuit sizing using ellipsoid method and affine arithmetic, in:
+          Proceedings of the 2007 Asia and South Pacific Design Automation
+          Conference, IEEE Computer Society, 2007: pp. 203–208.
+        </p>
+      </div>
+      <div id="ref-cherkassky1999negative">
+        <p>
+          [4] B.V. Cherkassky, A.V. Goldberg, Negative-cycle detection
+          algorithms, Mathematical Programming. 85 (1999) 277–311.
+        </p>
+      </div>
+      <div id="ref-Tarjan1981negcycle">
+        <p>[5] R. Tarjan, Shortest paths, AT&amp;T Bell Laboratories, 1981.</p>
+      </div>
+      <div id="ref-alg:dasdan_mcr">
+        <p>
+          [6] A. Dasdan, Experimental analysis of the fastest optimum cycle
+          ratio and mean algorithms, ACM Transactions on Design Automation of
+          Electronic Systems. 9 (2004) 385–418.
+        </p>
+      </div>
+      <div id="ref-orlin1985computing">
+        <p>
+          [7] J.B. Orlin, U.G. Rothblum, Computing optimal scalings by
+          parametric network algorithms, Mathematical Programming. 32 (1985)
+          1–10.
+        </p>
+      </div>
+      <div id="ref-dasdan1998faster">
+        <p>
+          [8] A. Dasdan, R.K. Gupta, Faster maximum and minimum mean cycle
+          algorithms for system-performance analysis, IEEE Transactions on
+          Computer-Aided Design of Integrated Circuits and Systems. 17 (1998)
+          889–899.
+        </p>
+      </div>
+      <div id="ref-dasdan2004experimental">
+        <p>
+          [9] A. Dasdan, Experimental analysis of the fastest optimum cycle
+          ratio and mean algorithms, ACM Transactions on Design Automation of
+          Electronic Systems (TODAES). 9 (2004) 385–418.
+        </p>
+      </div>
+      <div id="ref-zhou2015multi">
+        <p>
+          [10] X. Zhou, W.-S. Luk, H. Zhou, F. Yang, C. Yan, X. Zeng,
+          Multi-parameter clock skew scheduling, Integration, the VLSI Journal.
+          48 (2015) 129–137.
+        </p>
+      </div>
+      <div id="ref-Schabenberger05">
+        <p>
+          [11] O. Schabenberger, C.A. Gotway, Statistical Methods for Spatial
+          Data Analysis, Chapman &amp; Hall/CRC, Florida, 2005.
+        </p>
+      </div>
+      <div id="ref-Diggle07">
+        <p>
+          [12] P.J. Diggle, P.J.R. Jr., Model-based Geostatistics, Springer, New
+          York, 2007.
+        </p>
+      </div>
+      <div id="ref-BGT81">
+        <p>
+          [13] R.G. Bland, D. Goldfarb, M.J. Todd, The ellipsoid method: A
+          survey, Operations Research. 29 (1981) 1039–1091.
+        </p>
+      </div>
+      <div id="ref-oppenheim1989discrete">
+        <p>
+          [14] A.V. Oppenheim, R.W. Schafer, J.R. Buck, others, Discrete-time
+          signal processing, Prentice hall Englewood Cliffs, NJ, 1989.
+        </p>
+      </div>
+      <div id="ref-wu1999fir">
+        <p>
+          [15] S.-P. Wu, S. Boyd, L. Vandenberghe, FIR filter design via
+          spectral factorization and convex optimization, in: Applied and
+          Computational Control, Signals, and Circuits, Springer, 1999: pp.
+          215–245.
+        </p>
+      </div>
+      <div id="ref-mitra2006digital">
+        <p>
+          [16] S.K. Mitra, Y. Kuo, Digital signal processing: A computer-based
+          approach, McGraw-Hill New York, 2006.
+        </p>
+      </div>
+      <div id="ref-park1972chebyshev">
+        <p>
+          [17] T.W. Parks, J.H. McClellan, Chebyshev approximation for
+          nonrecursive digital filters with linear phase, Circuit Theory, IEEE
+          Transactions on. CT-19 (1972) 189–194.
+        </p>
+      </div>
+      <div id="ref-steiglitz1992meteor">
+        <p>
+          [18] K. Steiglitz, T.W. Parks, J.F. Kaiser, METEOR: A constraint-based
+          FIR filter design program, Signal Processing, IEEE Transactions on. 40
+          (1992) 1901–1909.
+        </p>
+      </div>
+      <div id="ref-selesnick1996constrained">
+        <p>
+          [19] I.W. Selesnick, M. Lang, C.S. Burrus, Constrained least square
+          design for FIR filters without specified transition bands, Signal
+          Processing, IEEE Transactions on. 44 (1996) 1879–1892.
+        </p>
+      </div>
+      <div id="ref-adams1998peak">
+        <p>
+          [20] J.W. Adams, J.L. Sullivan, Peak-constrained least-squares
+          optimization, Signal Processing, IEEE Transactions on. 46 (1998)
+          306–321.
+        </p>
+      </div>
+      <div id="ref-boyd2009convex">
+        <p>
+          [21] S. Boyd, L. Vandenberghe, Convex optimization, Cambridge
+          university press, 2009.
+        </p>
+      </div>
+      <div id="ref-goodman1997spectral">
+        <p>
+          [22] T.N.T. Goodman, C.A. Micchelli, G. Rodriguez, and S. Seatzu,
+          Spectral factorization of laurent polynomials, Advances Comput. Math.
+          7 (1997) 429–454.
+        </p>
+      </div>
+      <div id="ref-davidson2010enriching">
+        <p>
+          [23] T.N. Davidson, Enriching the art of FIR filter design via convex
+          optimization, Signal Processing Magazine, IEEE. 27 (2010) 89–101.
+        </p>
+      </div>
+      <div id="ref-george1960csd">
+        <p>
+          [24] G.W. Reitwiesner, Binary Arithmetic, Advances in Computers. 1
+          (1960) 231–308.
+        </p>
+      </div>
+      <div id="ref-lim1982finite">
+        <p>
+          [25] Y.C. Lim, S. Parker, A. Constantinides, Finite word length FIR
+          filter design using integer programming over a discrete coefficient
+          space, Acoustics, Speech and Signal Processing, IEEE Transactions on.
+          30 (1982) 661–664.
+        </p>
+      </div>
+      <div id="ref-kodek1980design">
+        <p>
+          [26] D.M. Kodek, Design of optimal finite wordlength FIR digital
+          filters using integer programming techniques, Acoustics, Speech and
+          Signal Processing, IEEE Transactions on. 28 (1980) 304–308.
+        </p>
+      </div>
+      <div id="ref-lim1983fir">
+        <p>
+          [27] Y. Lim, S. Parker, FIR filter design over a discrete
+          powers-of-two coefficient space, Acoustics, Speech and Signal
+          Processing, IEEE Transactions on. 31 (1983) 583–591.
+        </p>
+      </div>
+      <div id="ref-lim1999signed">
+        <p>
+          [28] Y.C. Lim, R. Yang, D. Li, J. Song, Signed power-of-two term
+          allocation scheme for the design of digital filters, Circuits and
+          Systems II: Analog and Digital Signal Processing, IEEE Transactions
+          on. 46 (1999) 577–584.
+        </p>
+      </div>
+      <div id="ref-xu1995design">
+        <p>
+          [29] D.J. Xu, M.L. Daley, Design of optimal digital filter using a
+          parallel genetic algorithm, Circuits and Systems II: Analog and
+          Digital Signal Processing, IEEE Transactions on. 42 (1995) 673–675.
+        </p>
+      </div>
+      <div id="ref-chen1999trellis">
+        <p>
+          [30] C.-L. Chen, A.N. Willson Jr, A trellis search algorithm for the
+          design of FIR filters with signed-powers-of-two coefficients, Circuits
+          and Systems II: Analog and Digital Signal Processing, IEEE
+          Transactions on. 46 (1999) 29–39.
+        </p>
+      </div>
+      <div id="ref-kodek1981comparison">
+        <p>
+          [31] D. Kodek, K. Steiglitz, Comparison of optimal and local search
+          methods for designing finite wordlength FIR digital filters, Circuits
+          and Systems, IEEE Transactions on. 28 (1981) 28–32.
+        </p>
+      </div>
+    </div>
+  </body>
 </html>
