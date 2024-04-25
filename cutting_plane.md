@@ -515,7 +515,7 @@ class profit_rb_oracle:
 
 ---
 
-## Oracle in Robust Optimization Formulation
+## 🔮 Oracle in Robust Optimization Formulation
 
 - The oracle only needs to determine:
   - If $f_j(x_0, q) > 0$ for some $j$ and $q = q_0$,
@@ -528,7 +528,7 @@ class profit_rb_oracle:
       $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - \gamma)$
   - Otherwise, $x_0$ is feasible, then
     - Let
-      $q_{\max} = \text{argmax}_{q \in \mathbb Q} f_0(x_0, q)$.
+      $q_{\max} = \argmax_{q \in \mathbb Q} f_0(x_0, q)$.
     - $\gamma := f_0(x_0, q_{\max})$.
     - The cut $(g, \beta)$ =
       $(\partial f_0(x_0, q_{\max}), 0)$
@@ -588,7 +588,7 @@ practice [@alg:dasdan_mcr; @cherkassky1999negative].
 
 ---
 
-## Oracle in Network Potential Problem
+## 🔮 Oracle in Network Potential Problem
 
 - The oracle only needs to determine:
   - If there exists a negative cycle $C_k$ under $x_0$, then
@@ -597,7 +597,7 @@ practice [@alg:dasdan_mcr; @cherkassky1999negative].
 
 ---
 
-## Python Code
+## 🐍 Python Code
 
 \scriptsize
 
@@ -774,7 +774,7 @@ $$
 
 ---
 
-## Oracle in Matrix Inequalities
+## 🔮 Oracle in Matrix Inequalities
 
 The oracle only needs to:
 
@@ -882,7 +882,7 @@ $$
 
 ---
 
-## Experimental Result (I)
+## 🧪 Experimental Result (I)
 
 \columnsbegin
 \col{0.5\textwidth}
@@ -897,7 +897,7 @@ $$
 
 ---
 
-## Experimental Result (II)
+## 🧪 Experimental Result (II)
 
 \columnsbegin
 \col{0.5\textwidth}
@@ -912,7 +912,7 @@ $$
 
 ---
 
-## Experimental Result (III)
+## 🧪 Experimental Result (III)
 
 \columnsbegin
 \col{0.5\textwidth}

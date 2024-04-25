@@ -413,7 +413,7 @@ This can be solved by any standard nonlinear optimization technique. In
 our implementation, we use the _fmincon_ function in MATLAB which is
 based on a sequential quadratic programming method.
 
-# Experimental Results
+# 🧪 Experimental Results
 
 The proposed method was implemented in MATLAB on an Intel machine with
 3.0 GHz XEON CPU. Without real silicon measurement data, we synthesized

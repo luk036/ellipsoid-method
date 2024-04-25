@@ -41,7 +41,7 @@ node [above right] {$x_c$};
 
 ---
 
-## Python code
+## 🐍 Python code
 
 \scriptsize
 
@@ -115,7 +115,7 @@ $$
 
 ---
 
-## Python code (updating)
+## 🐍 Python code (updating)
 
 \scriptsize
 
@@ -139,7 +139,7 @@ def update_core(self, calc_ell, cut):
 
 ---
 
-## Python code (deep cut)
+## 🐍 Python code (deep cut)
 
 \scriptsize
 
@@ -179,7 +179,7 @@ $$
 
 ---
 
-## Python code (central cut)
+## 🐍 Python code (central cut)
 
 \scriptsize
 
@@ -193,11 +193,11 @@ def calc_cc(self, tau):
     return 0, (rho, sigma, delta)
 ```
 
-# Parallel Cuts
+# 🪜 Parallel Cuts
 
 ---
 
-## Parallel Cuts
+## 🪜 Parallel Cuts
 
 - Oracle returns a pair of cuts instead of just one.
 
@@ -208,7 +208,6 @@ def calc_cc(self, tau):
   g^\mathsf{T} (x - x_c) + \beta_1 \le 0,  \\
   g^\mathsf{T} (x - x_c) + \beta_2 \ge 0,
   \end{array}$$ for all $x \in \mathcal{K}$.
-  $$
 
 - Only linear inequality constraints can produce such a parallel cut:
   $$ l \le a^\mathsf{T} x + b \le u, \qquad L \preceq F_0 + x_1 F_1 + \cdots + x_n F_n \preceq U. $$
@@ -217,7 +216,7 @@ def calc_cc(self, tau):
 
 ---
 
-## Parallel Cuts
+## 🪜 Parallel Cuts
 
 ![Parallel Cut](ellipsoid.files/parallel_cut.pdf){width="60%"}
 
@@ -255,7 +254,7 @@ def calc_cc(self, tau):
 
 ---
 
-## Python code (parallel cut)
+## 🐍 Python code (parallel cut)
 
 \scriptsize
 
@@ -445,7 +444,7 @@ where
 
 ---
 
-## Oracle Requirement
+## 🔮 Oracle Requirement
 
 - Oracle looks for a nearby discrete solution $x_d$ of $x_c$
   with the cutting-plane:

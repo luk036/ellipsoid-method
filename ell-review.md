@@ -248,7 +248,7 @@ The oracle only needs to determine:
 - If $f_0(x_0, q) \ge \gamma$ for some $q = q_0$, then
 - the cut $(g, \beta)$ = $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - \gamma)$
 - Otherwise, $x_0$ is feasible, then
-- Let $q_{\max} = \text{argmax}_{q \in \mathcal Q} f_0(x_0, q)$.
+- Let $q_{\max} = \argmax_{q \in \mathcal Q} f_0(x_0, q)$.
 - $\gamma := f_0(x_0, q_{\max})$.
 - The cut $(g, \beta)$ = $(\partial f_0(x_0, q_{\max}), 0)$
 
@@ -678,7 +678,7 @@ $$
   \delta = \frac{n^2}{n^2 - 1}.
 $$
 
-## Parallel Cuts {#sec:parallel_cut}
+## 🪜 Parallel Cuts {#sec:parallel_cut}
 
 Oracle returns a pair of cuts instead of just one. The pair of cuts is given by $g$ and $(\beta_1, \beta_2)$ such that:
 

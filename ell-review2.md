@@ -224,7 +224,7 @@ The oracle only needs to determine:
 
 - Otherwise, $x_0$ is feasible, then
 
-- Let $q_{\max} = \text{argmax}_{q \in \mathcal Q} f_0(x_0, q)$.
+- Let $q_{\max} = \argmax_{q \in \mathcal Q} f_0(x_0, q)$.
 
 - $\gamma := f_0(x_0, q_{\max})$.
 
@@ -615,7 +615,7 @@ $$
   \delta = \frac{n^2}{n^2 - 1}.
 $$
 
-## Parallel Cuts
+## 🪜 Parallel Cuts
 
 Oracle returns a pair of cuts instead of just one. The pair of cuts is given by $g$ and $(\beta_1, \beta_2)$ such that:
 

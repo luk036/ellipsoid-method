@@ -25,7 +25,7 @@ The cutting-plane method works as follows:
 
 The cutting-plane oracle Ω is a subroutine that generates a linear inequality that cuts off a part of S that is not feasible.
 
-## Parallel Cut
+## 🪜 Parallel Cut
 
 ### why parallel cut is important?
 
