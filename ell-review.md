@@ -21,64 +21,64 @@ Despite decades of investigation into the ellipsoid method [@BGT81], the importa
 
 Robust optimization incorporates parameter uncertainties into the optimization problem by analyzing the worst-case scenario. The objective is to find a solution that is both reliable and performs optimally under a range of possible parameter values within a specified set of uncertainties. A robust counterpart of a convex problem preserves its convexity, despite the number of constraints grows to infinity. This renders the ellipsoid method an excellent choice for addressing such problems. This is detailed in @sec:robust.
 
-An illustration of network optimization scenario in which the ellipsoid method can be utilized is also provided. The separation oracle involves constructing a cutting plane by identifying a negative cycle in a network graph. There are algorithms available for negative cycle finding that utilize network locality and other properties, resulting in an effective oracle implementations. This is discussed in more detail in @sec:network.
+Additionally, an illustration is provided of network optimization scenario in which the ellipsoid method can be utilized. The separation oracle entails the  construction of a cutting plane through finding a negative cycle within a network graph. There are algorithms available for finding negative cycles that utilize network locality and other properties, resulting in an effective implementation of oracles. A more detailed discussion can be found in @sec:network.
 
-Meanwhile, @sec:lmi describes concerns surrounding matrix inequalities. Recall that utilizing Cholesky or LDLT decomposition can efficiently check the positive definiteness of a symmetric matrix. If a symmetric matrix $A$ with dimensions $m \times m$ encounters a non-positive diagonal entry during decomposition that causes the process to stop at row $p$, $A$ cannot be positive definite. In such cases, a witness vector $v$ can be constructed to certify that $v^\mathsf{T} A v \leq 0$. With the row-based decomposition and a lazy evaluation technique, the cutting plane can be constructed in $O(p^3)$, enabling its use for efficient oracle implementations.
+Meanwhile, @sec:lmi addresses concerns pertaining to matrix inequalities. It should be recalled that the use of Cholesky or LDLT decomposition allows for the efficient checking of the positive definiteness of a symmetric matrix. If a symmetric matrix $A$ with dimensions $m \times m$ encounters a non-positive diagonal entry during decomposition, such that the process stops at row $p$, then $A$ cannot be positive definite. In such cases, a witness vector $v$ can be constructed to certify that $A$ is not positive definite. The row-based decomposition and lazy evaluation technique allow the cutting plane to be constructed in $O(p^3)$, thus enabling its use in efficient oracle implementations.
 
-The implementation of the ellipsoid method is discussed in @sec:ellipsoid. Basically it generates a sequence of ellipsoids whose volume uniformly decreases at every step. The ellipsoid is conventionally represented as:
+The implementation of the ellipsoid method is discussed in greater detail in @sec:ellipsoid. In essence, the method generates a sequence of ellipsoids whose volume is uniformly decreased at each step. The ellipsoid is typically represented as follows:
 
 $$\{x \mid (x - x_c)P^{-1}(x - x_c) \le 1\},$$
 
-where $x_c \in \mathbb{R}^n$ is the center of the ellipsoid. The matrix $P \in \mathbb{R}^{n \times n}$ is symmetric positive definite. During each iteration, the ellipsoid method updates $x_c$ and $P$. While updating ellipsoids can be straightforward and has been implemented for decades, we show that the cost can be further reduced by $n^2$ floating point operations by splitting $P$ into $\kappa$ and $Q$, resulting in this form:
+where $x_c \in \mathbb{R}^n$ is the center of the ellipsoid. The matrix $P \in \mathbb{R}^{n \times n}$ is a symmetric positive definite matrix or order $n$. In each iteration, the ellipsoid method performs updates to both $x_c$ and $P$. Although updating ellipsoids is relatively straightforward process that has been implemented for decades, we show that the cost can be reduced by an additional $n^2$ floating point operations by splitting the matrix $P$ into $\kappa$ and $Q$. This results in the following form:
 
 $$\{ x \mid (x-x_c)Q^{-1}(x-x_c) \le \kappa \}.$$
 
-In addition, @sec:parallel_cut discusses the use of parallel cuts. Some articles suggest that this technique does not lead to significant improvements. However, we show that in situations where certain constraints have tight upper and lower bounds, such as in FIR filter designs, the implementation of parallel cuts can significantly speed up the runtime.
+Moverover, @sec:parallel_cut addresses the utilization of parallel cuts. Some researchers have suggested that this technique does not result in substantial enhancements. Nevertheless, our findings indicate that in scenarios where specific constraints are subject to narrow upper and lower bounds, such as in the context of FIR filter designs, the incorporation of parallel cuts can markedly reduce the runtime.
 
-In addition, we show that if the ellipsoid method is implemented carefully, any update, whether it uses a single cut or a parallel cut, results in at most one square root operation.
+Furthermore, we demonstrate that when the ellipsoid method is implemented with precision, any update, whether it employs a single cut or a parallel cut, nescessitates at most one square root operation.
 
-In many practical engineering problems, some design variables may be restricted to discrete forms. Since the cutting-plane method requires only a separation oracle, it can also be used for discrete problems...
+In numerous practical engineering problems, some design variables may be constrained to discrete forms. Given that the cutting-plane method necessitates only a separation oracle, it can also be utilized for discrete problems. The sole additional effort in oracle implementation is the identification of the nearest discrete solutions.
 
 # Cutting-plane Method Revisited {#sec:cutting_plane}
 
 ## Convex Feasibility Problem
 
-Let $\mathcal{K} \subseteq \mathbb{R}^n$ be a compact and convex set. Consider the feasibility problem:
+Let $\mathcal{K}$ be a compact and convex subset of $\mathbb{R}^n$. Let us consider the following feasibility problem:
 
 1.  Find a point $x^* \in \mathbb{R}^n$ in $\mathcal{K}$, or
-2.  Determine that $\mathcal{K}$ is empty (i.e., has no feasible solution).
+2.  Determine whether $\mathcal{K}$ is empty, that is, whether it has no feasible solution.
 
-A separation oracle, also called a cutting-plane oracle, is a technique used to describe a convex set that serves as input to a cutting-plane method.
-When a separation oracle $\Omega$ is _queried_ at $x_0 \in \mathbb{R}^n$, it produces one of the following:
+A separation oracle, also referred to as a cutting-plane oracle, is a methodology utilized to delineate a convex set that serves as an input to a cutting-plane method.
+Upon querying a separation oracle, denoted by $\Omega$, at a given point $x_0 \in \mathbb{R}^n$, it may produce one of the following outputs:
 
-1.  Assert that $x_0 \in \mathcal{K}$, or
-2.  Return a hyperplane that separates $x_0$ from $\mathcal{K}$:
+1.  It is asserted that $x_0$ belongs to $\mathcal{K}$, or
+2.  Return a hyperplane that separates the point $x_0$ from the set $\mathcal{K}$:
     $$g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \ge 0, g \neq 0, \; \forall x \in \mathcal{K}.$$
 
-The pair of $(g, \beta)$ is called a _cutting-plane_, because it eliminates the half-space $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from our search. We have the following observations:
+The pair of $(g, \beta)$ is called a _cutting-plane_ because it eliminates the half-space defined by the equation $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from the search space. The following observations have been made:
 
-- If $\beta=0$ ($x_0$ is on the boundary of the half-space), the cutting-plane is called _central-cut_.
-- If $\beta>0$ ($x_0$ lies in the interior of the half-space), the cutting-plane is called _deep-cut_.
-- If $\beta<0$ ($x_0$ lies in the exterior of the half-space), the cutting-plane is called _shadow-cut_.
+- If $\beta=0$, indicating that $x_0$ is situated on the boundary of the half-space, the cutting-plane is referred to as a _central-cut_.
+- If $\beta>0$, indicating that $x_0$ is situated within the interior of the half-space, the cutting-plane is referred to as a _deep-cut_.
+- If $\beta<0$, indicating that $x_0$ is situated outside of the half-space, the cutting-plane is referred to as a _shadow-cut_.
 
-The convex set $\mathcal{K}$ is usually given by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1 \cdots m$, where $f_j(x)$ is a convex function. The vector $g \equiv \partial f(x_0)$ is called the _sub-gradient_ of a convex function $f$ at $x_0$ if $f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)$. Thus, the cut $(g, \beta)$ is given by $(\partial f(x_0), f(x_0))$. Note that if $f(x)$ is differentiable, we can simply take $\partial f(x_0) = \nabla f(x_0)$.
+The convex set $\mathcal{K}$ is typically defined by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1 \cdots m$, where $f_j(x)$ represents a convex function. The vector $g \equiv \partial f(x_0)$ is defined as the _sub-gradient_ of a convex function $f$ at the point $x_0$ if $f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)$. Thus, the cut $(g, \beta)$ can be expressed as $(\partial f(x_0), f(x_0))$. It should be noted that if $f(x)$ is differentiable, then we can simply take $\partial f(x_0) = \nabla f(x_0)$.
 
-The cutting-plane method consists of two key components: separation oracle $\Omega$ and a search space $\mathcal{S}$ initially sufficiently large to cover $\mathcal{K}$. For example,
+The cutting-plane method comprises two principal elements: a separation oracle, designed as $\Omega$, and a search space, denoted as $\mathcal{S}$, which is initially set to a sufficiently expansive size to encompass $\mathcal{K}$. For example,
 
 - Polyhedron $\mathcal{P}$ = $\{z \mid C z \preceq d \}$.
 - Ellipsoid $\mathcal{E}$ = $\{z \mid (z-x_c)P^{-1}(z-x_c) \le 1 \}$.
 - Interval $\mathcal{I}$ = $[l, u]$ (for one-dimensional problem).
 
-Denote the center of the current $\mathcal{S}$ as $x_c$. Here is a basic outline of how the cutting-plane method works:
+Let us designate the center of the current set, denoted by $\mathcal{S}$, as $x_c$. The following is a basic outline of the methodology underlying the cutting-plane method:
 
-1. **Initialization**: Start with a search space $\mathcal{S}$ that is guaranteed to contain a $x^*$.
-2. **Iteration**: In each iteration, query the separation oracle at $x_c$. If $x_c \in \mathcal{K}$, then quit.
-3. **Update**: Compute the smaller $\mathcal{S}^+$ that contains the half-space from step 2.
-4. **Repeat**: Repeat steps 2 and 3 until $\mathcal{S}$ is empty or it is small enough.
+1. **Initialization**: The initial stage of the method involves defining a search space $\mathcal{S}$ that is guaranteed to contain a point $x^*$.
+2. **Iteration**: In each iteration, the separation oracle is queried at the center $x_c$. If $x_c$ \in \mathcal{K}$, then the iteration is terminated.
+3. **Update**: The smaller search space, denoted as $\mathcal{S}^+$, is then computed and contains the half-space from step 2.
+4. **Repeat**: Repeat steps 2 and 3 until $\mathcal{S}$ is either empty or sufficiently small.
 
 ## From Feasibility to Optimization
 
-Now consider:
+Let us now turn our attention to the following consideration:
 
 $$
 \begin{array}{ll}
@@ -87,8 +87,8 @@ $$
   \end{array}
 $$
 
-where $f_0(x)$ can be a convex function or a quasi-convex function. We treat the above optimization problem as a feasibility problem with an additional constraint $f_0(x) \le \gamma$, where $\gamma \in \mathbb{R}$ is called the best-so-far value of $f_0(x)$.
-Thus, we can reformulate the problem as:
+In this case, the objective function, $f_0(x)$, can be eihter a convex function or a quasi-convex function. The aforementioned optimization problem is treated as a feasibility problem with an additional constraint, namely that $f_0(x) \le \gamma$, where $\gamma \in \mathbb{R}$ is called the best-so-far value of $f_0(x)$.
+Accordingly, the problem can reformulated as follows:
 
 $$
 \begin{array}{ll}
@@ -100,15 +100,15 @@ $$
 
 where $\Phi(x, \gamma) \le 0$ is the $\gamma$-sublevel set of $f_0(x)$ when $f_0(x)$ is quasi-convex. For every $x$, $\Phi(x, \gamma)$ is a non-increasing function of $\gamma$, i.e., $\Phi(x, \gamma') \le \Phi(x, \gamma)$ whenever $\gamma' \ge \gamma$. Denote $\mathcal{K}_\gamma$ as the new constraint set.
 
-An easy way to solve the optimization problem is to apply a binary search on $\gamma$ and solve the corresponding feasibility problems at each $\gamma$. Another possibility is to update the best-so-far $\gamma$ whenever a feasible solution $x_0$ is found such that $\Phi(x_0, \gamma) = 0$.
+One straightforward approach to solving the optimization problem is to perform a binary search on $\gamma$ and solve the corresponding feasibility problems at each value of $\gamma$. An alternative approach is to update the current best estimate of $\gamma$ whenever a feasible solution $x_0$ is found such that $\Phi(x_0, \gamma) = 0$.
 
-Here is a basic outline of how the cutting-plane method (optim) works:
+The following is a basic outline of the operational procedure of the cutting-plane method (optim):
 
-1. **Initialization**: Start with a search space $\mathcal{S}$ that is guaranteed to contain a $x^*$.
-2. **Iteration**: In each iteration, query the separation oracle at $x_c$. Compute a subgradient of the function at $x_c$. This gives us a half-space that is guaranteed to contain a $x^*$.
+1. **Initialization**: The initial stage of the process entails defining a search space $\mathcal{S}$ that is guaranteed to contain a solution, $x^*$.
+2. **Iteration**: In each iteration, the separation oracle is queried at the point $x_c$. A subgradient of the function at $x_c$ must then be computed. This results in the generation of a half-space that is guaranteed to contain $x^*$.
 3. If $x_c \in \mathcal{K}_\gamma$, update $\gamma$ such that $\Phi(x_c, \gamma) = 0$.
-4. **Update**: Compute the smaller $\mathcal{S}^+$ that contains the half-space from step 2.
-5. **Repeat**: Repeat steps 2 and 3 until $\mathcal{S}$ is empty or it is small enough.
+4. **Update**: The smaller $\mathcal{S}^+$ that contains the half-space from step 2 is computed.
+5. **Repeat**: Repeat step 2 to step 4 until $\mathcal{S}$ is either empty or sufficiently small.
 
 Generic Cutting-plane method (Optim)
 
@@ -141,7 +141,7 @@ def cutting_plane_optim(omega, space, gamma, options=Options()):
 
 ## Example: Profit Maximization {#sec:profit}
 
-This example is taken from [@Aliabadi2013Robust]. Consider the following _short-run_ profit maximization problem:
+This example is taken from [@Aliabadi2013Robust]. We consider the following _short-run_ profit maximization problem:
 
 $$
 \begin{array}{ll}
@@ -149,7 +149,7 @@ $$
    \text{subject to} & x_1 \le k, \\
                      & x_1 > 0, x_2 > 0,
   \end{array}$$ {#eq:profit-max-in-original-form}
-where $p$ is the market price per unit, $A$ is the scale of production, $\alpha$ and $\beta$ are output elasticities, $x_i$ and $v_i$ are the i-th input quantity and output price, $A x_1^\alpha x_2^\beta$ is the Cobb-Douglas production function which is a widely accepted model used to represent the relationship between inputs and outputs in production. $k$ is a constant that limits the quantity of $x_1$. The above formulation is not in convex form. First, we rewrite the problem:
+where $p$ represents the market price per unit. $A$ denotes the scale of production, $\alpha$ and $\beta$ are output elasticities, $x_i$ and $v_i$ are the i-th input quantity and output price, and $A x_1^\alpha x_2^\beta$ represents the Cobb-Douglas production function, which is a widely accepted model used to represent the relationship between inputs and outputs in production. The quantity of $x_1$ is limited by the constant $k$. The aforementioned formulation is not in convex form. First, we reformulate the problem as follows:
 
 $$\begin{array}{ll}
     \text{maximize}   & \gamma, \\
@@ -159,7 +159,7 @@ $$\begin{array}{ll}
   \end{array}
 $$
 
-By the change of variables, we can obtain the following convex form of\ @eq:profit-max-in-original-form:
+By means of a change of variables, the following convex form of\ @eq:profit-max-in-original-form can be obtained:
 
 $$
 \begin{array}{ll}
@@ -199,7 +199,7 @@ class ProfitOracle(OracleOptim):
         return (grad, 0.0), t
 ```
 
-Some readers may recognize that we can also write the problem in a geometric program by introducing one additional variable [@Aliabadi2013Robust].
+Some readers may recognize that the problem can also be written in a geometric program by introducing one additional variable [@Aliabadi2013Robust].
 
 # Amazing Oracles {#sec:oracles}
 
@@ -216,11 +216,11 @@ Some readers may recognize that we can also write the problem in a geometric pro
 
 ## Robust Convex Optimization {#sec:robust}
 
-Overall, robust optimization accounts for parameter uncertainties by formulating problems that consider worst-case scenarios. This approach allows for more reliable and robust solutions when dealing with uncertainty. The study presented in this paper addresses profit maximization using a robust geometric programming approach with interval uncertainty. The authors study the well-established Cobb-Douglas production function and introduce an approximate equivalent of the robust counterpart using piecewise convex linear approximations. This approximation takes the form of a geometric programming problem. An example is used to demonstrate the impact of uncertainties.
+In essence, robust optimization accounts for parameter uncertainties by formulating problems that consider worst-case scenarios. This approach allows for more reliable and robust solutions when dealing with uncertainty. The present study addresses the issue of profit maximization using a robust geometric programming approach that takes interval uncertainty into account. The authors examine the well-established Cobb-Douglas production function and propose an approximate equivalent of the robust counterpart, utilizing piecewise convex linear approximations. This approximation is expressed in the form of a geometric programming problem. To illustrate the influence of uncertainty, an illustrative example is provided.
 
-Interval uncertainties refer to uncertainties in model parameters that are represented as intervals. The authors of this study consider interval uncertainties in the model parameters. Upper and lower piecewise convex linear approximations of the robust counterpart are presented that are efficiently solvable using interior point methods. These approximations are used to incorporate the interval uncertainties into the model.
+In the context of mathematical modeling, interval uncertainties pertain to the representation of model parameters as intervals. In this study, the authors consider interval uncertainties in the model parameters. The article presents upper and lower piecewise convex linear approximations of the robust counterpart, which can be efficiently solved using interior point methods. These approximations are employed for the purpose of incorporating interval uncertainties into the model.
 
-Consider:
+For the purposes of this discussion, we will consider:
 
 $$
 \begin{array}{ll}
@@ -230,7 +230,7 @@ $$
   \end{array}
 $$ {#eq:robust-optim}
 where $q$ represents a set of varying parameters.
-We can reformulate the problem as:
+The problem can be reformulated as follows:
 $$\begin{array}{ll}
     \text{minimize}   & \gamma, \\
     \text{subject to} & f_0(x, q) \le \gamma,  \\
@@ -241,7 +241,7 @@ $$
 
 ### Algorithm
 
-The oracle only needs to determine:
+The oracle is tasked with determining:
 
 - If $f_j(x_0, q) > 0$ for some $j$ and $q = q_0$, then
 - the cut $(g, \beta)$ = $(\partial f_j(x_0, q_0), f_j(x_0, q_0))$
@@ -254,8 +254,7 @@ The oracle only needs to determine:
 
 ### Example: Robust Profit Maximization {#sec:profit-rb}
 
-Consider again the profit maximization problem in @sec:profit. Uncertainties in the model parameters over a given interval. Now suppose that the parameters $\{\alpha, \beta, p, v_1, v_2, k\}$ are subject to interval uncertainties:
-[@Aliabadi2013Robust].
+Let us once more consider the profit maximization problem in @sec:profit. The model parameters are subject to uncertainty over a given interval. Let us now consider the case in which the parameters $\alpha$, $\beta$, $p$, $v_1$, $v_2$, and $k$ are subject to interval uncertainties [@Aliabadi2013Robust]:
 
 $$
 \begin{array}{rcl}
@@ -279,7 +278,7 @@ $$
   \end{array}
 $$
 
-In [@Aliabadi2013Robust], the authors propose the use of piecewise convex linear approximations as a close approximation of the robust counterpart, leading to more solvability using interior-point algorithms. This requires a lot of programming, but the results are imprecise. However, this can be easily solved using the cutting plane method. Note that in this simple example, the worst case happens when:
+In [@Aliabadi2013Robust], the authors put forth the use of piecewise convex linear approximations as a proximate approximation of the robust counterpart,  thereby facilitating greater solvability through the use of interior-point algorithms. This approach necessitates the development of a substantial amount of programming, yet the resulting solutions are inherently imprecise. Nevertheless, this can be readily addressed through the cutting-plane method. It should be noted that in this simple example, the worst case scenario occurs when:
 
 - $\hat{p} = p - e_3$, $k = \bar{k} - e_3$
 - $v_1 = \bar{v}_1 + e_3$, $v_2 = \bar{v}_2 + e_3$,
@@ -288,7 +287,8 @@ In [@Aliabadi2013Robust], the authors propose the use of piecewise convex linear
 - if $y_2 > 0$, $\beta = \bar{\beta} - e_2$, else
   $\beta = \bar{\beta} + e_2$
 
-We can even reuse the original oracle to compose the robust counterpart.
+It is even possible to reuse the original oracle to compose the robust counterpart.
+
 
 ```python
 class ProfitRbOracle(OracleOptim):
@@ -310,12 +310,12 @@ class ProfitRbOracle(OracleOptim):
         return self.omega.assess_optim(y, t)
 ```
 
-Note that the `argmax` may be non-convex and therefore difficult to solve. For more complex problems, one way is to use affine arithmetic for help [@liu2007robust].
+It should be noted that the "argmax" may be non-convex, which may render it challenging to solve. For more complex problems, one potential approach is to utilize affine arithmetic as a computational aid [@liu2007robust].
 
 ## Multi-parameter Network Problems {#sec:network}
 
-Given a network represented by a directed graph $G = (V, E)$.
-Consider :
+In the context of network theory, a directed graph, denoted by $G = (V, E)$, represents a network.
+Let us consider the following:
 
 $$
 \begin{array}{ll}
@@ -327,7 +327,7 @@ $$
 
 where $h_{ij}(x, \gamma)$ is the weight function of edge $(i,j)$.
 
-Assume that the network is large but the number of parameters is small. Given $x$ and $\gamma$, the problem has a feasible solution if and only if $G$ contains no negative cycle. Let $\mathcal{C}$ be a set of all cycles of $G$. We can formulate the problem as:
+It is assumed that the network is of a considerable size, but that the number of parameters is relatively limited. The problem has a feasible solution if and only if $G$ contains no negative cycles. Let $\mathcal{C}$ be a set of all cycles of $G$. The problem can be formulated as follows:
 
 $$
 \begin{array}{ll}
@@ -340,22 +340,19 @@ $$
 where $C_k$ is a cycle of $G$:
 $$W_k(x, \gamma) = \sum_{ (i,j)\in C_k} h_{ij}(x, \gamma).$$
 
-The minimum cycle ratio (MCR) problem is a fundamental problem in the analysis of directed graphs. Given a directed graph, the MCR problem seeks to find the cycle with the minimum ratio of the sum of the edge weights to the number of edges in the cycle. In other words, the MCR problem tries to find the "tightest" cycle in the graph, where the tightness of a cycle is measured by the ratio of the total weight of the cycle to its length.
+The minimum cycle ratio (MCR) problem is a fundamental problem in the analysis of directed graphs. Given a directed graph, the MCR problem seeks to find the cycle with the minimum ratio of the sum of the edge weights to the number of edges in the cycle. In other words, the MCR problem seeks to find the "tightest" cycle in the graph, where the tightness of a cycle is measured by the ratio of the total weight of the cycle to its length.
 
-The MCR problem has many applications in the analysis of discrete event systems, such as digital circuits and communication networks. It is closely related to other problems in graph theory, such as the shortest path problem and the maximum flow problem. Efficient algorithms for solving the MCR problem are therefore of great practical importance.
+The MCR problem has numerous applications in the analysis of discrete event systems, including digital circuits and communication networks. It is closely related to other problems in graph theory, such as the shortest path problem and the maximum flow problem. Consequently, efficient algorithms for solving the MCR problem are of great practical importance.
 
 ### Negative Cycle Detection Algorithm
 
-The negative cycle detection is the most time-consuming part of the proposed method, so it is very important to choose the proper negative cycle detection algorithm. There are lots of methods to detect negative cycles in a weighted graph [@cherkassky1999negative], in which Tarjan’s algorithm [@Tarjan1981negcycle] is one of the fastest algorithms in practice [@alg:dasdan_mcr; @cherkassky1999negative].
+The most time-consuming part of the proposed method is the negative cycle detection, which underscores the importance of selecting an appropriate negative cycle detection algorithm. There are numerous methods for detecting negative cycles in weighted graphs [@cherkassky1999negative]. Tarjan’s algorithm [@Tarjan1981negcycle] is one of the fastest in practice and is widely regarded as a benchmark for this purpose [@alg:dasdan_mcr; @cherkassky1999negative].
 
-Howard's method is a minimum cycle ratio (MCR) algorithm that uses a policy iteration algorithm to find the minimum cycle ratio of a directed graph. The algorithm maintains a set of candidate cycles and iteratively updates the cycle with the minimum ratio until convergence.
+Howard's method is a minimum cycle ratio (MCR) algorithm that employs a policy iteration algorithm to find the minimum cycle ratio of a directed graph. The algorithm maintains a set of candidate cycles and proceeds by iteratively updating the cycle with the minimum ratio until convergence is reached.
 
-To detect negative cycles, Howard's method uses a cycle detection algorithm based on the Bellman-Ford algorithm. Specifically, the algorithm maintains a predecessor graph of the original graph and performs cycle detection on this graph using the Bellman-Ford algorithm. If a negative cycle is detected, the algorithm stops and returns the cycle.
+The separation oracle is only required to determine:
 
-The separation oracle only needs to determine:
-
-- If there exists a negative cycle $C_k$ under $x_0$, then
-- the cut $(g, \beta)$ = $(-\partial W_k(x_0), -W_k(x_0))$
+- If a negative cycle $C_k$ exists under $x_0$, then the cut $(g, \beta)$ = $(-\partial W_k(x_0), -W_k(x_0))$
 - If $f_0(x_0) \ge \gamma$, then the cut $(g, \beta)$ = $(\partial f_0(x_0), f_0(x_0) - \gamma)$.
 - Otherwise, $x_0$ is feasible, then
   - $\gamma := f_0(x_0)$.
@@ -363,9 +360,9 @@ The separation oracle only needs to determine:
 
 ### Example: Optimal matrix scalings under the min-max-ratio criterion
 
-This example is taken from [@orlin1985computing]. According to [@orlin1985computing], optimal matrix scaling has several practical applications. One application is in linear programming, where groups of constraints and groups of variables might express the same physical commodity for which common measurement units are used. Another application is in telecommunication, where matrix scaling can be used to optimize the transmission of signals. Additionally, matrix scaling has been used in approximation theory to approximate functions of several variables by the sum of functions of fewer variables. Finally, matrix scaling has been used in Gaussian elimination, a widely used method for solving systems of linear equations, to improve the numerical stability of the algorithm.
+The following example is taken from [@orlin1985computing]. As stated by [@orlin1985computing], optimal matrix scaling has a number of practical applications. One such application is in the field of linear programming, where groups of constraints and groups of variables may represent the same physical commodity for which common measurement units are employed. Another area of application is in telecommunications, where matrix scaling can be employed to optimize the transmission of signals. Futhermore, matrix scaling has been employed in approximation theory to approximate functions of multiple variables by the sum of functions of fewer variables. Futhermore, matrix scaling has been employed in Gaussian elimination, a prevalent method for solving systems of linear equations, with the objective of enhancing the numerical stability of the algorithm.
 
-Given a matrix $A \in \mathbb{R}^{N\times N}$. A _symmetric scaling_ of $A$ is a matrix $B$ of the form $U A U^{-1}$ where $U$ is a nonnegative diagonal matrix with the same dimension. According to the _min-max criterion_, the aim is to minimize the largest absolute value of $B$'s elements [@orlin1985computing, (Program\ 3)]:
+Let us consider a matrix $A \in \mathbb{R}^{N\times N}$. A _symmetric scaling_ of $A$ is defined as a matrix $B$ of the form $U A U^{-1}$, where $U$ is a nonnegative diagonal matrix of the same dimension. In accordance with the _min-max criterion_, the objective is to minimize the largest absolute value of $B$'s elements [@orlin1985computing, (Program\ 3)]:
 
 $$
 \begin{array}{ll}
@@ -375,9 +372,9 @@ $$
   \end{array}
 $$
 
-The authors show that the problems of determining the best symmetric scalings under the min-max criterion can be converted into a single parameter network optimization problem, which can be solved efficiently using the parameteric network algorithms.
+The authors demonstrate that the problem of determining the optimal symmetric scalings under the min-max criterion can be transformed into a single-parameter network optimization problem. This can be solved efficiently using parameteric network algorithms.
 
-Another possible criterion is to minimize the ratio of largest absolute value of the element $B$ to the smallest. One motivation for using this criterion is that high ratios cause difficulties in performing the simplex method. With this _min-max-ratio_ criterion, the symmetric scaling problem can be formulated as [@orlin1985computing, (Program\ 8)]:
+Another possible criterion is to minimize the ratio of the largest absolute value of the element $B$ to the smallest. One rationale for employing this criterion is that high ratios impede the efficacy of the simplex method. With this _min-max-ratio_ criterion, the symmetric scaling problem can be formulated as [@orlin1985computing, (Program\ 8)]:
 
 $$
 \begin{array}{ll}
@@ -387,7 +384,7 @@ $$
   \end{array}
 $$
 
-Let $k’$ denotes $\log( | k | )$. By taking the logarithm of the variables, we can transform the above programming into a two-parameter network problem:
+Let $k’$ denotes $\log( | k | )$. By taking the logarithm of the variables, the aforementioned programming can be transformed into a two-parameter network problem:
 
 $$
 \begin{array}{ll}
@@ -399,9 +396,9 @@ $$
 $$
 
 where $x = (\pi’, \psi’ )^\mathsf{T}$.
-The authors of [@orlin1985computing] claim they have devised an algorithm for solving multi-parameter problems. However, we did not uncover any further publications to support this claim. Notably, the cutting-plane method readily extends the single-parameter network algorithm to be multi-parameter.
+The authors of [@orlin1985computing] assert that they have developed an algorithm for solving multi-parameter problems. Nevertheless, we were unable to identify any follow-up publications that corroborate this assertion. It is noteworthy that the cutting-plane method readily extends the single-parameter network algorithm to accommodate multi-parameter problems.
 
-In this application, $h_{ij}(x)$ is:
+In this application, the function $h_{ij}(x)$ is defined as follows:
 
 $$
 {h}_{ij}(x) = \left\{ \begin{array}{cll}
@@ -410,7 +407,7 @@ $$
 \end{array} \right.
 $$
 
-We can find fast algorithms for finding a negative cycle in [@dasdan1998faster; @dasdan2004experimental]. More applications to clock skew scheduling can be found in [@zhou2015multi].
+Fast algorithms for finding a negative cycle can be found in [@dasdan1998faster; @dasdan2004experimental]. Further applications to clock skew scheduling can be found in [@zhou2015multi].
 
 ## Problems Involving Matrix Inequalities {#sec:lmi}
 
