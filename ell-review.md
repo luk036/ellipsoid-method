@@ -10,70 +10,69 @@ bibliography:
   ]
 csl: "applied-mathematics-letters.csl"
 abstract: |
-  The ellipsoid method is an optimization technique that offers distinct advantages over interior-point methods, as it obviates the necessity of evaluating all constraint functions. This renders it optimal for convex problems with numerous or even infinite constraints. The method employs an ellipsoid as a search space and utilizes a separation oracle to provide a cutting plane for updating it. It is worth noting that the significance of the separation oracle is frequently overlooked. This article assesses the utility of the ellipsoid method in three distinct applications: robust convex optimization, semidefinite programming, and parametric network optimization. The efficacy of separation oracles is evaluated for each application. Furthermore, this article addresses the implementation issues associated with the ellipsoid method, including the utilization of parallel cuts for updating the ellipsoid. In certain cases, the use of parallel cuts has been observed to reduce computation time, as evidenced in the context of FIR filter design. The article also considers discrete optimization, demonstrating how the ellipsoid method can be applied to problems involving discrete design variables. The sole additional effort in oracle implementation is the identification of the nearest discrete solutions.
+  The ellipsoid method is an optimization technique that offers distinct advantages over interior-point methods, as it does not need to evaluate all constraint functions. This makes it the optimal choice for convex problems with numerous or even infinite constraints. The method employs an ellipsoid as a search space and utilizes a separation oracle to provide a cutting plane for updating it. It is worth noting that the significance of the separation oracle is often overlooked. This article evaluates the utility of the ellipsoid method in three distinct applications: robust convex optimization, semidefinite programming, and parametric network optimization. The effectiveness of separation oracles is assessed for each application. Furthermore, this article addresses the implementation issues associated with the ellipsoid method, including the utilization of parallel cuts for updating the ellipsoid. In certain cases, the use of parallel cuts has been observed to reduce computation time, as evidenced in the context of FIR filter design. The article also considers discrete optimization, demonstrating how the ellipsoid method can be applied to problems involving discrete design variables. The additional effort in oracle implementation is limited to finding the nearest discrete solutions.
 ---
 
 # Introduction
 
-The reputation of the ellipsoid method is adversely affected by its perceived slowness in solving large-scale convex problems when compared to the interior-point method. This perception is, however, an unfair one. In contrast to the interior-point method, the ellipsoid method does not necessitate the explicit evaluate of all constraint functions. In contrast, it employs an ellipsoid as a search space, necessitating only a separation oracle that furnishes a _cutting plane_ (@sec:cutting_plane). The method is particularly well-suited to problems that involve a moderate number of design variables but have a large number of constraints, or even infinite number of constraints. Some have criticized the method, claiming that it is unable to leverage sparsity. Nevertheless, while the ellipsoid method is unable to leverage sparsity, the separation oracle is capable of exploiting specific structural types.
+The reputation of the ellipsoid method is negatively impacted by its perceived slower performance in solving large-scale convex problems when compared to the interior-point method. This perception is, however, an unfair one. In contrast to the interior-point method, the ellipsoid method does not require the explicit evaluation of all constraint functions. By contrast, the method employs an ellipsoid as a search space, requiring only a separation oracle that furnishes a _cutting plane_ (@sec:cutting_plane). This method is particularly well-suited to problems that involve a moderate number of design variables but have a large number of constraints, or even an infinite number of constraints. Some have criticized the method, claiming that it is unable to leverage sparsity. Nevertheless, while the ellipsoid method is unable to leverage sparsity, the separation oracle is capable of exploiting specific structural types.
 
-Despite decades of investigation into the ellipsoid method [@BGT81], the importance of the separation oracle is frequently overlooked. This article examines three specific applications: robust convex optimization, network optimization, and semidefinite programming. The efficacy of separation oracles is evaluated for each application.
+Despite decades of research into the ellipsoid method [@BGT81], the importance of the separation oracle is often overlooked. This article examines three specific applications: robust convex optimization, network optimization, and semidefinite programming. The effictiveness of separation oracles is assessed for each application.
 
-Robust optimization incorporates parameter uncertainties into the optimization problem by analyzing the worst-case scenario. The objective is to find a solution that is both reliable and performs optimally under a range of possible parameter values within a specified set of uncertainties. A robust counterpart of a convex problem preserves its convexity, despite the number of constraints grows to infinity. This renders the ellipsoid method an excellent choice for addressing such problems. This is detailed in @sec:robust.
+Robust optimization incorporates parameter uncertainties into the optimization problem by analyzing the worst-case scenario. The objective is to find a solution that is both reliable and performs optimally under a range of possible parameter values within a specified set of uncertainties. A robust counterpart of a convex problem preserves its convexity, despite the number of constraints growing to infinity. This renders the ellipsoid method an excellent choice for addressing such problems. For furth details, see @sec:robust.
 
-Additionally, an illustration is provided of network optimization scenario in which the ellipsoid method can be utilized. The separation oracle entails the  construction of a cutting plane through finding a negative cycle within a network graph. There are algorithms available for finding negative cycles that utilize network locality and other properties, resulting in an effective implementation of oracles. A more detailed discussion can be found in @sec:network.
+Furthermore, an illustration is provided of a network optimization scenario in which the ellipsoid method can be utilized. The separation oracle involves the  construction of a cutting plane by finding a negative cycle within a network graph. There are algorithms available for finding negative cycles that leverage network locality and other properties, resulting in an efficient implementation of oracles. For a more detailed discussion, please refer to @sec:network.
 
-Meanwhile, @sec:lmi addresses concerns pertaining to matrix inequalities. It should be recalled that the use of Cholesky or LDLT decomposition allows for the efficient checking of the positive definiteness of a symmetric matrix. If a symmetric matrix $A$ with dimensions $m \times m$ encounters a non-positive diagonal entry during decomposition, such that the process stops at row $p$, then $A$ cannot be positive definite. In such cases, a witness vector $v$ can be constructed to certify that $A$ is not positive definite. The row-based decomposition and lazy evaluation technique allow the cutting plane to be constructed in $O(p^3)$, thus enabling its use in efficient oracle implementations.
+Meanwhile, @sec:lmi addresses concerns related to matrix inequalities. Recall that the use of Cholesky or LDLT decomposition allows for the efficient checking of the positive definiteness of a symmetric matrix. If a symmetric matrix $A$, with dimensions of $m \times m$, encounters a non-positive diagonal entry during decomposition, and the process is terminated at row $p$, then $A$ cannot be positive definite. In such cases, a witness vector $v$ can be constructed to certify that $A$ is not positive definite. The row-based decomposition and lazy evaluation technique enable the cutting plane to be constructed in $O(p^3)$, thus allowing its use in efficient oracle implementations.
 
-The implementation of the ellipsoid method is discussed in greater detail in @sec:ellipsoid. In essence, the method generates a sequence of ellipsoids whose volume is uniformly decreased at each step. The ellipsoid is typically represented as follows:
+The implementation of the ellipsoid method is discussed in greater detail in @sec:ellipsoid. In essence, the method generates a sequence of ellipsoids whose volume is uniformly decreased at each step, thereby ensuring a systematic and consistent approach to volume reduction. The ellipsoid is typically represented as follows:
 
 $$\{x \mid (x - x_c)P^{-1}(x - x_c) \le 1\},$$
 
-where $x_c \in \mathbb{R}^n$ is the center of the ellipsoid. The matrix $P \in \mathbb{R}^{n \times n}$ is a symmetric positive definite matrix or order $n$. In each iteration, the ellipsoid method performs updates to both $x_c$ and $P$. Although updating ellipsoids is relatively straightforward process that has been implemented for decades, we show that the cost can be reduced by an additional $n^2$ floating point operations by splitting the matrix $P$ into $\kappa$ and $Q$. This results in the following form:
+where $x_c \in \mathbb{R}^n$ is the center of the ellipsoid. The matrix $P \in \mathbb{R}^{n \times n}$ is a symmetric positive definite matrix of order $n$. In each iteration, the ellipsoid method performs updates to both $x_c$ and $P$. Although updating ellipsoids is a relatively straightforward process that has been implemented for decades, we show that the cost can be reduced by an additional $n^2$ floating point operations by splitting the matrix $P$ into two parts,namely, $\kappa$ and $Q$. This yields in the following form:
 
 $$\{ x \mid (x-x_c)Q^{-1}(x-x_c) \le \kappa \}.$$
 
-Moverover, @sec:parallel_cut addresses the utilization of parallel cuts. Some researchers have suggested that this technique does not result in substantial enhancements. Nevertheless, our findings indicate that in scenarios where specific constraints are subject to narrow upper and lower bounds, such as in the context of FIR filter designs, the incorporation of parallel cuts can markedly reduce the runtime.
+Moverover, @sec:parallel_cut addresses the utilization of parallel cuts. Some researchers have suggested that this technique does not result in significant improvements. Nevertheless, our findings indicate that in scenarios where specific constraints are subject to narrow upper and lower bounds, such as in the context of FIR filter designs, the incorporation of parallel cuts can markedly reduce the runtime. Furthermore, we demonstrate that when the ellipsoid method is implemented with precision, any update, whether it employs a single cut or a parallel cut, necessitates at most one square root operation.
 
-Furthermore, we demonstrate that when the ellipsoid method is implemented with precision, any update, whether it employs a single cut or a parallel cut, nescessitates at most one square root operation.
+In many practical engineering problems, some design variables may be constrained to discrete forms. Since the cutiing plane method requires only a separation oracle, it can also be used for discrete problems. The only additional effort in the oracle implementation is the finding of the closest discrete solutions.
 
-In numerous practical engineering problems, some design variables may be constrained to discrete forms. Given that the cutting-plane method necessitates only a separation oracle, it can also be utilized for discrete problems. The sole additional effort in oracle implementation is the identification of the nearest discrete solutions.
-
-# Cutting-plane Method Revisited {#sec:cutting_plane}
+# Cutiing plane Method Revisited {#sec:cutting_plane}
 
 ## Convex Feasibility Problem
 
-Let $\mathcal{K}$ be a compact and convex subset of $\mathbb{R}^n$. Let us consider the following feasibility problem:
+Let $\mathcal{K}$ be a compact and convex subset of $\mathbb{R}^n$. Consider the following feasibility problem:
 
 1.  Find a point $x^* \in \mathbb{R}^n$ in $\mathcal{K}$, or
-2.  Determine whether $\mathcal{K}$ is empty, that is, whether it has no feasible solution.
+2.  Determine if $\mathcal{K}$ is empty, i.e. if it has no feasible solution.
 
-A separation oracle, also referred to as a cutting-plane oracle, is a methodology utilized to delineate a convex set that serves as an input to a cutting-plane method.
-Upon querying a separation oracle, denoted by $\Omega$, at a given point $x_0 \in \mathbb{R}^n$, it may produce one of the following outputs:
+A separation oracle, also known as a cutting plane oracle, is a method used to delineate a convex set that serves as an input to a cutting plane method.
+When a separation oracle, denoted by $\Omega$, is queried at a given point $x_0 \in \mathbb{R}^n$, it can produce one of the following outputs:
 
-1.  It is asserted that $x_0$ belongs to $\mathcal{K}$, or
-2.  Return a hyperplane that separates the point $x_0$ from the set $\mathcal{K}$:
+1.  It asserts that $x_0$ belongs to $\mathcal{K}$, or
+2.  Returns a hyperplane separating the point $x_0$ from the set $\mathcal{K}$:
+
     $$g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \ge 0, g \neq 0, \; \forall x \in \mathcal{K}.$$
 
-The pair of $(g, \beta)$ is called a _cutting-plane_ because it eliminates the half-space defined by the equation $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from the search space. The following observations have been made:
+The pair of $(g, \beta)$ is called a _cutting plane_ because it eliminates the half-space defined by the equation $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from the search space. The following observations are made:
 
-- If $\beta=0$, indicating that $x_0$ is situated on the boundary of the half-space, the cutting-plane is referred to as a _central-cut_.
-- If $\beta>0$, indicating that $x_0$ is situated within the interior of the half-space, the cutting-plane is referred to as a _deep-cut_.
-- If $\beta<0$, indicating that $x_0$ is situated outside of the half-space, the cutting-plane is referred to as a _shadow-cut_.
+- If $\beta=0$, indicating that $x_0$ is on the boundary of the half-space, the cutting plane is called a _central-cut_.
+- If $\beta>0$, indicating that $x_0$ is inside the half-space, the cutting plane is called a _deep-cut_.
+- If $\beta<0$, indicating that $x_0$ is outside the half-space, the cutting plane is called a _shadow-cut_.
 
-The convex set $\mathcal{K}$ is typically defined by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1 \cdots m$, where $f_j(x)$ represents a convex function. The vector $g \equiv \partial f(x_0)$ is defined as the _sub-gradient_ of a convex function $f$ at the point $x_0$ if $f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)$. Thus, the cut $(g, \beta)$ can be expressed as $(\partial f(x_0), f(x_0))$. It should be noted that if $f(x)$ is differentiable, then we can simply take $\partial f(x_0) = \nabla f(x_0)$.
+The convex set $\mathcal{K}$ is typically defined by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1 \cdots m$, where $f_j(x)$ represents a convex function. The vector $g \equiv \partial f(x_0)$ is defined as the _sub-gradient_ of a convex function $f$ at the point $x_0$ if $f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)$. Thus, the cut $(g, \beta)$ can be expressed as $(\partial f(x_0), f(x_0))$. Note that if $f(x)$ is differentiable, then we can simply take $\partial f(x_0) = \nabla f(x_0)$.
 
-The cutting-plane method comprises two principal elements: a separation oracle, designed as $\Omega$, and a search space, denoted as $\mathcal{S}$, which is initially set to a sufficiently expansive size to encompass $\mathcal{K}$. For example,
+The cutting plane method consists of two main elements: a separation oracle, denoted by $\Omega$, and a search space, denoted by $\mathcal{S}$, which is initially set to a sufficiently large to encompass $\mathcal{K}$. For example,
 
 - Polyhedron $\mathcal{P}$ = $\{z \mid C z \preceq d \}$.
 - Ellipsoid $\mathcal{E}$ = $\{z \mid (z-x_c)P^{-1}(z-x_c) \le 1 \}$.
 - Interval $\mathcal{I}$ = $[l, u]$ (for one-dimensional problem).
 
-Let us designate the center of the current set, denoted by $\mathcal{S}$, as $x_c$. The following is a basic outline of the methodology underlying the cutting-plane method:
+Let us denote the center of the current set, denoted by $\mathcal{S}$, as $x_c$. The following is a basic outline of the methodology underlying the cutiing plane method:
 
 1. **Initialization**: The initial stage of the method involves defining a search space $\mathcal{S}$ that is guaranteed to contain a point $x^*$.
-2. **Iteration**: In each iteration, the separation oracle is queried at the center $x_c$. If $x_c$ \in \mathcal{K}$, then the iteration is terminated.
-3. **Update**: The smaller search space, denoted as $\mathcal{S}^+$, is then computed and contains the half-space from step 2.
+2. **Iteration**: In each iteration, the separation oracle is queried at the center $x_c$. If $x_c$ is in $\mathcal{K}$, then the iteration is terminated.
+3. **Update**: The smaller search space, denoted by $\mathcal{S}^+$, is computed and contains the half-space from step 2.
 4. **Repeat**: Repeat steps 2 and 3 until $\mathcal{S}$ is either empty or sufficiently small.
 
 ## From Feasibility to Optimization
@@ -102,26 +101,26 @@ where $\Phi(x, \gamma) \le 0$ is the $\gamma$-sublevel set of $f_0(x)$ when $f_0
 
 One straightforward approach to solving the optimization problem is to perform a binary search on $\gamma$ and solve the corresponding feasibility problems at each value of $\gamma$. An alternative approach is to update the current best estimate of $\gamma$ whenever a feasible solution $x_0$ is found such that $\Phi(x_0, \gamma) = 0$.
 
-The following is a basic outline of the operational procedure of the cutting-plane method (optim):
+The following is a basic outline of the operational procedure of the cutiing plane method (optim):
 
 1. **Initialization**: The initial stage of the process entails defining a search space $\mathcal{S}$ that is guaranteed to contain a solution, $x^*$.
 2. **Iteration**: In each iteration, the separation oracle is queried at the point $x_c$. A subgradient of the function at $x_c$ must then be computed. This results in the generation of a half-space that is guaranteed to contain $x^*$.
 3. If $x_c \in \mathcal{K}_\gamma$, update $\gamma$ such that $\Phi(x_c, \gamma) = 0$.
 4. **Update**: The smaller $\mathcal{S}^+$ that contains the half-space from step 2 is computed.
-5. **Repeat**: Repeat step 2 to step 4 until $\mathcal{S}$ is either empty or sufficiently small.
+5. **Repeat**: Repeat steps 2 to 4 until $\mathcal{S}$ is either empty or sufficiently small.
 
-Generic Cutting-plane method (Optim)
+Generic cutting plane method (Optim)
 
-- **Given** initial $\mathcal{S}$ known to contain $\mathcal{K}_\gamma$.
+- **Given** an initial $\mathcal{S}$ known to contain $\mathcal{K}_\gamma$.
 - **Repeat**
-  1.  Choose a point $x_0$ in $\mathcal{S}$
+  1.  Select a point $x_0$ in $\mathcal{S}$
   2.  Query the separation oracle at $x_0$
-  3.  **If** $x_0 \in \mathcal{K}_\gamma$, update $\gamma$ such that $\Phi(x_0, \gamma) = 0$.
+  3.  **If** $x_0 \in \mathcal{K}_\gamma$, update $\gamma$ so that $\Phi(x_0, \gamma) = 0$.
   4.  Update $\mathcal{S}$ to a smaller set that covers:
       $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\} $$
   5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, exit.
 
-We assume that the oracle takes responsibility for that.
+We assume that the oracle takes responsibility for this.
 
 ```python
 def cutting_plane_optim(omega, space, gamma, options=Options()):
@@ -141,7 +140,7 @@ def cutting_plane_optim(omega, space, gamma, options=Options()):
 
 ## Example: Profit Maximization {#sec:profit}
 
-This example is taken from [@Aliabadi2013Robust]. We consider the following _short-run_ profit maximization problem:
+This example is taken from the article "Robust Optimization for Profit Maximization" by Aliabadi (2013) [@Aliabadi2013Robust]. We will consider the following _short-run_ profit maximization problem:
 
 $$
 \begin{array}{ll}
@@ -149,7 +148,7 @@ $$
    \text{subject to} & x_1 \le k, \\
                      & x_1 > 0, x_2 > 0,
   \end{array}$$ {#eq:profit-max-in-original-form}
-where $p$ represents the market price per unit. $A$ denotes the scale of production, $\alpha$ and $\beta$ are output elasticities, $x_i$ and $v_i$ are the i-th input quantity and output price, and $A x_1^\alpha x_2^\beta$ represents the Cobb-Douglas production function, which is a widely accepted model used to represent the relationship between inputs and outputs in production. The quantity of $x_1$ is limited by the constant $k$. The aforementioned formulation is not in convex form. First, we reformulate the problem as follows:
+where the variable $A$ represents the scale of production, while the variables $\alpha$ and $\beta$ denote output elasticities. The $x_i$ and $v_i$ terms refer to the quantity and price of the ith input, respectively. The term $A x_1^\alpha x_2^\beta$ is the Cobb-Douglas production function, which is a widely accepted model used to represent the relationship between inputs and outputs in production. The quantity of $x_1$ is constrained by the constant $k$. Please be advised that the aforementioned formulation is not in convex form. To begin, we will reformulate the problem as follows:
 
 $$\begin{array}{ll}
     \text{maximize}   & \gamma, \\
@@ -216,9 +215,9 @@ Some readers may recognize that the problem can also be written in a geometric p
 
 ## Robust Convex Optimization {#sec:robust}
 
-In essence, robust optimization accounts for parameter uncertainties by formulating problems that consider worst-case scenarios. This approach allows for more reliable and robust solutions when dealing with uncertainty. The present study addresses the issue of profit maximization using a robust geometric programming approach that takes interval uncertainty into account. The authors examine the well-established Cobb-Douglas production function and propose an approximate equivalent of the robust counterpart, utilizing piecewise convex linear approximations. This approximation is expressed in the form of a geometric programming problem. To illustrate the influence of uncertainty, an illustrative example is provided.
+In essence, robust optimization addresses parameter uncertainties by formulating problems that consider worst-case scenarios. This approach ensures more reliable and robust solutions when dealing with uncertainty. This study addresses the issue of profit maximization using a robust geometric programming approach that accounts for interval uncertainty. The authors examine the well-established Cobb-Douglas production function and propose an approximate equivalent of the robust counterpart, utilizing piecewise convex linear approximations. This approximation is expressed in the form of a geometric programming problem. To illustrate the impact of uncertainty, we will present an illustrative example.
 
-In the context of mathematical modeling, interval uncertainties pertain to the representation of model parameters as intervals. In this study, the authors consider interval uncertainties in the model parameters. The article presents upper and lower piecewise convex linear approximations of the robust counterpart, which can be efficiently solved using interior point methods. These approximations are employed for the purpose of incorporating interval uncertainties into the model.
+In the context of mathematical modeling, interval uncertainties refer to the representation of model parameters as intervals. In this study, the authors examine how interval uncertainties affect the model parameters. The article presents upper and lower piecewise convex linear approximations of the robust counterpart, which can be solved using interior point methods.
 
 For the purposes of this discussion, we will consider:
 
@@ -230,7 +229,7 @@ $$
   \end{array}
 $$ {#eq:robust-optim}
 where $q$ represents a set of varying parameters.
-The problem can be reformulated as follows:
+The issue can be rephrased as follows:
 $$\begin{array}{ll}
     \text{minimize}   & \gamma, \\
     \text{subject to} & f_0(x, q) \le \gamma,  \\
@@ -241,20 +240,18 @@ $$
 
 ### Algorithm
 
-The oracle is tasked with determining:
+The oracle is responsible for determining the following:
 
-- If $f_j(x_0, q) > 0$ for some $j$ and $q = q_0$, then
-- the cut $(g, \beta)$ = $(\partial f_j(x_0, q_0), f_j(x_0, q_0))$
-- If $f_0(x_0, q) \ge \gamma$ for some $q = q_0$, then
-- the cut $(g, \beta)$ = $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - \gamma)$
+- If $f_j(x_0, q) > 0$ for some $j$ and $q = q_0$, then the cut $(g, \beta)$ is equal to $(\partial f_j(x_0, q_0), f_j(x_0, q_0))$.
+- If $f_0(x_0, q) \ge \gamma$ for some $q = q_0$, then the cut $(g, \beta)$ is equal to $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - \gamma)$.
 - Otherwise, $x_0$ is feasible, then
-- Let $q_{\max} = \argmax_{q \in \mathcal Q} f_0(x_0, q)$.
-- $\gamma := f_0(x_0, q_{\max})$.
-- The cut $(g, \beta)$ = $(\partial f_0(x_0, q_{\max}), 0)$
+    - Let $q_{\max} = \argmax_{q \in \mathcal Q} f_0(x_0, q)$.
+    - $\gamma := f_0(x_0, q_{\max})$.
+    - The cut $(g, \beta)$ is equal to $(\partial f_0(x_0, q_{\max}), 0)$.
 
 ### Example: Robust Profit Maximization {#sec:profit-rb}
 
-Let us once more consider the profit maximization problem in @sec:profit. The model parameters are subject to uncertainty over a given interval. Let us now consider the case in which the parameters $\alpha$, $\beta$, $p$, $v_1$, $v_2$, and $k$ are subject to interval uncertainties [@Aliabadi2013Robust]:
+Let us revisit the profit maximization problem in @sec:profit. The model parameters are subject to uncertainty over a given interval. Let us now consider the case in which the parameters $\alpha$, $\beta$, $p$, $v_1$, $v_2$, and $k$ are subject to interval uncertainties, as outlined in [@Aliabadi2013Robust]:
 
 $$
 \begin{array}{rcl}
@@ -278,7 +275,7 @@ $$
   \end{array}
 $$
 
-In [@Aliabadi2013Robust], the authors put forth the use of piecewise convex linear approximations as a proximate approximation of the robust counterpart,  thereby facilitating greater solvability through the use of interior-point algorithms. This approach necessitates the development of a substantial amount of programming, yet the resulting solutions are inherently imprecise. Nevertheless, this can be readily addressed through the cutting-plane method. It should be noted that in this simple example, the worst case scenario occurs when:
+In [@Aliabadi2013Robust], the authors propose the use of piecewise convex linear approximations as a proximate approximation of the robust counterpart,  thereby facilitating greater solvability through the use of interior-point algorithms. This approach requires the development of a significant amount of programming, which may be challenging for some teams. However, the resulting solutions are inherently imprecise, which is something to consider. However, this can be readily addressed through the cutting plane method. It should be noted that in this simple example, the worst-case scenario occurs when:
 
 - $\hat{p} = p - e_3$, $k = \bar{k} - e_3$
 - $v_1 = \bar{v}_1 + e_3$, $v_2 = \bar{v}_2 + e_3$,
@@ -310,7 +307,7 @@ class ProfitRbOracle(OracleOptim):
         return self.omega.assess_optim(y, t)
 ```
 
-It should be noted that the "argmax" may be non-convex, which may render it challenging to solve. For more complex problems, one potential approach is to utilize affine arithmetic as a computational aid [@liu2007robust].
+It should be noted that the "argmax" may be non-convex, which may make it challenging to solve. For more complex problems, one potential approach is to utilize affine arithmetic as a computational aid [@liu2007robust].
 
 ## Multi-parameter Network Problems {#sec:network}
 
@@ -396,7 +393,7 @@ $$
 $$
 
 where $x = (\pi’, \psi’ )^\mathsf{T}$.
-The authors of [@orlin1985computing] assert that they have developed an algorithm for solving multi-parameter problems. Nevertheless, we were unable to identify any follow-up publications that corroborate this assertion. It is noteworthy that the cutting-plane method readily extends the single-parameter network algorithm to accommodate multi-parameter problems.
+The authors of [@orlin1985computing] assert that they have developed an algorithm for solving multi-parameter problems. Nevertheless, we were unable to identify any follow-up publications that corroborate this assertion. It is noteworthy that the cutiing plane method readily extends the single-parameter network algorithm to accommodate multi-parameter problems.
 
 In this application, the function $h_{ij}(x)$ is defined as follows:
 
@@ -420,9 +417,9 @@ $$
   \end{array}
 $$
 
-where $F(x)$ is a matrix-valued function, $A \succeq 0$ denotes $A$ is positive semidefinite.
-Recall that a matrix $A$ is positive semidefinite if and only if $v^\mathsf{T} A v \ge 0$ for all $v \in \mathbb{R}^N$.
-We can transform the problem into:
+where $F(x)$ is a matrix-valued function, $A \succeq 0$ denotes a positive semidefinite matrix.
+It should be recalled that a matrix $A$ is positive semidefinite if and only if $v^\mathsf{T} A v \ge 0$ for all $v \in \mathbb{R}^N$.
+The problem can be transformed into the following form:
 
 $$
 \begin{array}{ll}
@@ -431,34 +428,31 @@ $$
   \end{array}
 $$
 
-Consider $v^\mathsf{T} F(x) v$ is concave for all $v \in \mathbb{R}^N$ w.r.t.
+Consider the case where $v^\mathsf{T} F(x) v$ is concave for all $v \in \mathbb{R}^N$ with respect to
 $x$, then the above problem is a convex programming.
-Reduce to _semidefinite programming_ if $F(x)$ is linear w.r.t.
-$x$, i.e., $F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n$.
+The problem may be reduced to _semidefinite programming_ if the function $F(x)$ is linear with respect to $x$, i.e., $F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n$, where $F_0, F_1, F_2, \dots, F_n$ are constants.
 
-In convex optimization, a **Linear Matrix Inequality (LMI)** is an expression of the form:
+In the field of convex optimization, a **linear matrix inequality (LMI)** is defined as an expression of the form:
 
-$$A(y) = A_0 + y_1 A_1 + y_2 A_2 + \cdots + y_m A_n \succeq 0$$
+$$A(y) = A_0 + y_1 A_1 + y_2 A_2 + \cdots + y_m A_n \succeq 0,$$
 
-where $y = [y_i, i = 1, \cdots, n]$ is a real vector, $A_0, A_1, A_2, \cdots, A_n$ are symmetric matrices, and $\succeq 0$ is a generalized inequality meaning $A(y)$ is a positive semidefinite matrix¹.
+where $y = [y_i, i = 1, \cdots, n]$ is a real vector, $A_0, A_1, A_2, \cdots, A_n$ are symmetric matrices, and $A(y) \succeq 0$ is a generalized inequality meaning $A(y)$ is a positive semidefinite matrix.
 
-This linear matrix inequality specifies a convex constraint on $y$. There are efficient numerical methods to determine whether an LMI is feasible (e.g., whether there exists a vector $y$ such that $A(y) \succeq 0$), or to solve a convex optimization problem with LMI constraints¹.
+This linear matrix inequality specifies a convex constraint on the variable $y$. There are efficient numerical methods for determining the feasibility of an LMI (e.g., whether there exists a vector $y$ such that $A(y) \succeq 0$), and for solving convex optimization problems with LMI constraints.
 
-Many optimization problems in control theory, system identification, and signal processing can be formulated using LMIs¹. Also, LMIs find application in Polynomial Sum-Of-Squares¹.
+### Cholesky decomposition algorithm
 
-### Cholesky decomposition Algorithm
+The Cholesky decomposition algorithm is a method used in linear algebra to decompose a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose. This decomposition is advantageous for efficient numerical solutions, including Monte Carlo simulations.
 
-The Cholesky factorization method is employed in linear algebra to decompose a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose¹. This factorization is beneficial for efficient numerical solutions, including Monte Carlo simulations¹.
+The Cholesky decomposition of a Hermitian positive-definite matrix $A$ is a unique decomposition where $A$ = $L L^*$, with $L$ being a lower triangular matrix containing real and positive diagonal entries, and $L^*$ representing the conjugate transpose of $L$. Every real-valued symmetric positive-definite matrix and Hermitian positive-definite matrix can be expressed as a Cholesky decomposition.
 
-The Cholesky decomposition of a Hermitian positive-definite matrix A is a unique decomposition where A = LL*, with L being a lower triangular matrix containing real and positive diagonal entries, and L* representing the conjugate transpose of L¹. Every real-valued symmetric positive-definite matrix and Hermitian positive-definite matrix have a Cholesky decomposition¹.
+If $A$ is a real matrix that is symmetric and positive-definite, it can be decomposed as $A = L L^T$. Here, $L$ represents a real lower triangular matrix with positive diagonal entries.
 
-If A is a real matrix that is symmetric positive-definite, it can be decomposed as A = LLT. Here, L is a real lower triangular matrix that has positive diagonal entries¹.
+The Cholesky and LDLT decompositions are matrix decomposition methods utilized in linear algebra for disparate purposes, exhilbiting distinctive properties.
 
-The Cholesky and LDLT decompositions are matrix decomposition methods used in linear algebra for different purposes, with distinct properties¹².
+The Cholesky decomposition is a method for decomposing a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose. The Cholesky decomposition is typically more rapod and numerically stable than the LDLT decomposition. Nevertheless, the input matrix must be positive-definite for this to be effective.
 
-The Cholesky decomposition involves decomposing a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose¹. It is typically faster and more numerically stable than the LDLT decomposition³. However, the input matrix must be positive-definite¹ for this to work.
-
-The LDLT decomposition, a variant of the LU decomposition that applies to positive-definite symmetric matrices², is more versatile as it can be applied to a wider range of matrices and does not require them to be positive-definite¹. The LDLT decomposition factors a matrix into the product of a lower triangular matrix, a diagonal matrix, and the transpose of the lower triangular matrix². This decomposition is as fast as Cholesky decomposition but does not require any square roots, making it faster and more numerically stable³.
+The LDLT decomposition, a variant of the LU decomposition that applies to positive-definite symmetric matrices, is more versatile in that it can be applied to a wider range of matrices and does not require them to be positive-definite. The LDLT decomposition factors a matrix into the product of a lower triangular matrix, a diagonal matrix, and the transpose of the lower triangular matrix². This decomposition is as fast as the Cholesky decomposition, but does not require any square roots, making it faster and more numerically stable³.
 
 $$
 \begin{aligned}
@@ -516,13 +510,13 @@ def factor(self, getA):
     self.p = self.n
 ```
 
-The Cholesky factorization provides a witness vector certifying that a matrix is not positive definite. If a matrix fails the Cholesky factorization, then it is not positive definite¹².
+The Cholesky decomposition offers a witness vector that certifies a matrix is not positive definite. If a matrix fails the Cholesky decomposition, it is not positive definite.
 
-During the factorization process, compute the diagonal of the lower diagonal matrix by finding the square root of a value, denoted as x. If x<0, then this indicates that the matrix is not positive definite¹. This failure serves as evidence for a non-positive definite matrix.
+During the decomposition process, the diagonal of the lower diagonal matrix should be calculated by finding the square root of a value, denoted as $x$. If $x$ is less than zero, this indicates that the matrix is not positive definite. This failure serves as evidence that the matrix in question is not positive definite.
 
-If the Cholesky factorization fails due to a negative diagonal element, it indicates that the leading principal submatrix up to that point is not positive definite. The vector that confirms this is one of the standard basis vectors¹². This basis vector comprises a 1 in the position that corresponds to the failed diagonal element and zeros elsewhere. When you pre-multiply it by the original matrix and post-multiply it by its transpose, it will yield a negative value, thus serving as a witnessing vector¹².
+Should the Cholesky decomposition fail due to a negative diagonal element, this indicates that the leading principal submatrix up to that point is not positive definite. One of the standard basis vectors serves as the confirming vector. This basis vector comprises a 1 in the position corresponding to the failed diagonal element and zeros elsewhere. When this vector is pre-multiplied by the original matrix and post-multiplied by its transpose, it will yield a negative value, thus serving as a witnessing vector.
 
-The following is the algorithm written in Python:
+The following is the algorithm, written in Python:
 
 ```python
 def witness(self):
@@ -535,21 +529,13 @@ def witness(self):
     return v, -self.T[p, p]
 ```
 
-The oracle only needs to:
+The oracle should perform a _row-based_ Cholesky decomposition such that $F(x_0) = R^\mathsf{T} R$. Let $A_{:p,:p}$ denotes a submatrix $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$. If the Cholesky decomposition fails at row $p$, there exists a vector $e_p$, defined as $(0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p$. This can be expressed as follows:
+- $v = R_{:p,:p}^{-1} e_p$, and
+- $v^\mathsf{T} F_{:p,:p}(x_0) v < 0$.
 
-- Perform a _row-based_ Cholesky decomposition such that
-  $F(x_0) = R^\mathsf{T} R$.
+The cut $(g, \beta)$ is given by the following equation:
 
-- Let $A_{:p,:p}$ denotes a submatrix
-  $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$.
-
-- If Cholesky decomposition fails at row $p$,
-  - there exists a vector
-    $e_p = (0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p$, such that
-    - $v = R_{:p,:p}^{-1} e_p$, and
-    - $v^\mathsf{T} F_{:p,:p}(x_0) v < 0$.
-  - The cut $(g, \beta)$ =
-    $(-v^\mathsf{T} \partial F_{:p,:p}(x_0) v, -v^\mathsf{T} F_{:p,:p}(x_0) v)$
+$$(-v^\mathsf{T} \partial F_{:p,:p}(x_0) v, -v^\mathsf{T} F_{:p,:p}(x_0) v).$$
 
 ### Example: Matrix Norm Minimization
 
@@ -812,7 +798,7 @@ $$
   \end{array}
 $$
 
-where $f_0(x)$ and $f_j(x)$ are “convex”. Note that some design variables are discrete. The oracle looks for a nearby discrete solution $x_d$ of $x_c$ with the cutting-plane:
+where $f_0(x)$ and $f_j(x)$ are “convex”. Note that some design variables are discrete. The oracle looks for a nearby discrete solution $x_d$ of $x_c$ with the cutiing plane:
 $$ g^\mathsf{T} (x - x_d) + \beta \le 0, \beta \ge 0, g \neq 0. $$
 Note that the cut may be a shallow cut.
 Suggestion: use as many different cuts as possible for each iteration (e.g. round-robin the evaluation of constraints).
@@ -827,8 +813,8 @@ Attracted by the benefits of this "multiplier-free" approach, many efforts have 
 
 # Concluding Remarks
 
-Should be known to students.
-The ellipsoid method is not a competitor but a companion of interior-point methods.
+It is important for students to be aware of this information.
+The ellipsoid method is not in competition with interior-point methods; rather, it works alongside them.
 
 TBD.
 
