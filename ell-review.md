@@ -430,29 +430,28 @@ $$
 
 Consider the case where $v^\mathsf{T} F(x) v$ is concave for all $v \in \mathbb{R}^N$ with respect to
 $x$, then the above problem is a convex programming.
-The problem may be reduced to _semidefinite programming_ if the function $F(x)$ is linear with respect to $x$, i.e., $F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n$, where $F_0, F_1, F_2, \dots, F_n$ are constants.
+The problem can be reduced to _semidefinite programming_ if the function $F(x)$ is linear with respect to $x$, i.e., $F(x) = F_0 + x_1 F_1 + \cdots + x_n F_n$, where $F_0, F_1, F_2, \dots, F_n$ are constants.
 
 In the field of convex optimization, a **linear matrix inequality (LMI)** is defined as an expression of the form:
 
 $$A(y) = A_0 + y_1 A_1 + y_2 A_2 + \cdots + y_m A_n \succeq 0,$$
+where $y = [y_i, i = 1, \cdots, n]$ is a real vector, $A_0, A_1, A_2, \cdots, A_n$ are symmetric matrices, and $A(y) \succeq 0$ is a generalized inequality, meaning that $A(y)$ is a positive semidefinite matrix.
 
-where $y = [y_i, i = 1, \cdots, n]$ is a real vector, $A_0, A_1, A_2, \cdots, A_n$ are symmetric matrices, and $A(y) \succeq 0$ is a generalized inequality meaning $A(y)$ is a positive semidefinite matrix.
-
-This linear matrix inequality specifies a convex constraint on the variable $y$. There are efficient numerical methods for determining the feasibility of an LMI (e.g., whether there exists a vector $y$ such that $A(y) \succeq 0$), and for solving convex optimization problems with LMI constraints.
+This linear matrix inequality defines a convex constraint on the variable $y$. There are efficient numerical methods for determining the feasibility of an LMI (e.g., whether there exists a vector $y$ such that $A(y) \succeq 0$), as well as for solving convex optimization problems with LMI constraints.
 
 ### Cholesky decomposition algorithm
 
-The Cholesky decomposition algorithm is a method used in linear algebra to decompose a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose. This decomposition is advantageous for efficient numerical solutions, including Monte Carlo simulations.
+The Cholesky decomposition algorithm is a method used in linear algebra to decompose a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose. This decomposition offers an efficient numerical solution, including Monte Carlo simulations.
 
-The Cholesky decomposition of a Hermitian positive-definite matrix $A$ is a unique decomposition where $A$ = $L L^*$, with $L$ being a lower triangular matrix containing real and positive diagonal entries, and $L^*$ representing the conjugate transpose of $L$. Every real-valued symmetric positive-definite matrix and Hermitian positive-definite matrix can be expressed as a Cholesky decomposition.
+The Cholesky decomposition of a Hermitian positive-definite matrix $A$ is a unique decomposition where $A$ = $L L^*$, with $L$ being a lower triangular matrix containing real and positive diagonal entries, and $L^*$ representing the conjugate transpose of $L$. It is possible tp express every real-valued symmetric positive-definite matrix and Hermitian positive-definite matrix as a Cholesky decomposition.
 
 If $A$ is a real matrix that is symmetric and positive-definite, it can be decomposed as $A = L L^T$. Here, $L$ represents a real lower triangular matrix with positive diagonal entries.
 
-The Cholesky and LDLT decompositions are matrix decomposition methods utilized in linear algebra for disparate purposes, exhilbiting distinctive properties.
+The Cholesky and LDLT decompositions are matrix decomposition methods utilized in linear algebra for disparate purposes, exhibiting distinctive properties.
 
-The Cholesky decomposition is a method for decomposing a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose. The Cholesky decomposition is typically more rapod and numerically stable than the LDLT decomposition. Nevertheless, the input matrix must be positive-definite for this to be effective.
+The Cholesky decomposition is a method for decomposing a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose. The Cholesky decomposition is typically more rapid and numerically stable method than the LDLT decomposition. Nevertheless, the input matrix must be positive definite for this to be effective.
 
-The LDLT decomposition, a variant of the LU decomposition that applies to positive-definite symmetric matrices, is more versatile in that it can be applied to a wider range of matrices and does not require them to be positive-definite. The LDLT decomposition factors a matrix into the product of a lower triangular matrix, a diagonal matrix, and the transpose of the lower triangular matrix². This decomposition is as fast as the Cholesky decomposition, but does not require any square roots, making it faster and more numerically stable³.
+The LDLT decomposition, a variant of the LU decomposition that applies to positive-definite symmetric matrices, is a more versatile option as it can be applied to a wider range of matrices and does not require them to be positive-definite. The LDLT decomposition factors a matrix into the product of a lower triangular matrix, a diagonal matrix, and the transpose of the lower triangular matrix. This decomposition is as fast as the Cholesky decomposition, but does not require any square roots, making it faster and more numerically stable.
 
 $$
 \begin{aligned}
@@ -478,21 +477,22 @@ $$
 
 If $A$ is real, the following recursive relations apply for the entries of $D$ and $L$:
 
-$$ D*{j} = A*{jj} - \sum*{k=1}^{j-1} L*{jk}L\_{jk}^\* D_k, $$
+$$D*{j} = A*{jj} - \sum*{k=1}^{j-1} L*{jk}L\_{jk}^\* D_k, $$
 
 $$
 L_{ij} = \frac{1}{D_j} \left( A_{ij} - \sum_{k=1}^{j-1} L_{ik} L_{jk}^* D_k \right) \quad \text{for } i>j.
 $$
 
-Again, the pattern of access allows the entire computation to be performed in-place if desired.
+Once more, the pattern of access enables the entire computation to be performed in-place.
 
-The Cholesky or LDLT decomposition can be computed using either row-based or column-based methods.
+The Cholesky or LDLT decomposition can be computed using either row-based or column-based methods:
 
-- Column-Based: In this method, the computation proceeds by columns. The inner loops compute the current column using a matrix-vector product that accumulates the effects of previous columns.
+- Column-Based: In this approach, the computation is conducted in a column-wise manner. The inner loops calulate the current column using a matrix-vector product that accumulates the effects of previous columns.
 
-- Row-Based: In this method, the computation proceeds by rows. The inner loops compute the current row by solving a triangular system involving previous rows.
+- Row-Based: In this approach, the calculations are conducted row by row. The inner loops are responsible for computing the current row, which is achieved by solving a triangular system involving previous rows.
 
-Each outer loop index selection produces a distinct Cholesky algorithm, which is named after the portion of the matrix updated by the basic operation within the inner loops. Whether to use a row-based or column-based method depends on the specific problem requirements, as well as system properties such as memory layout and access patterns. With row-based decomposition and lazy evaluation technique, the cutting plane construction can be done with exactness in $O(p^3)$. This allows for effective oracle implementation.
+The selection of each outer loop index results in a unique Cholesky algorithm, named after the portion of the matrix updated by the fundamental operation within the inner loops. The choice between a row-based or column-based method depends on the specific requirements of the problem, as well as the system properties, such as memory layout and access patterns. The row-based decomposition and lazy evaluation technique allow for the cutting plane construction to be completed with exactness in $O(p^3)$. This allows for the effective implementation of oracles.
+
 The following is the algorithm written in Python:
 
 ```python
@@ -510,11 +510,10 @@ def factor(self, getA):
     self.p = self.n
 ```
 
-The Cholesky decomposition offers a witness vector that certifies a matrix is not positive definite. If a matrix fails the Cholesky decomposition, it is not positive definite.
-
+The Cholesky decomposition provides a witness vector that certifies a matrix is not positive definite. If a matrix fails the Cholesky decomposition, it is not positive definite.
 During the decomposition process, the diagonal of the lower diagonal matrix should be calculated by finding the square root of a value, denoted as $x$. If $x$ is less than zero, this indicates that the matrix is not positive definite. This failure serves as evidence that the matrix in question is not positive definite.
 
-Should the Cholesky decomposition fail due to a negative diagonal element, this indicates that the leading principal submatrix up to that point is not positive definite. One of the standard basis vectors serves as the confirming vector. This basis vector comprises a 1 in the position corresponding to the failed diagonal element and zeros elsewhere. When this vector is pre-multiplied by the original matrix and post-multiplied by its transpose, it will yield a negative value, thus serving as a witnessing vector.
+In the event that the Cholesky decomposition is unsuccessful due to a negative diagonal element, this indicates that the leading principal submatrix up to that point is not positive definite. One of the standard basis vectors is used as the confirming vector. This basis vector includes a 1 in the position corresponding to the failed diagonal element and zeros in all other positions. When this vector is pre-multiplied by the original matrix and then post-multiplied by its transpose, the result will be a negative value, which serves as a witnessing vector.
 
 The following is the algorithm, written in Python:
 
@@ -529,11 +528,11 @@ def witness(self):
     return v, -self.T[p, p]
 ```
 
-The oracle should perform a _row-based_ Cholesky decomposition such that $F(x_0) = R^\mathsf{T} R$. Let $A_{:p,:p}$ denotes a submatrix $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$. If the Cholesky decomposition fails at row $p$, there exists a vector $e_p$, defined as $(0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p$. This can be expressed as follows:
+The oracle should perform a _row-based_ Cholesky decomposition such that $F(x_0) = R^\mathsf{T} R$. The notation $A_{:p,:p}$ is used to denote a submatrix $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$. If the Cholesky decomposition fails at row $p$, there exists a vector $e_p$, defined as $(0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p$. This can be expressed as follows:
 - $v = R_{:p,:p}^{-1} e_p$, and
 - $v^\mathsf{T} F_{:p,:p}(x_0) v < 0$.
 
-The cut $(g, \beta)$ is given by the following equation:
+The cut $(g, \beta)$ is then given by the following equation:
 
 $$(-v^\mathsf{T} \partial F_{:p,:p}(x_0) v, -v^\mathsf{T} F_{:p,:p}(x_0) v).$$
 
