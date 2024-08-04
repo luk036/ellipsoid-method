@@ -10,7 +10,7 @@ bibliography:
   ]
 csl: "applied-mathematics-letters.csl"
 abstract: |
-  The ellipsoid method is an optimization technique that offers distinct advantages over interior-point methods, as it does not need to evaluate all constraint functions. This makes it the optimal choice for convex problems with numerous or even infinite constraints. The method employs an ellipsoid as a search space and utilizes a separation oracle to provide a cutting plane for updating it. It is worth noting that the significance of the separation oracle is often overlooked. This article evaluates the utility of the ellipsoid method in three distinct applications: robust convex optimization, semidefinite programming, and parametric network optimization. The effectiveness of separation oracles is assessed for each application. Furthermore, this article addresses the implementation issues associated with the ellipsoid method, including the utilization of parallel cuts for updating the ellipsoid. In certain cases, the use of parallel cuts has been observed to reduce computation time, as evidenced in the context of FIR filter design. The article also considers discrete optimization, demonstrating how the ellipsoid method can be applied to problems involving discrete design variables. The additional effort in oracle implementation is limited to finding the nearest discrete solutions.
+  The ellipsoid method is a powerful optimization technique that offers distinct advantages over interior-point methods, as it does not require the evaluation of all constraint functions. This makes it the optimal choice for convex problems with numerous or even infinite constraints. The method employs an ellipsoid as a search space and replies on a separation oracle to provide cutting planes for updating it. It is worth noting that the significance of the separation oracle is often overlooked. This article evaluates the utility of the ellipsoid method in three distinct applications: robust convex optimization, semidefinite programming, and parametric network optimization. The effectiveness of separation oracles is assessed for each application. Furthermore, this article addresses the implementation issues associated with the ellipsoid method, including the utilization of parallel cuts for updating the ellipsoid. In certain cases, the use of parallel cuts has been observed to reduce computation time, as evidenced in the context of FIR filter design. The article also considers discrete optimization, demonstrating how the ellipsoid method can be applied to problems involving discrete design variables. The additional effort in oracle implementation is limited to locating the nearest discrete solutions.
 ---
 
 # Introduction
@@ -812,10 +812,7 @@ Attracted by the benefits of this "multiplier-free" approach, many efforts have 
 
 # Concluding Remarks
 
-It is important for students to be aware of this information.
-The ellipsoid method is not in competition with interior-point methods; rather, it works alongside them.
-
-TBD.
+While the ellipsoid method may be perceived as slower than interior-point methods for solving convex problems, it offers distinct advantages, such as the ability to handle problems with a large or infinite number of constraints. Techniques like parallel cuts and efficient implementations have helped to improve the performance of the ellipsoid method, making it a valuable tool in the optimization landscape. Finally, rather than viewing the ellipsoid method as a competitor to other optimization techniques, it should be seen as a companion, with each method offering unique strengths that can be leveraged to solve a wide range of optimization problems effectively.
 
 # References {-}
 
