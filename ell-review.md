@@ -10,14 +10,14 @@ bibliography:
   ]
 csl: "applied-mathematics-letters.csl"
 abstract: |
-  The ellipsoid method is a powerful optimization technique that offers distinct advantages over interior-point methods, as it does not require the evaluation of all constraint functions. This makes it the optimal choice for convex problems with numerous or even infinite constraints. The method employs an ellipsoid as a search space and replies on a separation oracle to provide cutting planes for updating it. It is worth noting that the significance of the separation oracle is often overlooked. This article evaluates the utility of the ellipsoid method in three distinct applications: robust convex optimization, semidefinite programming, and parametric network optimization. The effectiveness of separation oracles is assessed for each application. Furthermore, this article addresses the implementation issues associated with the ellipsoid method, including the utilization of parallel cuts for updating the ellipsoid. In certain cases, the use of parallel cuts has been observed to reduce computation time, as evidenced in the context of FIR filter design. The article also considers discrete optimization, demonstrating how the ellipsoid method can be applied to problems involving discrete design variables. The additional effort in oracle implementation is limited to locating the nearest discrete solutions.
+  The ellipsoid method is a powerful optimization technique that offers distinct advantages over interior-point methods, as it does not require the evaluation of all constraint functions. This makes it the optimal choice for convex problems with numerous or even infinite constraints. The method employs an ellipsoid as a search space and replies on a separation oracle to provide cutting planes for updating it. It is worth noting that the significance of the separation oracle is often overlooked. This article evaluates the utility of the ellipsoid method in three distinct applications: robust convex optimization, semidefinite programming, and parametric network optimization. The effectiveness of separation oracles is assessed for each application. Furthermore, this article addresses the implementation issues associated with the ellipsoid method, including the utilization of parallel cuts for updating the ellipsoid. In certain cases, the use of parallel cuts has been observed to reduce computation time, as evidenced in the context of FIR filter design. The article also considers discrete optimization, demonstrating how the ellipsoid method can be applied to problems involving quantized discrete design variables. The additional effort in oracle implementation is limited to locating the nearest discrete solutions.
 ---
 
 # Introduction
 
 The reputation of the ellipsoid method is negatively impacted by its perceived slower performance in solving large-scale convex problems when compared to the interior-point method. This perception is, however, an unfair one. In contrast to the interior-point method, the ellipsoid method does not require the explicit evaluation of all constraint functions. By contrast, the method employs an ellipsoid as a search space, requiring only a separation oracle that furnishes a _cutting plane_ (@sec:cutting_plane). This method is particularly well-suited to problems that involve a moderate number of design variables but have a large number of constraints, or even an infinite number of constraints. Some have criticized the method, claiming that it is unable to leverage sparsity. Nevertheless, while the ellipsoid method is unable to leverage sparsity, the separation oracle is capable of exploiting specific structural types.
 
-Despite decades of research into the ellipsoid method [@BGT81], the importance of the separation oracle is often overlooked. This article examines three specific applications: robust convex optimization, network optimization, and semidefinite programming. The effictiveness of separation oracles is assessed for each application.
+Despite decades of research into the ellipsoid method [@BGT81], the importance of the separation oracle is often overlooked. This article examines three specific applications: robust convex optimization, network optimization, and semidefinite programming. The effectiveness of separation oracles is assessed for each application.
 
 Robust optimization incorporates parameter uncertainties into the optimization problem by analyzing the worst-case scenario. The objective is to find a solution that is both reliable and performs optimally under a range of possible parameter values within a specified set of uncertainties. A robust counterpart of a convex problem preserves its convexity, despite the number of constraints growing to infinity. This renders the ellipsoid method an excellent choice for addressing such problems. For furth details, see @sec:robust.
 
@@ -35,9 +35,9 @@ $$\{ x \mid (x-x_c)Q^{-1}(x-x_c) \le \kappa \}.$$
 
 Moverover, @sec:parallel_cut addresses the utilization of parallel cuts. Some researchers have suggested that this technique does not result in significant improvements. Nevertheless, our findings indicate that in scenarios where specific constraints are subject to narrow upper and lower bounds, such as in the context of FIR filter designs, the incorporation of parallel cuts can markedly reduce the runtime. Furthermore, we demonstrate that when the ellipsoid method is implemented with precision, any update, whether it employs a single cut or a parallel cut, necessitates at most one square root operation.
 
-In many practical engineering problems, some design variables may be constrained to discrete forms. Since the cutiing plane method requires only a separation oracle, it can also be used for discrete problems. The only additional effort in the oracle implementation is the finding of the closest discrete solutions.
+In many practical engineering problems, some design variables may be constrained to discrete forms. Since the cutting plane method requires only a separation oracle, it can also be used for discrete problems. The only additional effort in the oracle implementation is the finding of the closest discrete solutions.
 
-# Cutiing plane Method Revisited {#sec:cutting_plane}
+# Cutting plane Method Revisited {#sec:cutting_plane}
 
 ## Convex Feasibility Problem
 
@@ -68,7 +68,7 @@ The cutting plane method consists of two main elements: a separation oracle, den
 - Ellipsoid $\mathcal{E}$ = $\{z \mid (z-x_c)P^{-1}(z-x_c) \le 1 \}$.
 - Interval $\mathcal{I}$ = $[l, u]$ (for one-dimensional problem).
 
-Let us denote the center of the current set, denoted by $\mathcal{S}$, as $x_c$. The following is a basic outline of the methodology underlying the cutiing plane method:
+Let us denote the center of the current set, denoted by $\mathcal{S}$, as $x_c$. The following is a basic outline of the methodology underlying the cutting plane method:
 
 1. **Initialization**: The initial stage of the method involves defining a search space $\mathcal{S}$ that is guaranteed to contain a point $x^*$.
 2. **Iteration**: In each iteration, the separation oracle is queried at the center $x_c$. If $x_c$ is in $\mathcal{K}$, then the iteration is terminated.
@@ -101,7 +101,7 @@ where $\Phi(x, \gamma) \le 0$ is the $\gamma$-sublevel set of $f_0(x)$ when $f_0
 
 One straightforward approach to solving the optimization problem is to perform a binary search on $\gamma$ and solve the corresponding feasibility problems at each value of $\gamma$. An alternative approach is to update the current best estimate of $\gamma$ whenever a feasible solution $x_0$ is found such that $\Phi(x_0, \gamma) = 0$.
 
-The following is a basic outline of the operational procedure of the cutiing plane method (optim):
+The following is a basic outline of the operational procedure of the cutting plane method (optim):
 
 1. **Initialization**: The initial stage of the process entails defining a search space $\mathcal{S}$ that is guaranteed to contain a solution, $x^*$.
 2. **Iteration**: In each iteration, the separation oracle is queried at the point $x_c$. A subgradient of the function at $x_c$ must then be computed. This results in the generation of a half-space that is guaranteed to contain $x^*$.
@@ -393,7 +393,7 @@ $$
 $$
 
 where $x = (\pi’, \psi’ )^\mathsf{T}$.
-The authors of [@orlin1985computing] assert that they have developed an algorithm for solving multi-parameter problems. Nevertheless, we were unable to identify any follow-up publications that corroborate this assertion. It is noteworthy that the cutiing plane method readily extends the single-parameter network algorithm to accommodate multi-parameter problems.
+The authors of [@orlin1985computing] assert that they have developed an algorithm for solving multi-parameter problems. Nevertheless, we were unable to identify any follow-up publications that corroborate this assertion. It is noteworthy that the cutting plane method readily extends the single-parameter network algorithm to accommodate multi-parameter problems.
 
 In this application, the function $h_{ij}(x)$ is defined as follows:
 
@@ -797,7 +797,7 @@ $$
   \end{array}
 $$
 
-where $f_0(x)$ and $f_j(x)$ are “convex”. Note that some design variables are discrete. The oracle looks for a nearby discrete solution $x_d$ of $x_c$ with the cutiing plane:
+where $f_0(x)$ and $f_j(x)$ are “convex”. Note that some design variables are discrete. The oracle looks for a nearby discrete solution $x_d$ of $x_c$ with the cutting plane:
 $$ g^\mathsf{T} (x - x_d) + \beta \le 0, \beta \ge 0, g \neq 0. $$
 Note that the cut may be a shallow cut.
 Suggestion: use as many different cuts as possible for each iteration (e.g. round-robin the evaluation of constraints).

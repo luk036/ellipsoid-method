@@ -1,4 +1,4 @@
-# Note
+# 👉 Note
 
 pandoc -F pandoc-crossref --citeproc -s -t latex -N --reference-links --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.pdf
 
