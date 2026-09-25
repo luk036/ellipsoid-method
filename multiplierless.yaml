@@ -1,0 +1,12 @@
+---
+author:
+  - 'Wai-Shing Luk\thanks{Fudan University}'
+documentclass: IEEEtran
+keywords:
+  - Multiplierless FIR filter
+  - Canonical signed digit
+  - Ellipsoid method
+  - Parallel cuts
+  - Spectral factorization
+thanks: This work was supported by ...
+...

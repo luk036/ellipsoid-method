@@ -18,7 +18,7 @@ PAPER_FLAGS := -F $(CROSSREF) --citeproc -s -t latex -N --reference-links \
                --shift-heading-level-by=-1 --csl=$(CSL)
 PAPER_META  := ell-review.yaml latex.yaml crossref.yaml
 
-.PHONY: all paper html slides clean
+.PHONY: all paper multiplierless html slides clean
 
 all: paper
 
@@ -27,6 +27,14 @@ paper: ell-review.pdf
 
 ell-review.pdf: ell-review.md $(PAPER_META) $(CSL)
 	$(PANDOC) $(PAPER_FLAGS) $(PAPER_META) ell-review.md -o $@
+
+# --- Multiplierless FIR paper ----------------------------------------------
+# Shares latex.yaml and crossref.yaml with the main paper; same PAPER_FLAGS.
+# Only the per-document metadata (multiplierless.yaml) differs.
+multiplierless: multiplierless.pdf
+
+multiplierless.pdf: multiplierless.md multiplierless.yaml latex.yaml crossref.yaml $(CSL)
+	$(PANDOC) $(PAPER_FLAGS) multiplierless.yaml latex.yaml crossref.yaml multiplierless.md -o $@
 
 # Requires a local katex/ directory (gitignored, not shipped).
 html: ell-review.html
