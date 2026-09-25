@@ -1,4 +1,4 @@
-## What is the profit-maximization problem and why is it important to firms?
+# What is the profit-maximization problem and why is it important to firms?
 
 The profit-maximization problem refers to the objective of firms to maximize their economic profits by choosing the optimal combination of inputs and outputs that would lead to the highest possible profit. It involves determining the optimal quantity and pricing of goods or services to achieve the highest difference between total revenue and total economic costs[1].
 

@@ -31,7 +31,7 @@ _Sir Arthur Conan Doyle, stated by Sherlock Holmes_
 
 ---
 
-## But...
+## But
 
 - The ellipsoid method works very differently compared with the
   interior point method.
@@ -43,7 +43,7 @@ _Sir Arthur Conan Doyle, stated by Sherlock Holmes_
 
 ---
 
-## Consider the ellipsoid Method When...
+## Consider the ellipsoid Method When
 
 - The number of design variables is moderate, e.g. ECO flow,
   analog circuit sizing, parametric problems
@@ -52,11 +52,11 @@ _Sir Arthur Conan Doyle, stated by Sherlock Holmes_
 
 - Oracle can be implemented effectively.
 
-# Revisit the cutting-plane method
+## Revisit the cutting-plane method
 
 ---
 
-## Basic idea
+### Basic idea
 
 \columnsbegin
 \col{0.6\textwidth}
@@ -77,7 +77,7 @@ _Sir Arthur Conan Doyle, stated by Sherlock Holmes_
 
 ---
 
-## Separation Oracle
+### Separation Oracle
 
 \columnsbegin
 \col{0.6\textwidth}
@@ -104,7 +104,7 @@ node [above right] {$x_0$};
 
 ---
 
-## Separation oracle (cont'd)
+### Separation oracle (cont'd)
 
 - $(g, \beta)$ is called a _cutting-plane_, or cut, because it eliminates
   the half-space $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from
@@ -121,7 +121,7 @@ node [above right] {$x_0$};
 
 ---
 
-## Subgradient
+### Subgradient
 
 - $\mathcal{K}$ is usually given by a set of inequalities
   $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1 \cdots m$, where $f_j(x)$
@@ -140,7 +140,7 @@ Remark:
 
 ---
 
-## Key components of Cutting-plane method
+### Key components of Cutting-plane method
 
 - A cutting plane oracle $\Omega$
 - A search space $\mathcal{S}$ initially large enough to cover
@@ -152,20 +152,20 @@ Remark:
 
 ---
 
-## Generic Cutting-plane method
+### Generic Cutting-plane method
 
 - **Given** the initial $\mathcal{S}$ containing $\mathcal{K}$.
 - **Repeat**
-  1.  Select a point $x_0$ in $\mathcal{S}$
-  2.  Query the cutting-plane oracle at $x_0$
-  3.  **If** $x_0 \in \mathcal{K}$, quit
-  4.  **Else**, update $\mathcal{S}$ to a smaller set that covers:
+  1. Select a point $x_0$ in $\mathcal{S}$
+  2. Query the cutting-plane oracle at $x_0$
+  3. **If** $x_0 \in \mathcal{K}$, quit
+  4. **Else**, update $\mathcal{S}$ to a smaller set that covers:
       $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\}$$
-  5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
+  5. **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
 
 ---
 
-## Corresponding Python code
+### Corresponding Python code
 
 \scriptsize
 
@@ -188,12 +188,12 @@ def cutting_plane_feas(evaluate, S, options=Options()):
 
 ---
 
-## From Feasibility to Optimization
+### From Feasibility to Optimization
 
 $$
 \begin{array}{ll}
-    \text{minimize}     & f_0(x), \\
-    \text{subject to}   & x \in \mathcal{K}
+    \text{minimize} & f_0(x), \\
+    \text{subject to} & x \in \mathcal{K}
 \end{array}
 $$
 
@@ -207,11 +207,11 @@ $$
 
 ---
 
-## Convex Optimization Problem
+### Convex Optimization Problem
 
 - Consider the following general form: $$\begin{array}{ll}
-                \text{minimize}         & \gamma, \\
-                \text{subject to}   & \Phi(x, \gamma) \le 0 \\
+                \text{minimize} & \gamma, \\
+                \text{subject to} & \Phi(x, \gamma) \le 0 \\
                                     & x \in \mathcal{K}
       \end{array}$$ where $\mathcal{K}'_\gamma = \{x \mid \Phi(x, \gamma) \le 0\}$
   is the $\gamma$-sublevel set of $\{x \mid f_0(x) \le \gamma\}$.
@@ -272,7 +272,7 @@ class bsearch_adaptor:
 
 ---
 
-## Shrinking
+### Shrinking
 
 - Another possible way is to update the best-so-far
   $\gamma$ whenever a feasible solution $x_0$ is found,
@@ -285,18 +285,18 @@ class bsearch_adaptor:
 
 ---
 
-## Generic Cutting-plane method (Optim)
+### Generic Cutting-plane method (Optim)
 
 - **Given** the initial $\mathcal{S}$ containing
   $\mathcal{K}_\gamma$.
 - **Repeat**
-  1.  Select a point $x_0$ in $\mathcal{S}$
-  2.  Query the separation oracle at $x_0$
-  3.  **If** $x_0 \in \mathcal{K}_\gamma$, update
+  1. Select a point $x_0$ in $\mathcal{S}$
+  2. Query the separation oracle at $x_0$
+  3. **If** $x_0 \in \mathcal{K}_\gamma$, update
       $\gamma$ such that $\Phi(x_0, \gamma) = 0$.
-  4.  Update $\mathcal{S}$ to a smaller set that covers:
+  4. Update $\mathcal{S}$ to a smaller set that covers:
       $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\} $$
-  5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
+  5. **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, quit.
 
 ---
 
@@ -323,7 +323,7 @@ def cutting_plane_dc(evaluate, S, \gamma, options=Options()):
 
 ---
 
-## Example - Profit Maximization Problem
+### Example - Profit Maximization Problem
 
 This example is taken from [@Aliabadi2013Robust].
 
@@ -344,18 +344,18 @@ $$
 
 ---
 
-## Example - Profit maximization (cont'd)
+### Example - Profit maximization (cont'd)
 
 - The formulation is not in convex form.
 - Rewrite the problem in the following form: $$\begin{array}{ll}
       \text{maximize} & \gamma \\
-      \text{subject to} & \gamma + v_1 x_1  + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}\\
+      \text{subject to} & \gamma + v_1 x_1 + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}\\
                     & x_1 \le k.
       \end{array}$$
 
 ---
 
-## Profit maximization in Convex Form
+### Profit maximization in Convex Form
 
 - By taking the logarithm of each variable:
 
@@ -365,7 +365,7 @@ $$
 
 $$
 \begin{array}{ll}
-    \text{max}  & \gamma \\
+    \text{max} & \gamma \\
     \text{s.t.} & \log(\gamma + v_1 e^{y_1} + v_2 e^{y_2}) - (\alpha y_1 + \beta y_2) \le \log(pA) \\
                 & y_1 \le \log k.
 \end{array}
@@ -428,7 +428,7 @@ print(fb, niter, feasible, status)
 
 ---
 
-## Area of Applications
+### Area of Applications
 
 - Robust convex optimization
   - oracle technique: affine arithmetic
@@ -437,33 +437,33 @@ print(fb, niter, feasible, status)
 - Semidefinite programming
   - oracle technique: Cholesky or $LDL^\mathsf{T}$ factorization
 
-# Robust Convex Optimization
+## Robust Convex Optimization
 
 ---
 
-## Robust Optimization Formulation
+### Robust Optimization Formulation
 
 - Consider: $$\begin{array}{ll}
-        \text{minimize}   & \sup_{q \in \mathbb Q} f_0(x,q) \\
+        \text{minimize} & \sup_{q \in \mathbb Q} f_0(x,q) \\
         \text{subject to} & f_j(x,q) \le 0, \;
          \forall q \in {\mathbb Q}, \; j = 1,2,\cdots,m,
       \end{array}$$ where $q$ represents a set of varying parameters.
 
 - The problem can be reformulated as: $$\begin{array}{ll}
-        \text{minimize}   & \gamma \\
-        \text{subject to} & \sup_{q \in \mathbb Q} f_0(x,q) \le \gamma  \\
+        \text{minimize} & \gamma \\
+        \text{subject to} & \sup_{q \in \mathbb Q} f_0(x,q) \le \gamma \\
         & f_j(x,q) \le 0, \;
          \forall q \in {\mathbb Q}, \; j = 1,2,\cdots,m,
       \end{array}$$
 
 ---
 
-## Example - Profit Maximization Problem (convex)
+### Example - Profit Maximization Problem (convex)
 
 $$
 \begin{array}{ll}
-\text{max}  & \gamma \\
-\text{s.t.} & \log(\gamma + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) - (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A)  \\
+\text{max} & \gamma \\
+\text{s.t.} & \log(\gamma + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) - (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A) \\
                   & y_1 \le \log \hat{k} ,
 \end{array}
 $$
@@ -476,7 +476,7 @@ $$
 
 ---
 
-## Example - Profit Maximization Problem (oracle)
+### Example - Profit Maximization Problem (oracle)
 
 By detailed analysis, the worst-case scenario occurs as follows:
 
@@ -515,7 +515,7 @@ class profit_rb_oracle:
 
 ---
 
-## 🔮 Oracle in Robust Optimization Formulation
+### 🔮 Oracle in Robust Optimization Formulation
 
 - The oracle only needs to determine:
   - If $f_j(x_0, q) > 0$ for some $j$ and $q = q_0$,
@@ -537,11 +537,11 @@ Remark:
 
 - for more complicated problems, affine arithmetic could be used [@liu2007robust].
 
-# Multi-parameter Network Problem
+## Multi-parameter Network Problem
 
 ---
 
-## Parametric Network Problem
+### Parametric Network Problem
 
 Given a network represented by a directed graph $G = (V, E)$.
 
@@ -560,7 +560,7 @@ $$
 
 ---
 
-## Network Potential Problem (cont'd)
+### Network Potential Problem (cont'd)
 
 Given $x$, the problem has a feasible solution if and only if
 $G$ does not contain negative cycles. Let $\mathcal{C}$ be a set of all cycles
@@ -579,7 +579,7 @@ $$
 
 ---
 
-## Negative Cycle Finding
+### Negative Cycle Finding
 
 There are many ways to detect negative
 cycles in a weighted graph [@cherkassky1999negative], among them Tarjan’s
@@ -588,7 +588,7 @@ practice [@alg:dasdan_mcr; @cherkassky1999negative].
 
 ---
 
-## 🔮 Oracle in Network Potential Problem
+### 🔮 Oracle in Network Potential Problem
 
 - The oracle only needs to determine:
   - If there exists a negative cycle $C_k$ under $x_0$, then
@@ -597,7 +597,7 @@ practice [@alg:dasdan_mcr; @cherkassky1999negative].
 
 ---
 
-## 🐍 Python Code
+### 🐍 Python Code
 
 \scriptsize
 
@@ -624,7 +624,7 @@ class network_oracle:
 
 ---
 
-## Example - Optimal Matrix Scaling [@orlin1985computing]
+### Example - Optimal Matrix Scaling [@orlin1985computing]
 
 - Given a sparse matrix $A = [a_{ij}] \in \mathbb{R}^{N\times N}$.
 
@@ -637,27 +637,27 @@ class network_oracle:
 
 $$
 \begin{array}{ll}
-  \text{minimize}   &   \pi/\psi  \\
+  \text{minimize} & \pi/\psi \\
   \text{subject to} &   \psi \le u_i |a_{ij}| u_j^{-1} \le \pi, \; \forall a_{ij} \neq 0 , \\
-                    &   \pi, \psi, u, \, \text{positive} \\
-  \text{variables}  &   \pi, \psi, u \, .
+                    & \pi, \psi, u, \, \text{positive} \\
+  \text{variables} & \pi, \psi, u \, .
   \end{array}
 $$
 
 ---
 
-## Optimal Matrix Scaling (cont'd)
+### Optimal Matrix Scaling (cont'd)
 
 By taking logarithms of the variables, the above problem can be
 transformed into:
 
 $$
 \begin{array}{ll}
-  \text{minimize}   &   \gamma \\
-  \text{subject to} &   {\color{blue}\pi'} - {\color{blue}\psi'} \le \gamma \\
-                    &   {\color{red}u_i'} - {\color{red}u_j'}  \le {\color{blue}\pi'} - a_{ij}', \; \forall a_{ij} \neq 0 \,, \\
-                    &   {\color{red}u_j'} - {\color{red}u_i'} \le a_{ij}' - {\color{blue}\psi'}, \; \forall a_{ij} \neq 0 \,, \\
-  \text{variables}  &   {\color{blue}\pi'}, {\color{blue}\psi'}, {\color{red}u'} \, .
+  \text{minimize} & \gamma \\
+  \text{subject to} & {\color{blue}\pi'} - {\color{blue}\psi'} \le \gamma \\
+                    & {\color{red}u_i'} - {\color{red}u_j'} \le {\color{blue}\pi'} - a_{ij}', \; \forall a_{ij} \neq 0 \,, \\
+                    & {\color{red}u_j'} - {\color{red}u_i'} \le a_{ij}' - {\color{blue}\psi'}, \; \forall a_{ij} \neq 0 \,, \\
+  \text{variables} & {\color{blue}\pi'}, {\color{blue}\psi'}, {\color{red}u'} \, .
   \end{array}
 $$
 
@@ -666,7 +666,7 @@ $x = ({\color{blue}\pi'}, {\color{blue}\psi'} )^\mathsf{T}$.
 
 ---
 
-## Corresponding Python Code
+### Corresponding Python Code
 
 \scriptsize
 
@@ -701,7 +701,7 @@ class optscaling_oracle:
 
 ---
 
-## Example - clock period & yield-driven co-optimization
+### Example - clock period & yield-driven co-optimization
 
 $$
 \begin{array}{cll}
@@ -721,13 +721,13 @@ $$
 
 ---
 
-## Example - clock period & yield-driven co-optimization
+### Example - clock period & yield-driven co-optimization
 
 The problem can be reformulated as:
 
 $$
 \begin{array}{cll}
-   \text{minimize}   & \gamma \\
+   \text{minimize} & \gamma \\
    \text{subject to} & T_\text{CP} - {\color{blue}\beta} \gamma \le 0\\
                      & u_i - u_j \le T_\text{CP} - F_{ij}^{-1}({\color{blue}\beta}), & \forall (j, i) \in E_s \,,\\
                      & u_j - u_i \le F_{ij}^{-1}(1 - {\color{blue}\beta}), & \forall (i, j) \in E_h \,, \\
@@ -736,18 +736,18 @@ $$
    \end{array}
 $$
 
-# Matrix Inequalities
+## Matrix Inequalities
 
 ---
 
-## Problems With Matrix Inequalities
+### Problems With Matrix Inequalities
 
 Consider the following problem:
 
 $$
 \begin{array}{ll}
     \text{find}    & x, \\
-    \text{subject to}  & F(x) \succeq 0,
+    \text{subject to} & F(x) \succeq 0,
 \end{array}
 $$
 
@@ -756,12 +756,12 @@ $$
 
 ---
 
-## Problems With Matrix Inequalities
+### Problems With Matrix Inequalities
 
 - Recall that a matrix $A$ is positive semidefinite if and only if
   $v^\mathsf{T} A v \ge 0$ for all $v \in \mathbb{R}^N$.
 - The problem can be transformed into: $$\begin{array}{ll}
-              \text{find}      & x, \\
+              \text{find} & x, \\
               \text{subject to}    & v^\mathsf{T} F(x) v \ge 0, \; \forall v \in \mathbb{R}^N
       \end{array}$$
 - Consider $v^\mathsf{T} F(x) v$ is
@@ -774,7 +774,7 @@ $$
 
 ---
 
-## 🔮 Oracle in Matrix Inequalities
+### 🔮 Oracle in Matrix Inequalities
 
 The oracle only needs to:
 
@@ -793,7 +793,7 @@ The oracle only needs to:
 
 ---
 
-## Lazy evaluation
+### Lazy evaluation
 
 - Don't construct the full matrix in each iteration!
 
@@ -830,7 +830,7 @@ class lmi_oracle:
 
 ---
 
-## Google Benchmark Comparison
+### Google Benchmark Comparison
 
 \scriptsize
 
@@ -845,16 +845,16 @@ class lmi_oracle:
 
 ---
 
-## Example - Matrix norm minimization
+### Example - Matrix norm minimization
 
 - Let $A(x) = A_0 + x_1 A_1 + \cdots + x_n A_n$
 - Problem $\min_x \| A(x) \|$ can be reformulated as
   $$
   \begin{array}{ll}
-       \text{minimize}      & \gamma, \\
+       \text{minimize} & \gamma, \\
        \text{subject to}    & \left(
    \begin{array}{cc}
-    \gamma\,I   & A(x) \\
+    \gamma\,I & A(x) \\
     A^\mathsf{T}(x) & \gamma\,I
    \end{array} \right) \succeq 0,
    \end{array}
@@ -863,12 +863,12 @@ class lmi_oracle:
 
 ---
 
-## Example - Estimation of Correlation Function
+### Example - Estimation of Correlation Function
 
 $$
 \begin{array}{ll}
    \min_{{\color{blue}\kappa}, p}   & \| \Sigma({\color{blue}p}) + {\color{blue}\kappa} I - Y \| \\
-   \text{s. t.} & \Sigma({\color{blue}p}) \succcurlyeq 0,  {\color{blue}\kappa} \ge 0 \; .\\
+   \text{s. t.} & \Sigma({\color{blue}p}) \succcurlyeq 0, {\color{blue}\kappa} \ge 0 \; .\\
  \end{array}
 $$
 
@@ -882,7 +882,7 @@ $$
 
 ---
 
-## 🧪 Experimental Result (I)
+### 🧪 Experimental Result (I)
 
 \columnsbegin
 \col{0.5\textwidth}
@@ -897,7 +897,7 @@ $$
 
 ---
 
-## 🧪 Experimental Result (II)
+### 🧪 Experimental Result (II)
 
 \columnsbegin
 \col{0.5\textwidth}
@@ -912,7 +912,7 @@ $$
 
 ---
 
-## 🧪 Experimental Result (III)
+### 🧪 Experimental Result (III)
 
 \columnsbegin
 \col{0.5\textwidth}
@@ -925,4 +925,4 @@ $$
 
 \columnsend
 
-# Reference
+## Reference

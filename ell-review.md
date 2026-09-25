@@ -13,7 +13,7 @@ abstract: |
   The ellipsoid method is a powerful optimization technique that offers distinct advantages over interior-point methods, as it does not require the evaluation of all constraint functions. This makes it the optimal choice for convex problems with numerous or even infinite constraints. The method employs an ellipsoid as a search space and replies on a separation oracle to provide cutting planes for updating it. It is worth noting that the significance of the separation oracle is often overlooked. This article evaluates the utility of the ellipsoid method in three distinct applications: robust convex optimization, semidefinite programming, and parametric network optimization. The effectiveness of separation oracles is assessed for each application. Furthermore, this article addresses the implementation issues associated with the ellipsoid method, including the utilization of parallel cuts for updating the ellipsoid. In certain cases, the use of parallel cuts has been observed to reduce computation time, as evidenced in the context of FIR filter design. The article also considers discrete optimization, demonstrating how the ellipsoid method can be applied to problems involving quantized discrete design variables. The additional effort in oracle implementation is limited to locating the nearest discrete solutions.
 ---
 
-# Introduction
+## Introduction
 
 The reputation of the ellipsoid method is negatively impacted by its perceived slower performance in solving large-scale convex problems when compared to the interior-point method. This perception is, however, an unfair one. In contrast to the interior-point method, the ellipsoid method does not require the explicit evaluation of all constraint functions. By contrast, the method employs an ellipsoid as a search space, requiring only a separation oracle that furnishes a _cutting plane_ (@sec:cutting_plane). This method is particularly well-suited to problems that involve a moderate number of design variables but have a large number of constraints, or even an infinite number of constraints. Some have criticized the method, claiming that it is unable to leverage sparsity. Nevertheless, while the ellipsoid method is unable to leverage sparsity, the separation oracle is capable of exploiting specific structural types.
 
@@ -21,7 +21,7 @@ Despite decades of research into the ellipsoid method [@BGT81], the importance o
 
 Robust optimization incorporates parameter uncertainties into the optimization problem by analyzing the worst-case scenario. The objective is to find a solution that is both reliable and performs optimally under a range of possible parameter values within a specified set of uncertainties. A robust counterpart of a convex problem preserves its convexity, despite the number of constraints growing to infinity. This renders the ellipsoid method an excellent choice for addressing such problems. For furth details, see @sec:robust.
 
-Furthermore, an illustration is provided of a network optimization scenario in which the ellipsoid method can be utilized. The separation oracle involves the  construction of a cutting plane by finding a negative cycle within a network graph. There are algorithms available for finding negative cycles that leverage network locality and other properties, resulting in an efficient implementation of oracles. For a more detailed discussion, please refer to @sec:network.
+Furthermore, an illustration is provided of a network optimization scenario in which the ellipsoid method can be utilized. The separation oracle involves the construction of a cutting plane by finding a negative cycle within a network graph. There are algorithms available for finding negative cycles that leverage network locality and other properties, resulting in an efficient implementation of oracles. For a more detailed discussion, please refer to @sec:network.
 
 Meanwhile, @sec:lmi addresses concerns related to matrix inequalities. Recall that the use of Cholesky or LDLT decomposition allows for the efficient checking of the positive definiteness of a symmetric matrix. If a symmetric matrix $A$, with dimensions of $m \times m$, encounters a non-positive diagonal entry during decomposition, and the process is terminated at row $p$, then $A$ cannot be positive definite. In such cases, a witness vector $v$ can be constructed to certify that $A$ is not positive definite. The row-based decomposition and lazy evaluation technique enable the cutting plane to be constructed in $O(p^3)$, thus allowing its use in efficient oracle implementations.
 
@@ -37,20 +37,20 @@ Moverover, @sec:parallel_cut addresses the utilization of parallel cuts. Some re
 
 In many practical engineering problems, some design variables may be constrained to discrete forms. Since the cutting plane method requires only a separation oracle, it can also be used for discrete problems. The only additional effort in the oracle implementation is the finding of the closest discrete solutions.
 
-# Cutting plane Method Revisited {#sec:cutting_plane}
+## Cutting plane Method Revisited {#sec:cutting_plane}
 
-## Convex Feasibility Problem
+### Convex Feasibility Problem
 
 Let $\mathcal{K}$ be a compact and convex subset of $\mathbb{R}^n$. Consider the following feasibility problem:
 
-1.  Find a point $x^* \in \mathbb{R}^n$ in $\mathcal{K}$, or
-2.  Determine if $\mathcal{K}$ is empty, i.e. if it has no feasible solution.
+1. Find a point $x^* \in \mathbb{R}^n$ in $\mathcal{K}$, or
+2. Determine if $\mathcal{K}$ is empty, i.e. if it has no feasible solution.
 
 A separation oracle, also known as a cutting plane oracle, is a method used to delineate a convex set that serves as an input to a cutting plane method.
 When a separation oracle, denoted by $\Omega$, is queried at a given point $x_0 \in \mathbb{R}^n$, it can produce one of the following outputs:
 
-1.  It asserts that $x_0$ belongs to $\mathcal{K}$, or
-2.  Returns a hyperplane separating the point $x_0$ from the set $\mathcal{K}$:
+1. It asserts that $x_0$ belongs to $\mathcal{K}$, or
+2. Returns a hyperplane separating the point $x_0$ from the set $\mathcal{K}$:
 
     $$g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \ge 0, g \neq 0, \; \forall x \in \mathcal{K}.$$
 
@@ -75,14 +75,14 @@ Let us denote the center of the current set, denoted by $\mathcal{S}$, as $x_c$.
 3. **Update**: The smaller search space, denoted by $\mathcal{S}^+$, is computed and contains the half-space from step 2.
 4. **Repeat**: Repeat steps 2 and 3 until $\mathcal{S}$ is either empty or sufficiently small.
 
-## From Feasibility to Optimization
+### From Feasibility to Optimization
 
 Let us now turn our attention to the following consideration:
 
 $$
 \begin{array}{ll}
-    \text{minimize}     & f_0(x), \\
-    \text{subject to}   & x \in \mathcal{K}.
+    \text{minimize} & f_0(x), \\
+    \text{subject to} & x \in \mathcal{K}.
   \end{array}
 $$
 
@@ -91,7 +91,7 @@ Accordingly, the problem can reformulated as follows:
 
 $$
 \begin{array}{ll}
-    \text{minimize}   & \gamma, \\
+    \text{minimize} & \gamma, \\
     \text{subject to} & \Phi(x, \gamma) \le 0, \\
                       & x \in \mathcal{K},
   \end{array}
@@ -113,12 +113,12 @@ Generic cutting plane method (Optim)
 
 - **Given** an initial $\mathcal{S}$ known to contain $\mathcal{K}_\gamma$.
 - **Repeat**
-  1.  Select a point $x_0$ in $\mathcal{S}$
-  2.  Query the separation oracle at $x_0$
-  3.  **If** $x_0 \in \mathcal{K}_\gamma$, update $\gamma$ so that $\Phi(x_0, \gamma) = 0$.
-  4.  Update $\mathcal{S}$ to a smaller set that covers:
+  1. Select a point $x_0$ in $\mathcal{S}$
+  2. Query the separation oracle at $x_0$
+  3. **If** $x_0 \in \mathcal{K}_\gamma$, update $\gamma$ so that $\Phi(x_0, \gamma) = 0$.
+  4. Update $\mathcal{S}$ to a smaller set that covers:
       $$\mathcal{S}^+ = \mathcal{S} \cap \{z \mid g^\mathsf{T} (z - x_0) + \beta \le 0\} $$
-  5.  **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, exit.
+  5. **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, exit.
 
 We assume that the oracle takes responsibility for this.
 
@@ -138,13 +138,13 @@ def cutting_plane_optim(omega, space, gamma, options=Options()):
     return x_best, gamma, options.max_iters
 ```
 
-## Example: Profit Maximization {#sec:profit}
+### Example: Profit Maximization {#sec:profit}
 
 This example is taken from the article "Robust Optimization for Profit Maximization" by Aliabadi (2013) [@Aliabadi2013Robust]. We will consider the following _short-run_ profit maximization problem:
 
 $$
 \begin{array}{ll}
-   \text{maximize}   & p(A x_1^\alpha x_2^\beta) - v_1 x_1 - v_2 x_2, \\
+   \text{maximize} & p(A x_1^\alpha x_2^\beta) - v_1 x_1 - v_2 x_2, \\
    \text{subject to} & x_1 \le k, \\
                      & x_1 > 0, x_2 > 0,
   \end{array}
@@ -152,8 +152,8 @@ $$ {#eq:profit-max-in-original-form}
 where the variable $A$ represents the scale of production, while the variables $\alpha$ and $\beta$ denote output elasticities. The $x_i$ and $v_i$ terms refer to the quantity and price of the ith input, respectively. The term $A x_1^\alpha x_2^\beta$ is the Cobb-Douglas production function, which is a widely accepted model used to represent the relationship between inputs and outputs in production. The quantity of $x_1$ is constrained by the constant $k$. Please be advised that the aforementioned formulation is not in convex form. To begin, we will reformulate the problem as follows:
 
 $$\begin{array}{ll}
-    \text{maximize}   & \gamma, \\
-    \text{subject to} & \gamma + v_1 x_1  + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}, \\
+    \text{maximize} & \gamma, \\
+    \text{subject to} & \gamma + v_1 x_1 + v_2 x_2 \le p A x_1^{\alpha} x_2^{\beta}, \\
                       & x_1 \le k, \\
                       & x_1 > 0, x_2 > 0.
   \end{array}
@@ -163,7 +163,7 @@ By means of a change of variables, the following convex form of\ @eq:profit-max-
 
 $$
 \begin{array}{ll}
-    \text{maximize}   & \gamma, \\
+    \text{maximize} & \gamma, \\
     \text{subject to} & \log(\gamma + v_1 e^{y_1} + v_2 e^{y_2}) -
                     (\alpha y_1 + \beta y_2) \le \log(p\,A), \\
                       & y_1 \le \log k,
@@ -201,7 +201,7 @@ class ProfitOracle(OracleOptim):
 
 Some readers may recognize that the problem can also be written in a geometric program by introducing one additional variable [@Aliabadi2013Robust].
 
-# Amazing Oracles {#sec:oracles}
+## Amazing Oracles {#sec:oracles}
 
 - Robust convex optimization
 
@@ -214,7 +214,7 @@ Some readers may recognize that the problem can also be written in a geometric p
 - Semidefinite programming
   - oracle technique: Cholesky decomposition
 
-## Robust Convex Optimization {#sec:robust}
+### Robust Convex Optimization {#sec:robust}
 
 In essence, robust optimization addresses parameter uncertainties by formulating problems that consider worst-case scenarios. This approach ensures more reliable and robust solutions when dealing with uncertainty. This study addresses the issue of profit maximization using a robust geometric programming approach that accounts for interval uncertainty. The authors examine the well-established Cobb-Douglas production function and propose an approximate equivalent of the robust counterpart, utilizing piecewise convex linear approximations. This approximation is expressed in the form of a geometric programming problem. To illustrate the impact of uncertainty, we will present an illustrative example.
 
@@ -224,7 +224,7 @@ For the purposes of this discussion, we will consider:
 
 $$
 \begin{array}{ll}
-    \text{minimize}   & \sup_{q \in \mathcal Q} f_0(x, q), \\
+    \text{minimize} & \sup_{q \in \mathcal Q} f_0(x, q), \\
     \text{subject to} & f_j(x, q) \le 0, \;
             \forall q \in \mathcal{Q}, \; j = 1,2,\cdots, m,
   \end{array}
@@ -232,36 +232,36 @@ $$ {#eq:robust-optim}
 where $q$ represents a set of varying parameters.
 The issue can be rephrased as follows:
 $$\begin{array}{ll}
-    \text{minimize}   & \gamma, \\
-    \text{subject to} & f_0(x, q) \le \gamma,  \\
+    \text{minimize} & \gamma, \\
+    \text{subject to} & f_0(x, q) \le \gamma, \\
                       & f_j(x, q) \le 0, \;
             \forall q \in \mathcal{Q}, \; j = 1,2,\cdots,m.
   \end{array}
 $$
 
-### Algorithm
+#### Algorithm
 
 The oracle is responsible for determining the following:
 
 - If $f_j(x_0, q) > 0$ for some $j$ and $q = q_0$, then the cut $(g, \beta)$ is equal to $(\partial f_j(x_0, q_0), f_j(x_0, q_0))$.
 - If $f_0(x_0, q) \ge \gamma$ for some $q = q_0$, then the cut $(g, \beta)$ is equal to $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - \gamma)$.
 - Otherwise, $x_0$ is feasible, then
-    - Let $q_{\max} = \argmax_{q \in \mathcal Q} f_0(x_0, q)$.
-    - $\gamma := f_0(x_0, q_{\max})$.
-    - The cut $(g, \beta)$ is equal to $(\partial f_0(x_0, q_{\max}), 0)$.
+  - Let $q_{\max} = \argmax_{q \in \mathcal Q} f_0(x_0, q)$.
+  - $\gamma := f_0(x_0, q_{\max})$.
+  - The cut $(g, \beta)$ is equal to $(\partial f_0(x_0, q_{\max}), 0)$.
 
-### Example: Robust Profit Maximization {#sec:profit-rb}
+#### Example: Robust Profit Maximization {#sec:profit-rb}
 
 Let us revisit the profit maximization problem in @sec:profit. The model parameters are subject to uncertainty over a given interval. Let us now consider the case in which the parameters $\alpha$, $\beta$, $p$, $v_1$, $v_2$, and $k$ are subject to interval uncertainties, as outlined in [@Aliabadi2013Robust]:
 
 $$
 \begin{array}{rcl}
 \alpha - \varepsilon_1 \le & \hat{\alpha} & \le \alpha + \varepsilon_1 \\
-\beta  - \varepsilon_2 \le & \hat{\beta}  & \le \beta  + \varepsilon_2 \\
-p   - \varepsilon_3 \le  & \hat{p}    & \le p   + \varepsilon_3 \\
-v_1 - \varepsilon_4 \le  & \hat{v}_1  & \le v_1 + \varepsilon_4 \\
-v_2 - \varepsilon_5 \le  & \hat{v}_2  & \le v_2 + \varepsilon_5 \\
-k   - \varepsilon_6 \le  & \hat{k}    & \le k   + \varepsilon_6
+\beta - \varepsilon_2 \le & \hat{\beta} & \le \beta + \varepsilon_2 \\
+p - \varepsilon_3 \le & \hat{p}    & \le p + \varepsilon_3 \\
+v_1 - \varepsilon_4 \le & \hat{v}_1 & \le v_1 + \varepsilon_4 \\
+v_2 - \varepsilon_5 \le & \hat{v}_2 & \le v_2 + \varepsilon_5 \\
+k - \varepsilon_6 \le & \hat{k}    & \le k + \varepsilon_6
 \end{array}
 $$
 
@@ -269,14 +269,14 @@ The problem formulation of the robust counterpart considering the worst-case sce
 
 $$
 \begin{array}{ll}
-    \text{max}  & \gamma \\
+    \text{max} & \gamma \\
     \text{s.t.} & \log(\gamma + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) -
-                        (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A)  \\
+                        (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A) \\
                 & y_1 \le \log \hat{k}.
   \end{array}
 $$
 
-In [@Aliabadi2013Robust], the authors propose the use of piecewise convex linear approximations as a proximate approximation of the robust counterpart,  thereby facilitating greater solvability through the use of interior-point algorithms. This approach requires the development of a significant amount of programming, which may be challenging for some teams. However, the resulting solutions are inherently imprecise, which is something to consider. However, this can be readily addressed through the cutting plane method. It should be noted that in this simple example, the worst-case scenario occurs when:
+In [@Aliabadi2013Robust], the authors propose the use of piecewise convex linear approximations as a proximate approximation of the robust counterpart, thereby facilitating greater solvability through the use of interior-point algorithms. This approach requires the development of a significant amount of programming, which may be challenging for some teams. However, the resulting solutions are inherently imprecise, which is something to consider. However, this can be readily addressed through the cutting plane method. It should be noted that in this simple example, the worst-case scenario occurs when:
 
 - $\hat{p} = p - e_3$, $k = \bar{k} - e_3$
 - $v_1 = \bar{v}_1 + e_3$, $v_2 = \bar{v}_2 + e_3$,
@@ -286,7 +286,6 @@ In [@Aliabadi2013Robust], the authors propose the use of piecewise convex linear
   $\beta = \bar{\beta} + e_2$
 
 It is even possible to reuse the original oracle to compose the robust counterpart.
-
 
 ```python
 class ProfitRbOracle(OracleOptim):
@@ -310,7 +309,7 @@ class ProfitRbOracle(OracleOptim):
 
 It should be noted that the "argmax" may be non-convex, which may make it challenging to solve. For more complex problems, one potential approach is to utilize affine arithmetic as a computational aid [@liu2007robust].
 
-## Multi-parameter Network Problems {#sec:network}
+### Multi-parameter Network Problems {#sec:network}
 
 In the context of network theory, a directed graph, denoted by $G = (V, E)$, represents a network.
 Let us consider the following:
@@ -342,7 +341,7 @@ The minimum cycle ratio (MCR) problem is a fundamental problem in the analysis o
 
 The MCR problem has numerous applications in the analysis of discrete event systems, including digital circuits and communication networks. It is closely related to other problems in graph theory, such as the shortest path problem and the maximum flow problem. Consequently, efficient algorithms for solving the MCR problem are of great practical importance.
 
-### Negative Cycle Detection Algorithm
+#### Negative Cycle Detection Algorithm
 
 The most time-consuming part of the proposed method is the negative cycle detection, which underscores the importance of selecting an appropriate negative cycle detection algorithm. There are numerous methods for detecting negative cycles in weighted graphs [@cherkassky1999negative]. Tarjan's algorithm [@Tarjan1981negcycle] is one of the fastest in practice and is widely regarded as a benchmark for this purpose [@alg:dasdan_mcr; @cherkassky1999negative].
 
@@ -356,7 +355,7 @@ The separation oracle is only required to determine:
   - $\gamma := f_0(x_0)$.
   - The cut $(g, \beta)$ = $(\partial f_0(x_0), 0)$
 
-### Example: Optimal matrix scalings under the min-max-ratio criterion
+#### Example: Optimal matrix scalings under the min-max-ratio criterion
 
 The following example is taken from [@orlin1985computing]. As stated by [@orlin1985computing], optimal matrix scaling has a number of practical applications. One such application is in the field of linear programming, where groups of constraints and groups of variables may represent the same physical commodity for which common measurement units are employed. Another area of application is in telecommunications, where matrix scaling can be employed to optimize the transmission of signals. Futhermore, matrix scaling has been employed in approximation theory to approximate functions of multiple variables by the sum of functions of fewer variables. Futhermore, matrix scaling has been employed in Gaussian elimination, a prevalent method for solving systems of linear equations, with the objective of enhancing the numerical stability of the algorithm.
 
@@ -364,9 +363,9 @@ Let us consider a matrix $A \in \mathbb{R}^{N\times N}$. A _symmetric scaling_ o
 
 $$
 \begin{array}{ll}
-    \text{minimize}   &  \pi  \\
+    \text{minimize} & \pi \\
     \text{subject to} &  1 \le u_i |a_{ij}| u_j^{-1} \le \Pi, \; \forall a_{ij} \neq 0 , \\
-                      &  \pi, u_1 \cdot u_N \, \text{positive}. \\
+                      & \pi, u_1 \cdot u_N \, \text{positive}. \\
   \end{array}
 $$
 
@@ -376,9 +375,9 @@ Another possible criterion is to minimize the ratio of the largest absolute valu
 
 $$
 \begin{array}{ll}
-    \text{minimize}   &  \pi/\psi  \\
+    \text{minimize} & \pi/\psi \\
     \text{subject to} &  \psi \le u_i |a_{ij}| u_j^{-1} \le \Pi, \; \forall a_{ij} \neq 0 , \\
-                      &  \pi, \psi, u_1 \cdot u_N \, \text{positive}. \\
+                      & \pi, \psi, u_1 \cdot u_N \, \text{positive}. \\
   \end{array}
 $$
 
@@ -386,10 +385,10 @@ Let $k'$ denotes $\log( | k | )$. By taking the logarithm of the variables, the 
 
 $$
 \begin{array}{ll}
-    \text{minimize}   &  \pi' - \psi' \\
-    \text{subject to} &  u_i' - u_j'  \le \pi' - a_{ij}', \; \forall a_{ij} \neq 0 \,, \\
-                      &  u_j' - u_i' \le a_{ij}' - \psi', \; \forall a_{ij} \neq 0 \,, \\
-    \text{variables}  &  \pi', \psi', u' \, .
+    \text{minimize} & \pi' - \psi' \\
+    \text{subject to} & u_i' - u_j' \le \pi' - a_{ij}', \; \forall a_{ij} \neq 0 \,, \\
+                      & u_j' - u_i' \le a_{ij}' - \psi', \; \forall a_{ij} \neq 0 \,, \\
+    \text{variables} & \pi', \psi', u' \, .
   \end{array}
 $$
 
@@ -401,20 +400,20 @@ In this application, the function $h_{ij}(x)$ is defined as follows:
 $$
 {h}_{ij}(x) = \left\{ \begin{array}{cll}
      -\pi' + a_{ij}', & \forall a_{ij} \neq 0 \, ,\\
-     \psi' -a_{ji}',  & \forall a_{ji} \neq 0 \, ,\\
+     \psi' -a_{ji}', & \forall a_{ji} \neq 0 \, ,\\
 \end{array} \right.
 $$
 
 Fast algorithms for finding a negative cycle can be found in [@dasdan1998faster; @dasdan2004experimental]. Further applications to clock skew scheduling can be found in [@zhou2015multi].
 
-## Problems Involving Matrix Inequalities {#sec:lmi}
+### Problems Involving Matrix Inequalities {#sec:lmi}
 
 Consider the following problem:
 
 $$
 \begin{array}{ll}
     \text{find}        & x, \\
-    \text{subject to}  & F(x) \succeq 0,
+    \text{subject to} & F(x) \succeq 0,
   \end{array}
 $$
 
@@ -424,7 +423,7 @@ The problem can be transformed into the following form:
 
 $$
 \begin{array}{ll}
-        \text{find}          & x, \\
+        \text{find} & x, \\
         \text{subject to}    & v^\mathsf{T} F(x) v \ge 0, \; \forall v \in \mathbb{R}^N.
   \end{array}
 $$
@@ -440,7 +439,7 @@ where $y = [y_i, i = 1, \cdots, n]$ is a real vector, $A_0, A_1, A_2, \cdots, A_
 
 This linear matrix inequality defines a convex constraint on the variable $y$. There are efficient numerical methods for determining the feasibility of an LMI (e.g., whether there exists a vector $y$ such that $A(y) \succeq 0$), as well as for solving convex optimization problems with LMI constraints.
 
-### Cholesky decomposition algorithm
+#### Cholesky decomposition algorithm
 
 The Cholesky decomposition algorithm is a method used in linear algebra to decompose a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose. This decomposition offers an efficient numerical solution, including Monte Carlo simulations.
 
@@ -457,19 +456,19 @@ The LDLT decomposition, a variant of the LU decomposition that applies to positi
 $$
 \begin{aligned}
 \mathbf{A} = \mathbf{LDL}^\mathsf{T} & =
-\begin{pmatrix}   1 & 0 & 0 \\
+\begin{pmatrix} 1 & 0 & 0 \\
    L_{21} & 1 & 0 \\
    L_{31} & L_{32} & 1\\
 \end{pmatrix}
-\begin{pmatrix}   D_1 & 0 & 0 \\
+\begin{pmatrix} D_1 & 0 & 0 \\
    0 & D_2 & 0 \\
    0 & 0 & D_3\\
 \end{pmatrix}
-\begin{pmatrix}   1 & L_{21} & L_{31} \\
+\begin{pmatrix} 1 & L_{21} & L_{31} \\
    0 & 1 & L_{32} \\
    0 & 0 & 1\\
 \end{pmatrix} \\
-& = \begin{pmatrix}   D_1 &   &(\mathrm{symmetric})   \\
+& = \begin{pmatrix} D_1 & &(\mathrm{symmetric}) \\
    L_{21}D_1 & L_{21}^2D_1 + D_2& \\
    L_{31}D_1 & L_{31}L_{21}D_{1}+L_{32}D_2 & L_{31}^2D_1 + L_{32}^2D_2+D_3.
 \end{pmatrix}.
@@ -530,6 +529,7 @@ def witness(self):
 ```
 
 The oracle should perform a _row-based_ Cholesky decomposition such that $F(x_0) = R^\mathsf{T} R$. The notation $A_{:p,:p}$ is used to denote a submatrix $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$. If the Cholesky decomposition fails at row $p$, there exists a vector $e_p$, defined as $(0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p$. This can be expressed as follows:
+
 - $v = R_{:p,:p}^{-1} e_p$, and
 - $v^\mathsf{T} F_{:p,:p}(x_0) v < 0$.
 
@@ -537,16 +537,16 @@ The cut $(g, \beta)$ is then given by the following equation:
 
 $$(-v^\mathsf{T} \partial F_{:p,:p}(x_0) v, -v^\mathsf{T} F_{:p,:p}(x_0) v).$$
 
-### Example: Matrix Norm Minimization
+#### Example: Matrix Norm Minimization
 
 Let $A(x) = A_0 + x_1 A_1 + \cdots + x_n A_n$.
 Problem $\min_x \| A(x) \|$ can be reformulated as
 
 $$
 \begin{array}{ll}
-    \text{minimize}      & \gamma, \\
+    \text{minimize} & \gamma, \\
     \text{subject to}    & \begin{pmatrix}
-                             \gamma\,I_m   & A(x) \\
+                             \gamma\,I_m & A(x) \\
                              A^\mathsf{T}(x) & \gamma\,I_n
                             \end{pmatrix} \succeq 0.
   \end{array}
@@ -554,9 +554,9 @@ $$
 
 A binary search on $\gamma$ can be used for this problem.
 
-### Example: Estimation of Correlation Function
+#### Example: Estimation of Correlation Function
 
-## Random Field [@Schabenberger05]
+### Random Field [@Schabenberger05]
 
 _Random field_, also known as _stochastic process_, can be regarded as an indexed family of random variables denoted as {$Z(\mathbf{s}): \mathbf{s}\in D$}, where $D$ is a subset of $d$-dimensional Euclidean space $\mathbb{R}^d$. To specify a stochastic process, the joint probability distribution function of any finite subset $(Z(\mathbf{s}_1), \ldots, Z(\mathbf{s}_n))$ must be given in a consistent way, which is called _distribution_ of the process. For ease of analysis, a random field is often assumed to be with _Gaussian_ distribution and is called Gaussian random field.
 
@@ -582,7 +582,7 @@ When the two components are considered, the measurement data can still be regard
 $$
 \begin{array}{ll}
    \min_{\kappa, p}   & \| \Omega(p) + \kappa I - Y \| \\
-   \text{s.t.} & \Omega(p) \succcurlyeq 0,  \kappa \ge 0 \; .\\
+   \text{s.t.} & \Omega(p) \succcurlyeq 0, \kappa \ge 0 \; .\\
   \end{array}
 $$
 
@@ -590,11 +590,11 @@ Let $\rho(h) = \sum_i^n p_i \Psi_i(h)$, where $p_i$'s are the unknown coefficien
 $$\Omega(p) = p_1 F_1 + \cdots + p_n F_n, $$
 where $\{F_k\}_{i,j} =\Psi_k( \| s_j - s_i \|_2)$.
 
-# Ellipsoid Method Revisited {#sec:ellipsoid}
+## Ellipsoid Method Revisited {#sec:ellipsoid}
 
 Some History of the Ellipsoid Method [@BGT81]. Introduced by Shor and Yudin and Nemirovskii in 1976. It used to show that linear programming (LP) is polynomial-time solvable (Kachiyan 1979), settled the long-standing problem of determining the theoretical complexity of LP. In practice, however, the simplex method runs much faster than the method, although its worst-case complexity is exponential.
 
-## Basic Ellipsoid Method
+### Basic Ellipsoid Method
 
 An ellipsoid $\mathcal{E}_k(x_k, P_k)$ is specified as a set
 $$\{x \mid (x-x_k) P^{-1}_k (x - x_k) \le 1 \}, $$
@@ -647,7 +647,7 @@ Even better, split $P$ into two variables $\kappa \cdot Q$. Let $\tilde{g} = Q \
 $$
 x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
   Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad
-  \kappa^+ =  \delta\cdot\kappa
+  \kappa^+ = \delta\cdot\kappa
 $$
 
 Reduce $n^2$ multiplications per iteration. Note that:
@@ -656,7 +656,7 @@ Reduce $n^2$ multiplications per iteration. Note that:
 
 - The range of $\delta$ is $(0, \frac{n^2}{n^2 - 1})$
 
-## Central Cut
+### Central Cut
 
 A Special case of when $\beta = 0$. Deserve a separate implement because it is much simpler. Let $\tilde{g} = Q\,g$, $\tau = \sqrt{\kappa\cdot\omega}$,
 
@@ -669,13 +669,13 @@ $$
 **Example**: For n=3, τ=2:
 ρ = 2/4 = 0.5, σ = 2/4 = 0.5, δ = 9/8 = 1.125
 
-## 🪜 Parallel Cuts {#sec:parallel_cut}
+### 🪜 Parallel Cuts {#sec:parallel_cut}
 
 Oracle returns a pair of cuts instead of just one. The pair of cuts is given by $g$ and $(\beta_1, \beta_2)$ such that:
 
 $$
 \begin{array}{l}
-    g^\mathsf{T} (x - x_c) + \beta_1 \le 0,  \\
+    g^\mathsf{T} (x - x_c) + \beta_1 \le 0, \\
     g^\mathsf{T} (x - x_c) + \beta_2 \ge 0,
   \end{array}
 $$
@@ -704,7 +704,7 @@ Otherwise,
 $$
 x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
     Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad
-    \kappa^+ =  \delta \kappa.
+    \kappa^+ = \delta \kappa.
 $$
 
 where
@@ -724,8 +724,7 @@ $$
 σ = (2 + (4-(-1)-3)/0 → undefined (special case handled separately)
 This shows the need for special handling when β̄=0.
 
-
-### Example: FIR filter design
+#### Example: FIR filter design
 
 A typical structure of digital Finite Impulse Response (FIR) filter is shown in @fig:fir-strctr, where the coefficients $h[0], h[1], \ldots, h[n-1]$ must be determined to meet given specifications. Usually, they can be manually designed using windowing or frequency-sampling techniques [@oppenheim1989discrete].
 
@@ -746,9 +745,9 @@ The design of a filter with magnitude constraints is often formulated as a const
 
 $$
 \begin{aligned}
-  \min            &  \gamma \\
-  \mathrm{s.t.}   &  f(\mathbf{x}) \le \gamma \\
-                  &  g(\mathbf{x}) \le 0.\end{aligned}
+  \min            & \gamma \\
+  \mathrm{s.t.} & f(\mathbf{x}) \le \gamma \\
+                  & g(\mathbf{x}) \le 0.\end{aligned}
 $$
 
 {#eq:ori}
@@ -774,15 +773,15 @@ where $h(t)=0$ for $t<0$ or $t>n-1$.
 
 ![Result](ellipsoid.files/lowpass.svg){width="80%"}
 
-### Example: Maximum Likelihood estimation
+#### Example: Maximum Likelihood estimation
 
 Consider
 
 $$
 \begin{array}{ll}
-    \min_{\kappa, p}  & \log\det(\Omega(p) + \kappa\cdot I) +
+    \min_{\kappa, p} & \log\det(\Omega(p) + \kappa\cdot I) +
                 \mathrm{Tr}((\Omega(p) + \kappa\cdot I)^{-1}Y), \\
-    \text{s.t.}       & \Omega(p) \succeq 0, \kappa \ge 0 .
+    \text{s.t.} & \Omega(p) \succeq 0, \kappa \ge 0 .
 \\
   \end{array}
 $$
@@ -792,13 +791,13 @@ Therefore, the following problem is convex:
 
 $$
 \begin{array}{ll}
-    \min_{\kappa, p}  & \log\det V(p) + \mathrm{Tr}(V(p)^{-1}Y),\\
-    \text{s.t.}       & \Omega(p) + \kappa \cdot I = V(p) \\
+    \min_{\kappa, p} & \log\det V(p) + \mathrm{Tr}(V(p)^{-1}Y),\\
+    \text{s.t.} & \Omega(p) + \kappa \cdot I = V(p) \\
                       & 0 \preceq V(p) \preceq 2Y, \kappa {>} 0.
   \end{array}
 $$
 
-## Discrete Optimization {#sec:discrete}
+### Discrete Optimization {#sec:discrete}
 
 Many engineering problems can be formulated through convex/geometric programming, such as digital circuit sizing. However, in ASIC design, there is frequently a limited number of cell types to select from in the cell library. This means that some design variables are discrete. We can map the design variables to integers to represent the discrete version as Mixed-Integer Convex programming (MICP).
 
@@ -810,7 +809,7 @@ Consider:
 
 $$
 \begin{array}{ll}
-        \text{minimize}      & f_0(x), \\
+        \text{minimize} & f_0(x), \\
         \text{subject to}    & f_j(x) \le 0, \; \forall j=1,2,\ldots, \\
                              & x \in \mathbb{D},
   \end{array}
@@ -821,7 +820,7 @@ $$ g^\mathsf{T} (x - x_d) + \beta \le 0, \beta \ge 0, g \neq 0. $$
 Note that the cut may be a shallow cut.
 Suggestion: use as many different cuts as possible for each iteration (e.g. round-robin the evaluation of constraints).
 
-### Example: Multiplierless FIR Filter Design
+#### Example: Multiplierless FIR Filter Design
 
 However, there are still many filter design problems that are non-convex, such as multiplierless FIR filter design problems. Note that in [@fig:fir-strctr], each coefficient associated with a multiplier unit makes the filter power-hungry, especially in _application specific integrated circuits_ (ASIC). Fortunately, if each coefficient is quantized and represented as a sum of Singed Power-of-Two (SPT), a multiplierless filter can be implemented. Such coefficients can be uniquely represented by a Canonical Signed-Digit (CSD) code with a minimum number of non-zero digits[@george1960csd]. In this case, it confines the multiplication to addition and shift operations. The coefficient 0.40625 = 13/32 can be written as $2^{-1} - 2^{-3} + 2^{-5}$. Thus, the multiplier can be replaced with three shifters and two adders at a much lower cost. However, the coefficient quantization constraint is non-convex, making the convex optimization algorithm not directly applicable. A similar case is the consideration of the finite word-length effect [@lim1982finite].
 
@@ -829,10 +828,10 @@ Attracted by the benefits of this "multiplier-free" approach, many efforts have 
 
 ![Result](ellipsoid.files/csdlowpass.svg){width="80%"}
 
-# Concluding Remarks
+## Concluding Remarks
 
 While the ellipsoid method may be perceived as slower than interior-point methods for solving convex problems, it offers distinct advantages, such as the ability to handle problems with a large or infinite number of constraints. Techniques like parallel cuts and efficient implementations have helped to improve the performance of the ellipsoid method, making it a valuable tool in the optimization landscape. Finally, rather than viewing the ellipsoid method as a competitor to other optimization techniques, it should be seen as a companion, with each method offering unique strengths that can be leveraged to solve a wide range of optimization problems effectively.
 
-# References {-}
+## References {-}
 
 \

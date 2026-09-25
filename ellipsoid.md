@@ -104,7 +104,7 @@ $$
   $$
   x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
   Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad
-  \kappa^+ =  \delta\cdot\kappa.
+  \kappa^+ = \delta\cdot\kappa.
   $$
 
 - Reduce $n^2$ multiplications per iteration.
@@ -193,11 +193,11 @@ def calc_cc(self, tau):
     return 0, (rho, sigma, delta)
 ```
 
-# 🪜 Parallel Cuts
+## 🪜 Parallel Cuts
 
 ---
 
-## 🪜 Parallel Cuts
+### 🪜 Parallel Cuts
 
 - Oracle returns a pair of cuts instead of just one.
 
@@ -205,7 +205,7 @@ def calc_cc(self, tau):
 
   $$
   \begin{array}{l}
-  g^\mathsf{T} (x - x_c) + \beta_1 \le 0,  \\
+  g^\mathsf{T} (x - x_c) + \beta_1 \le 0, \\
   g^\mathsf{T} (x - x_c) + \beta_2 \ge 0,
   \end{array}$$ for all $x \in \mathcal{K}$.
 
@@ -216,13 +216,13 @@ def calc_cc(self, tau):
 
 ---
 
-## 🪜 Parallel Cuts
+### 🪜 Parallel Cuts
 
 ![Parallel Cut](ellipsoid.files/parallel_cut.pdf){width="60%"}
 
 ---
 
-## Updating the ellipsoid
+### Updating the ellipsoid
 
 - Let $\tilde{g} = Q\,g$ and $\tau^2 = \kappa\cdot\omega$.
 
@@ -237,7 +237,7 @@ def calc_cc(self, tau):
   $$
   x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad
   Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad
-  \kappa^+ =  \delta \kappa.
+  \kappa^+ = \delta \kappa.
   $$
 
   where
@@ -254,7 +254,7 @@ def calc_cc(self, tau):
 
 ---
 
-## 🐍 Python code (parallel cut)
+### 🐍 Python code (parallel cut)
 
 \scriptsize
 
@@ -284,7 +284,7 @@ def calc_ll_core(self, b0, b1, tsq):
 
 ---
 
-## Example: FIR filter design
+### Example: FIR filter design
 
 ![A typical structure of an FIR filter @mitra2006digital.](ellipsoid.files/fir_strctr.pdf){width="80%"}
 
@@ -293,7 +293,7 @@ def calc_ll_core(self, b0, b1, tsq):
 
 ---
 
-## Example: FIR filter design (cont'd)
+### Example: FIR filter design (cont'd)
 
 - The frequency response:
   $$H(\omega)~=~\sum_{m=0}^{n-1}{h(m)e^{-jm\omega}}. $$
@@ -309,7 +309,7 @@ def calc_ll_core(self, b0, b1, tsq):
 
 ---
 
-## Example: FIR filter design (II)
+### Example: FIR filter design (II)
 
 - However, via *spectral factorization* [@goodman1997spectral], it can be transformed into a convex one\ [@wu1999fir]:
   $$L^2(\omega)~\leq~R(\omega)~\leq~U^2(\omega),~\forall~\omega\in(0,\pi). $$
@@ -322,7 +322,7 @@ def calc_ll_core(self, b0, b1, tsq):
 
 ---
 
-## Example: FIR filter design (III)
+### Example: FIR filter design (III)
 
 - $\mathbf{r}$ can be determined by $\mathbf{h}$:
 
@@ -334,21 +334,21 @@ def calc_ll_core(self, b0, b1, tsq):
 
 $$
 \begin{array}{ll}
-  \text{min}  & \gamma \\
-  \text{s.t.} & L^2(\omega) \le R(\omega) \le U^2(\omega), \; \forall \omega \in [0,\pi]   \\
+  \text{min} & \gamma \\
+  \text{s.t.} & L^2(\omega) \le R(\omega) \le U^2(\omega), \; \forall \omega \in [0,\pi] \\
               & R(\omega) > 0, \forall \omega \in [0,\pi]
 \end{array}
 $$
 
 ---
 
-## Experiment
+### Experiment
 
 ![Result](ellipsoid.files/lowpass.pdf){width="60%"}
 
 ---
 
-## Google Benchmark Result
+### Google Benchmark Result
 
 \scriptsize
 
@@ -363,11 +363,11 @@ $$
 
 ---
 
-## Example: Maximum Likelihood estimation
+### Example: Maximum Likelihood estimation
 
 $$
 \begin{array}{ll}
-      \min_{\color{blue}\kappa, p}   &      \log \det (\Omega({\color{blue}p}) + {\color{blue}\kappa}
+      \min_{\color{blue}\kappa, p} & \log \det (\Omega({\color{blue}p}) + {\color{blue}\kappa}
        \cdot I) + \mathrm{Tr}((\Omega({\color{blue}p}) + {\color{blue}\kappa} \cdot I)^{-1}Y) \\\\
       \text{s.t.} & \Omega({\color{blue}p}) {\color{red}\succeq} 0, {\color{blue}\kappa} {\color{red}\ge} 0 \\\\
  \end{array}
@@ -380,23 +380,23 @@ Note that the 1st term is concave and the 2nd term is convex
 
 ---
 
-## Example: Maximum Likelihood Estimation (cont'd)
+### Example: Maximum Likelihood Estimation (cont'd)
 
 - Thus, the following problem is convex:
 
 $$
 \begin{array}{ll}
-      \min_{\color{blue}\kappa, p}   &   \log \det V({\color{blue}p}) + \mathrm{Tr}(V({\color{blue}p})^{-1}Y) \\\\
+      \min_{\color{blue}\kappa, p} & \log \det V({\color{blue}p}) + \mathrm{Tr}(V({\color{blue}p})^{-1}Y) \\\\
       \text{s.t.} & \Omega({\color{blue}p}) + {\color{blue}\kappa} \cdot I = V({\color{blue}p}) \\\\
                     & 0 \preceq V({\color{blue}p}) \preceq 2Y, {\color{blue}\kappa} {>} 0
 \end{array}
 $$
 
-# Discrete Optimization
+## Discrete Optimization
 
 ---
 
-## Why discrete convex programming
+### Why discrete convex programming
 
 - Many engineering problems can be formulated as a convex/geometric
   programming, such as digital circuit sizing
@@ -410,7 +410,7 @@ $$
 
 ---
 
-## What's wrong with the existing approach?
+### What's wrong with the existing approach?
 
 - Mostly based on relaxation.
 
@@ -425,13 +425,13 @@ $$
 
 ---
 
-## Mixed integer convex programming
+### Mixed integer convex programming
 
 Consider:
 
 $$
 \begin{array}{ll}
-        \text{minimize}      & f_0(x), \\
+        \text{minimize} & f_0(x), \\
         \text{subject to}    & f_j(x) \le 0, \; \forall j=1,2,\ldots \\
                              & x \in \mathbb{D}
 \end{array}
@@ -444,7 +444,7 @@ where
 
 ---
 
-## 🔮 Oracle Requirement
+### 🔮 Oracle Requirement
 
 - Oracle looks for a nearby discrete solution $x_d$ of $x_c$
   with the cutting-plane:
@@ -457,8 +457,8 @@ where
 
 ---
 
-## Example: Multiplier-less FIR filter design
+### Example: Multiplier-less FIR filter design
 
 ![Result](ellipsoid.files/csdlowpass.pdf){width="60%"}
 
-# Reference
+## Reference

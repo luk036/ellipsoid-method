@@ -1,6 +1,6 @@
 ell-review.pdf
 
-# Abstract:
+# Abstract
 
 The main topic of this document is the ellipsoid method and its application in various optimization problems. The document begins by addressing the reputation of the ellipsoid method, which is commonly believed to be slow compared to interior point methods. However, the author argues that the ellipsoid method has advantages, such as not requiring the evaluation of all constraint functions and being able to exploit certain types of problem structure.
 
@@ -12,6 +12,6 @@ Additionally, the document mentions that the cutting-plane method can be applied
 
 Overall, this document presents a comprehensive exploration of the ellipsoid method and its applications in optimization problems, highlighting its advantages and discussing implementation issues and techniques.
 
-# How can multiplier-less FIR filter design problems be implemented?
+## How can multiplier-less FIR filter design problems be implemented?
 
 Multiplier-less FIR filter design problems can be implemented by quantizing the filter coefficients and representing them as a sum of Signed Power-of-Two (SPT) terms. Each coefficient can be uniquely represented by a Canonic Signed-Digit (CSD) code with the smallest number of non-zero digits. This allows the multiplications to be replaced with add and shift operations, resulting in lower cost implementation. The coefficient quantization constraint, which is non-convex, makes it challenging to directly apply convex optimization algorithms. Integer programming techniques can be used to solve these problems, such as applying a trellis search algorithm or using a parallel genetic algorithm .

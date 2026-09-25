@@ -20,7 +20,7 @@ that the proposed method is efficient and practical.
 
 intra-die variations, spatial correlation, maximum likelihood estimation
 
-# Introduction
+## Introduction
 
 As the minimum feature size of semiconductor device continues scaling
 down, integrated circuits suffer from increasing variations in the
@@ -109,7 +109,7 @@ random field theory. In Section 3, the MLE-M method for intra-die
 spatial correlation extraction is proposed. In Section 4, experimental
 results are presented. The paper is concluded in Section 5.
 
-# Background Material
+## Background Material
 
 According to [@Pitchumani05], the intra-die variation $Z$ can be further
 decomposed into three components:
@@ -140,7 +140,7 @@ function, which is called nugget effect. We will describe this
 phenomenon and give the modification form of the Matérn correlation
 function in this section.
 
-## Random Field [@Schabenberger05]
+### Random Field [@Schabenberger05]
 
 _Random field_, also known as _stochastic process_, can be regarded as
 an indexed family of random variables denoted as
@@ -178,7 +178,8 @@ R(\mathbf{s}_i,\mathbf{s}_j)=R(\mathbf{h})=R(h)=C(h)/C(0).$$ If we
 denote $C(0)$, the variance of $Z(\mathbf{s})$, as $\sigma^2$, then the
 relationship between covariance and correlation is $C(h)=\sigma^2 R(h)$.
 
-Correlation Function for The Spatially Correlated Component
+### Correlation Function for The Spatially Correlated Component
+
 -----------------------------------------------------------
 
 The spatially correlatied component is modeled as random field with
@@ -211,8 +212,9 @@ parameter groups.
 
 [\[fig:Matern\_funs\]]{#fig:Matern_funs label="fig:Matern_funs"}
 
-Correlation Function Considering Nugget Effect
-----------------------------------------------
+### Correlation Function Considering Nugget Effect
+
+-----------------------------------------------------------
 
 In the measurement data, apart from the spatially correlated component,
 the purely random component and the unavoidable measurement error also
@@ -261,14 +263,14 @@ paper, the proposed method uses the modified form $\tilde{R}(h)$ to
 account for the nugget effect and the extraction results are more
 accurate.
 
-# Intra-die Spatial Correlation Extraction Based on MLE Method
+## Intra-die Spatial Correlation Extraction Based on MLE Method
 
 In this section, we will first formulate the problem of spatial
 correlation function extraction. We further deduce the likelihood
 function for multiple samples, and present the extraction method in
 details.
 
-## Problem Formulation
+### Problem Formulation
 
 In the measurement process, we sample to gather measurement data over a
 batch of $M$ chips, with each chip comprising $N$ measurement sites. The
@@ -287,7 +289,7 @@ inter-die variation should be considered. The objective is to recover
 the spatial correlation function $R(\vec{\psi})$ as accurately as
 possible after plugging the estimated $\vec{\psi}$ into Matérn function.
 
-## Spatial Correlation Extraction Based on MLE for Multiple Samples
+### Spatial Correlation Extraction Based on MLE for Multiple Samples
 
 For a sample $\vec{z}=(z(\mathbf{s}_1),\ldots,z(\mathbf{s}_N))^T$ from
 an $N$-variate Gaussian random field with zero mean vector and
@@ -353,7 +355,7 @@ $Z\sim \mathrm{N}(\mathbf{0},\sigma^2 \tilde{R}(\kappa,\vec{\psi}))$.
 
 After the processings, the likelihood function for all the $M$ samples
 is [@Anderson03]
-$$L(\sigma^2,\kappa,\vec{\psi}) = \prod_{m=1}^{M}L_m(\sigma^2,\kappa,\vec{\psi})=\frac{1}{(2\pi)^{MN/2}(\mathrm{det}(\sigma^2 \tilde{R}))^{M/2}} \cdot \mathrm{exp}\left(-\frac{1}{2\sigma^2}\sum_{m=1}^{M}\vec{z}_m^{*T} \tilde{R}^{-1}\vec{z}_m^* \right)$$
+$$L(\sigma^2,\kappa,\vec{\psi}) = \prod_{m=1}^{M}L_m(\sigma^2,\kappa,\vec{\psi})=\frac{1}{(2\pi)^{MN/2}(\mathrm{det}(\sigma^2 \tilde{R}))^{M/2}} \cdot \mathrm{exp}\left(-\frac{1}{2\sigma^2}\sum_{m=1}^{M}\vec{z}_m^{_T} \tilde{R}^{-1}\vec{z}_m^_ \right)$$
 and the log-likelihood function is $$\label{eqn:loglik}
 \log L(\sigma^2,\kappa,\vec{\psi}) = \log \left(\prod_{m=1}^{M}L_m(\sigma^2,\kappa,\vec{\psi})\right)=-\frac{MN}{2}\log 2\pi-\frac{MN}{2}\log\sigma^2-\frac{M}{2}\log \mathrm{det}~\tilde{R}-\frac{1}{2\sigma^2}\sum_{m=1}^{M}\vec{z}_m^{*T} \tilde{R}^{-1}\vec{z}_m^*$$
 By setting $\frac{\partial \log L}{\partial \sigma^2}=0$, we can get the
@@ -413,7 +415,7 @@ This can be solved by any standard nonlinear optimization technique. In
 our implementation, we use the _fmincon_ function in MATLAB which is
 based on a sequential quadratic programming method.
 
-# 🧪 Experimental Results
+## 🧪 Experimental Results
 
 The proposed method was implemented in MATLAB on an Intel machine with
 3.0 GHz XEON CPU. Without real silicon measurement data, we synthesized
@@ -931,7 +933,7 @@ function in one experiment.
 
 [\[fig:corr\_funs\]]{#fig:corr_funs label="fig:corr_funs"}
 
-# Conclusion Remarks
+## Conclusion Remarks
 
 Intra-die spatial correlation extraction has been a prevailing subject
 these years. In this paper, we propose a novel extraction method using
@@ -946,7 +948,7 @@ algorithm [@Xiong07] for all test cases with less runtime. The proposed
 method is more efficient and stable for spatial correlation extraction
 provided with real silicon data.
 
-# Acknowledgment {#acknowledgment .unnumbered .unnumbered}
+## Acknowledgment {#acknowledgment .unnumbered .unnumbered}
 
 This research is supported partly by NSFC research project
 

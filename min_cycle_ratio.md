@@ -1,4 +1,4 @@
-## Minimum Cycle Ratio Problem
+# Minimum Cycle Ratio Problem
 
 The minimum cycle ratio (MCR) problem is a fundamental problem in the analysis of directed graphs. Given a directed graph, the MCR problem seeks to find the cycle with the minimum ratio of the sum of the edge weights to the number of edges in the cycle. In other words, the MCR problem tries to find the "tightest" cycle in the graph, where the tightness of a cycle is measured by the ratio of the total weight of the cycle to its length.
 

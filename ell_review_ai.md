@@ -31,7 +31,7 @@ The cutting-plane oracle Ω is a subroutine that generates a linear inequality t
 
 Parallel cut is important in determining the feasibility of a linear system using the Ellipsoid Algorithm. It is a technique that helps reduce the volume of the ellipsoid in each iteration of the algorithm, leading to a more efficient and accurate solution.
 
-When applying the Ellipsoid Algorithm with parallel cuts, the distance between the parallel cuts under consideration and the corresponding radius of the current ellipsoid is taken into account. If this ratio is less than or equal to a certain constant, known as the "canonical case", the algorithm is applied to decrease the volume of the next ellipsoid by a factor that is at worst exp(— +5)[2].
+When applying the Ellipsoid Algorithm with parallel cuts, the distance between the parallel cuts under consideration and the corresponding radius of the current ellipsoid is taken into account. If this ratio is less than or equal to a certain constant, known as the "canonical case", the algorithm is applied to decrease the volume of the next ellipsoid by a factor that is at worst exp[— +5](2).
 
 In cases where the ratio does not meet the canonical case criteria, a noncanonical case, the algorithm adds an extra constraint to make it a canonical case in a higher-dimensional space. After applying the algorithm to this canonical case, it is then reduced back to the original space[2].
 

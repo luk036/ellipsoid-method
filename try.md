@@ -13,7 +13,6 @@ The ellipsoid method holds a significant place in the history and theory of math
 
 This essay will explore the algorithmic framework, historical context, performance considerations, and, most importantly, the remarkable capabilities enabled by separation oracles across various optimization domains, including robust optimization, network optimization, semidefinite programming, and discrete optimization.
 
-
 ## Algorithmic Framework
 
 The ellipsoid method is a type of cutting plane method used to solve convex feasibility problems. It operates by iteratively shrinking a search space known to contain the feasible region, $\mathcal{K}$. Initially, the method begins with a large ellipsoid that is guaranteed to contain the entire feasible region. This initial ellipsoid is defined by its center $x_c \in \mathbb{R}^n$ and a positive definite matrix $P \in \mathbb{R}^{n \times n}$ that determines its shape and orientation. The ellipsoid can be represented by the set of points $x$ such that $(x - x_c)P^{-1}(x - x_c) \le 1$. An alternative representation splits the matrix $P$ into two parts, $\kappa$ and $Q$, where the ellipsoid is defined as $x$ such that $(x-x_c)Q^{-1}(x-x_c) \le \kappa$.
@@ -146,6 +145,7 @@ graph LR
     style A fill:#ccccff,stroke:#333
     style B fill:#ffff99,stroke:#333
 ```
+
 *Conceptual diagram illustrating the ellipsoid, feasible region, center, and a cutting plane.*
 
 ***
@@ -158,7 +158,7 @@ The cutting plane definition:
 $$g^\mathsf{T} (x - x_0) + \beta \le 0$$
 Updates for deep cut:
 $$ x_c^+ = x_c - \frac{\rho}{ \tau^2 } \tilde{g}, \qquad P^+ = \delta\cdot\left(P - \frac{\sigma}{ \tau^2 } \tilde{g}\tilde{g}^\mathsf{T}\right) $$
-$$ x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad \kappa^+ =  \delta\cdot\kappa $$
+$$ x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad \kappa^+ = \delta\cdot\kappa $$
 Parameters for deep cut:
 $$ \rho = \frac{ \tau+n\beta}{n+1}, \qquad \sigma = \frac{2\rho}{ \tau+\beta}, \qquad \delta = \frac{n^2(\tau^2 - \beta^2)}{(n^2 - 1)\tau^2} $$
 Parameters for central cut:
@@ -189,7 +189,7 @@ $$\Omega(p) = p_1 F_1 + \cdots + p_n F_n$$
 Correlation function form:
 $$\rho(h) = \sum_i^n p_i \Psi_i(h)$$
 Example correlation problem constraints:
-$$ \Omega(p) \succcurlyeq 0,  \kappa \ge 0 $$
+$$ \Omega(p) \succcurlyeq 0, \kappa \ge 0 $$
 FIR time response:
 $$y[t] = \sum_{k=0}^{n-1}{h[k]u[t-k]}$$
 FIR frequency response:
@@ -202,8 +202,8 @@ $$R(\omega)=\sum_{i=-n+1}^{n-1}{r(t)e^{-j{\omega}t}}=|H(\omega)|^2$$
 Autocorrelation coefficients:
 $$ r(t) = \sum_{i=-n+1}^{n-1}{h(i)h(i+t)} $$
 Example likelihood estimation problems:
-$$ \min_{\kappa, p}  \log\det(\Omega(p) + \kappa\cdot I) + \mathrm{Tr}((\Omega(p) + \kappa\cdot I)^{-1}Y) $$
-$$ \min_{\kappa, p}  \log\det V(p) + \mathrm{Tr}(V(p)^{-1}Y) $$
+$$ \min_{\kappa, p} \log\det(\Omega(p) + \kappa\cdot I) + \mathrm{Tr}((\Omega(p) + \kappa\cdot I)^{-1}Y) $$
+$$ \min_{\kappa, p} \log\det V(p) + \mathrm{Tr}(V(p)^{-1}Y) $$
 $$ \Omega(p) + \kappa \cdot I = V(p) \quad 0 \preceq V(p) \preceq 2Y, \kappa {>} 0 $$
 Discrete problem cut:
 $$ g^\mathsf{T} (x - x_d) + \beta \le 0 $$
