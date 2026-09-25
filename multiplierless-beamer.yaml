@@ -1,0 +1,20 @@
+---
+# Pandoc metadata for multiplierless-slides.md -> Beamer.
+# Build with LuaLaTeX (the slides contain literal emoji):
+#
+#   pandoc -F pandoc-crossref --citeproc -t beamer --pdf-engine=lualatex \
+#          --include-in-header=multiplierless-preamble.tex \
+#          multiplierless-beamer.yaml multiplierless-slides.md -o multiplierless-slides.pdf
+#
+# Notes:
+#   * `--include-in-header` must be a command-line flag; from YAML it is ignored.
+#   * Compile twice so that the section/outline navigation settles.
+fontsize: 10pt
+classoption:
+  - serif
+  - aspectratio=169
+institute: Fudan University
+date: \today
+link-citations: true
+colorlinks: true
+...
