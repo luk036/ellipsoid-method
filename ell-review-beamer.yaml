@@ -1,0 +1,20 @@
+---
+# Pandoc metadata for ell-review-slides.md -> Beamer.
+# Build with LuaLaTeX (the slides contain literal emoji):
+#
+#   pandoc -F pandoc-crossref --citeproc -t beamer --pdf-engine=lualatex \
+#          --include-in-header=ell-review-preamble.tex \
+#          ell-review-beamer.yaml ell-review-slides.md -o ell-review-slides.pdf
+#
+# Notes:
+#   * `--include-in-header` must be a command-line flag; from YAML it is ignored.
+#   * Compile twice so that the section/outline navigation settles.
+fontsize: 10pt
+classoption:
+  - serif
+  - aspectratio=169
+institute: Fudan University
+date: \today
+link-citations: true
+colorlinks: true
+...
