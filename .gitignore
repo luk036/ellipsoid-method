@@ -221,3 +221,12 @@ TSWLatexianTemp*
 
 # expex forward references with \gathertags
 *-tags.tex
+
+## Editor backup / undo files:
+*~
+*.un~
+
+## Stale generated outputs (do not commit):
+/ell-review.tex
+/main-diff.tex
+/main-diff.pdf
