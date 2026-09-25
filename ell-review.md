@@ -246,7 +246,7 @@ The oracle is responsible for determining the following:
 - If $f_j(x_0, q) > 0$ for some $j$ and $q = q_0$, then the cut $(g, \beta)$ is equal to $(\partial f_j(x_0, q_0), f_j(x_0, q_0))$.
 - If $f_0(x_0, q) \ge \gamma$ for some $q = q_0$, then the cut $(g, \beta)$ is equal to $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - \gamma)$.
 - Otherwise, $x_0$ is feasible, then
-  - Let $q_{\max} = \argmax_{q \in \mathcal Q} f_0(x_0, q)$.
+  - Let $q_{\max} = \operatorname*{arg\,max}_{q \in \mathcal Q} f_0(x_0, q)$.
   - $\gamma := f_0(x_0, q_{\max})$.
   - The cut $(g, \beta)$ is equal to $(\partial f_0(x_0, q_{\max}), 0)$.
 
@@ -600,7 +600,7 @@ An ellipsoid $\mathcal{E}_k(x_k, P_k)$ is specified as a set
 $$\{x \mid (x-x_k) P^{-1}_k (x - x_k) \le 1 \}, $$
 where $x_k \in \mathbb{R}^n$ is the center of the ellipsoid and $P_k \in \mathbb{R}^{n \times n}$ is a positive definite matrix.
 
-**Example**: For a 2D ellipsoid centered at (0,0) with P = [[4,0],[0,1]], the set would be all points (x,y) satisfying x²/4 + y² ≤ 1.
+**Example**: For a 2D ellipsoid centered at (0,0) with P = [[4,0],[0,1]], the set would be all points $(x,y)$ satisfying $x^2/4 + y^2 \le 1$.
 
 \begin{figure}
 \centering
@@ -639,8 +639,8 @@ Let $\tilde{g} = P_k\,g$, $\tau^2 = g^\mathsf{T} P_k g$. We can make the followi
      \delta = \frac{n^2(\tau^2 - \beta^2)}{(n^2 - 1)\tau^2}
    $$
 
-**Example**: For n=2, τ=2, β=1:
-ρ = (2+2*1)/3 = 1.33, σ = 2*1.33/3 = 0.89, δ = 4*(4-1)/(3*4) = 1
+**Example**: For $n=2$, $\tau=2$, $\beta=1$:
+$\rho = (2+2*1)/3 = 1.33$, $\sigma = 2*1.33/3 = 0.89$, $\delta = 4*(4-1)/(3*4) = 1$
 
 Even better, split $P$ into two variables $\kappa \cdot Q$. Let $\tilde{g} = Q \cdot g$, $\omega = g^\mathsf{T}\tilde{g}$, $\tau = \sqrt{\kappa\cdot\omega}$.
 
@@ -666,10 +666,10 @@ $$
   \delta = \frac{n^2}{n^2 - 1}.
 $$
 
-**Example**: For n=3, τ=2:
-ρ = 2/4 = 0.5, σ = 2/4 = 0.5, δ = 9/8 = 1.125
+**Example**: For $n=3$, $\tau=2$:
+$\rho = 2/4 = 0.5$, $\sigma = 2/4 = 0.5$, $\delta = 9/8 = 1.125$
 
-### 🪜 Parallel Cuts {#sec:parallel_cut}
+### Parallel Cuts {#sec:parallel_cut}
 
 Oracle returns a pair of cuts instead of just one. The pair of cuts is given by $g$ and $(\beta_1, \beta_2)$ such that:
 
@@ -687,7 +687,7 @@ $$ l \le a^\mathsf{T} x + b \le u, \qquad L \preceq F(x) \preceq U.$$
 
 Usually, provide faster convergence.
 
-![Parallel cuts](ellipsoid.files/parallel_cut.svg){width="80%"}
+![Parallel cuts](ellipsoid.files/parallel_cut.pdf){width="80%"}
 
 Updating the ellipsoid.
 
@@ -697,7 +697,7 @@ Let $\tilde{g} = Q\,g$, $\tau^2 = \kappa\cdot\omega$.
 
 - If $\beta_1 \beta_2 < -\tau^2/n$, no smaller ellipsoid can be found.
 
-- If $\beta_2^2 > \τ^2$, it reduces to deep-cut with $\alpha = \alpha_1$.
+- If $\beta_2^2 > \tau^2$, it reduces to deep-cut with $\alpha = \alpha_1$.
 
 Otherwise,
 
@@ -712,17 +712,17 @@ where
 $$
 \begin{array}{lll}
       \bar{\beta} &=& (\beta_1 + \beta_2)/2 \\
-      \xi^2 &=& (\tau^2 - \beta_1^2)(\τ^2 - \beta_2^2) + (n(\beta_2 - \beta_1)\bar{\beta})^2, \\
+      \xi^2 &=& (\tau^2 - \beta_1^2)(\tau^2 - \beta_2^2) + (n(\beta_2 - \beta_1)\bar{\beta})^2, \\
       \sigma &=& (n + (\tau^2 - \beta_1\beta_2 - \xi)/(2\bar{\beta}^2)) / (n + 1), \\
       \rho &=& \bar{\beta}\cdot\sigma, \\
       \delta &=& (n^2/(n^2-1)) (\tau^2 - (\beta_1^2 + \beta_2^2)/2 + \xi/n) / \tau^2 .
 \end{array}
 $$
 
-**Example**: For n=2, τ=2, β₁=-1, β₂=1:
-β̄ = 0, ξ² = (4-1)(4-1) + 0 = 9 → ξ=3
-σ = (2 + (4-(-1)-3)/0 → undefined (special case handled separately)
-This shows the need for special handling when β̄=0.
+**Example**: For $n=2$, $\tau=2$, $\beta_1=-1$, $\beta_2=1$:
+$\bar{\beta} = 0$, $\xi^2 = (4-1)(4-1) + 0 = 9 \Rightarrow \xi=3$
+$\sigma = (2 + (4-(-1)-3)/0 \Rightarrow$ undefined (special case handled separately)
+This shows the need for special handling when $\bar{\beta}=0$.
 
 #### Example: FIR filter design
 
@@ -730,7 +730,7 @@ A typical structure of digital Finite Impulse Response (FIR) filter is shown in 
 
 However, the experience and knowledge of designers are highly demanded in this kind of design methods. Moreover, there is no guarantee about the design's quality. Therefore, the optimization-based techniques (e.g. [@wu1999fir], more reference) have attracted tons of research effort. In this kind of method, facilitated with growing computing resources and efficient optimization algorithms, the solution space can be effectively explored.
 
-![A typical structure of an FIR filter\ @mitra2006digital.](ellipsoid.files/fir_strctr.svg){#fig:fir-strctr width="80%"}
+![A typical structure of an FIR filter\ @mitra2006digital.](ellipsoid.files/fir_strctr.pdf){#fig:fir-strctr width="80%"}
 
 In optimization algorithms, what is particularly interesting is the convex optimization. If a problem is in a convex form, it can be efficiently and optimally solved. Convex optimization techniques are also implementable in designing FIR filters, including the Parks-McClellan algorithm [@park1972chebyshev], METEOR [@steiglitz1992meteor], and peak-constrained least-squares (PCLS) [@selesnick1996constrained; @adams1998peak]. In the mentioned articles, with the help of exchange algorithms (e.g. Remez exchange algorithm), certain FIR filter design problems can be formed as linear or quadratic programs. They are two simple forms of convex optimization problems, which can be optimally solved with existing algorithms, such as the interior-point method [@boyd2009convex]. Tempted by the optimality, more efforts were devoted to forming the problem convex. Particularly, in [@wu1999fir], via spectral decomposition [@goodman1997spectral], the problem of designing an FIR filter with magnitude constraints on frequency-domain is formulated as a convex optimization problem. More examples are provided in [@davidson2010enriching].
 
@@ -771,7 +771,7 @@ r(t) = \sum_{i=-n+1}^{n-1}{h(i)h(i+t)}, t\in\mathbb{Z}.
 $$ {#eq:h_r}
 where $h(t)=0$ for $t<0$ or $t>n-1$.
 
-![Result](ellipsoid.files/lowpass.svg){width="80%"}
+![Result](ellipsoid.files/lowpass.pdf){width="80%"}
 
 #### Example: Maximum Likelihood estimation
 
@@ -826,7 +826,7 @@ However, there are still many filter design problems that are non-convex, such a
 
 Attracted by the benefits of this "multiplier-free" approach, many efforts have been devoted to its design techniques. For its general problems, integer programming (e.g. [@kodek1980design; @lim1982finite; @lim1983fir; @lim1999signed]) can be implemented to achieve the optimal solution. However, it requires excessive computational resources. Other heuristic techniques, such as genetic algorithm [@xu1995design] and dynamic-programming-like method [@chen1999trellis], also have inefficiency. If the quantization constraint is the only non-convex constraint in the design problem, a lower bound can be efficiently obtained by solving the relaxed problem [@davidson2010enriching]. Then to make the solution feasible, it can be rounded to the nearest CSD code or used as a starting point of a local search algorithm to obtain a better solution [@kodek1981comparison]. However, neither method guarantees the feasibility of the final solution. Besides, the local search problem remains non-convex. Therefore, the adopted algorithm may also be inefficient, such as branch-and-bound in [@kodek1981comparison].
 
-![Result](ellipsoid.files/csdlowpass.svg){width="80%"}
+![Result](ellipsoid.files/csdlowpass.pdf){width="80%"}
 
 ## Concluding Remarks
 

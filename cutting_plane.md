@@ -528,7 +528,7 @@ class profit_rb_oracle:
       $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - \gamma)$
   - Otherwise, $x_0$ is feasible, then
     - Let
-      $q_{\max} = \argmax_{q \in \mathbb Q} f_0(x_0, q)$.
+      $q_{\max} = \operatorname*{arg\,max}_{q \in \mathbb Q} f_0(x_0, q)$.
     - $\gamma := f_0(x_0, q_{\max})$.
     - The cut $(g, \beta)$ =
       $(\partial f_0(x_0, q_{\max}), 0)$

@@ -1,16 +1,28 @@
 # 👉 Note
 
-pandoc -F pandoc-crossref --citeproc -s -t latex -N --reference-links --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.pdf
+# Preferred: use the Makefile (see Makefile).
+#   make paper   -> ell-review.pdf
+#   make html    -> ell-review.html   (requires a local katex/ directory)
+#   make slides  -> cutting_plane.pdf ell.pdf   (uses xelatex)
+#   make clean
+#
+# Raw commands below, for reference.
+#
+# Main paper -> ell-review.pdf.
+# crossref.yaml uses cref:false: siamltex.cls redefines \label/\refstepcounter,
+#   which breaks cleveref (cref:true renders every cross-reference as "??").
+# --shift-heading-level-by=-1 : body headings in ell-review.md start at "##".
+pandoc -F pandoc-crossref --citeproc -s -t latex -N --reference-links --shift-heading-level-by=-1 --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.pdf
 
 pandoc -F pandoc-crossref --citeproc -s -t html -N --katex=katex/ --reference-links --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.html
 
-pandoc -F pandoc-crossref -s -t beamer --toc --natbib --reference-links --csl=applied-mathematics-letters.csl beamer.yaml cutting_plane.md -o temp.tex
+pandoc -F pandoc-crossref -s -t beamer --toc --natbib --reference-links --pdf-engine=xelatex --csl=applied-mathematics-letters.csl beamer.yaml cutting_plane.md -o cutting_plane.pdf
 
 pandoc -F pandoc-crossref -s -t html --katex=katex/ --toc --natbib --reference-links --csl=applied-mathematics-letters.csl beamer.yaml cutting_plane.md -o cutting_plane.html
 
 pandoc -s --wrap=preserve ell-review.md -o temp.md
 
-pandoc -s -t beamer --natbib --toc -o temp.tex beamer.yaml ellipsoid.md
+pandoc -s -t beamer --natbib --toc --pdf-engine=xelatex beamer.yaml ellipsoid.md -o ell.pdf
 
 pandoc -F pandoc-crossref --citeproc -s -t latex -N latex.yaml crossref.yaml ell-review.md -o temp.tex
 
