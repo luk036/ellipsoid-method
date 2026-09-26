@@ -1194,6 +1194,44 @@ This apparent reversal should be read with care, for several reasons. The compar
 
 As a rule of thumb, the ellipsoid method is preferable when the constraints are available only through a separation oracle, when their number is large or infinite as in robust optimization, when the number of design variables is moderate, when some variables are discrete or quantized and the nearest admissible point is cheap to compute, when a dependency-light or embeddable implementation is desired, or when a compiled language is available. Interior-point methods are preferable when the number of design variables is large, when all constraints can be evaluated explicitly and cheaply, when a mature modeling layer with warm-starting is available, when very high accuracy is required, or when the same problem must be re-solved many times as the data change. Neither method dominates, and the crossover depends on both the problem and the implementation language.
 
+### Numerical Experiments
+
+The measurements below are indicative results from the authors'
+implementations and display orders of magnitude rather than portable
+constants.
+
+| Variant | Time (ns) |
+|:----------------|-----------:|
+| single cut | 627,743,505 |
+| parallel cut | 30,497,546 |
+: Parallel-cut speedup on a lowpass FIR design: about $20\times$. {#tbl:parallel_bench}
+
+The direct and the factorized (stable) ellipsoid agree to machine precision,
+and their iteration counts differ only marginally:
+
+| Case | Direct | Stable | $\lVert x_{\mathrm{D}}-x_{\mathrm{S}}\rVert_\infty$ |
+|:--|--:|--:|--:|
+| Profit, $n=2$ | 83 | 83 | $<10^{-6}$ |
+| Robust profit, $n=2$ | 90 | 90 | $<10^{-6}$ |
+| Lowpass-32, parallel | 26,027 | 26,125 | $<10^{-6}$ |
+| Lowpass-32, serial | 40,740 | 40,621 | $<10^{-6}$ |
+| Lowpass-48 | 35,014 | 35,098 | $<10^{-6}$ |
+| Lowpass-64 | 27,805 | 27,926 | $<10^{-6}$ |
+: Direct versus factorized (stable) ellipsoid on representative problems. {#tbl:stable_iters}
+
+The relative cost of the stable form, the ratio of stable to direct
+per-iteration time, is close to one in compiled code and grows only in an
+interpreted implementation:
+
+| Dimension $n$ | Python | C++ | Rust |
+|--:|--:|--:|--:|
+| 16 | 11.1 | 1.07 | 1.55 |
+| 32 | 37.6 | 1.19 | 1.86 |
+| 64 | 122.3 | 1.38 | 2.01 |
+| 128 | -- | 1.07 | 0.90 |
+| 256 | -- | 1.12 | 0.77 |
+: Stable-to-direct per-iteration ratio on synthetic random cuts; a value below $1.0$ means the stable form is faster. {#tbl:stable_ratio}
+
 ### Discrete Optimization {#sec:discrete}
 
 Many engineering problems, such as digital circuit sizing, can be formulated through convex or geometric programming. However, in ASIC design, there is frequently a limited number of cell types to select from in the cell library. This means that some design variables are discrete. Mapping the design variables to integers yields a mixed-integer convex programming (MICP) formulation.
