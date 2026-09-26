@@ -22,9 +22,11 @@ abstract: |
   in the oracle so that the optimizer reasons about a realizable coefficient
   vector rather than a relaxed one. The complete pipeline, from a
   frequency-domain specification to a synthesizable shift-and-add description,
-  is described and implemented in three languages. Experiments report the
-  iteration economy of the parallel-cut formulation and a cross-language
-  comparison of the running time.
+  is described and implemented in three languages. Experiments quantify the
+  iteration economy of the parallel-cut formulation --- a reduction of $77$ to
+  $97$ percent --- and compare the running time across the three languages over
+  four filter orders, and the generated RTL is synthesized to report
+  technology-independent cell, lookup-table, and flip-flop counts.
 ---
 
 ## Introduction
@@ -52,6 +54,61 @@ can be realized with a few adders and no multiplier [@george1960csd;
 @samueli1989improved; @markovic2012dsp]. The design problem is therefore not
 merely to find good coefficients, but to find coefficients that are *cheap to
 realize*.
+
+The design of filters whose coefficients are confined to a discrete set has a
+long history, and the multiplierless case is its most hardware-driven instance.
+The finite-wordlength problem --- choosing coefficients from a fixed grid rather
+than from the continuum --- was among the earliest digital-filter design
+questions, and the first systematic attacks cast it as an integer program over a
+discrete coefficient space [@kodek1980design; @lim1982finite]. Because
+enumeration grows exponentially with the number of taps, the literature turned
+to branch-and-bound [@lawler1966branch; @kodek1980algorithm] and to local search
+seeded from a continuous relaxation [@kodek1981comparison]. Restricting the
+coefficients to powers of two, or to a signed sum of a few powers of two, proved
+especially attractive in hardware, and specialized search procedures were
+developed for it [@lim1983fir; @samueli1989improved; @lim1999signed]. Later work
+exploited structure in the coefficient space: a trellis formulation solved the
+signed-power-of-two problem by dynamic programming [@chen1999trellis],
+metaheuristics such as genetic algorithms were applied where the search space
+resisted exact methods [@xu1995design; @glover2003handbook], and lattice
+reduction was used to obtain optimal finite-wordlength designs [@kodek2012lll].
+A parallel line of work characterized the performance achievable under a
+word-length constraint [@kodek2005performance; @kodek1997limits]. These methods
+are exact, or nearly so, only under assumptions that are difficult to satisfy in
+practice: integer programming becomes prohibitive as the order grows, and the
+heuristics return a feasible design only when the search happens to fall into a
+feasible basin.
+
+A second line of work keeps the coefficients continuous and reshapes the problem
+so that convex optimization applies. Spectral factorization turns the magnitude
+specification into a linear constraint on the autocorrelation [@wu1999fir;
+@goodman1997spectral], and the resulting convex program is solved by
+second-order cone or semidefinite methods, with the spectral mask encoded as a
+linear matrix inequality [@davidson2002linear; @tuan2007efficient] and
+implemented in disciplined-convex-programming tools such as CVX
+[@grant2008cvx]. The survey of [@davidson2010enriching] collects many such
+reformulations. Because these methods return a continuous optimum, however, they
+answer a different question from the one the hardware asks. The optimum
+typically lies on the boundary of the feasible set, where the active magnitude
+constraints are tight, so rounding it to the nearest CSD vector can push part of
+the response below its lower bound and destroy feasibility
+[@kodek1981comparison; @davidson2010enriching]. A relaxation can supply a lower
+bound or a warm start, but it cannot by itself certify a realizable design.
+
+The ellipsoid method has meanwhile been applied well beyond linear programming,
+and it is the natural algorithm whenever the constraint set is convex but its
+description is implicit or infinite. Prior applications of the same principle
+include robust analog circuit sizing with affine arithmetic [@liu2007robust],
+parametric network optimization through optimal matrix scaling
+[@orlin1985computing] and minimum mean-cycle computation [@dasdan1998faster],
+and multi-parameter clock-skew scheduling [@zhou2015multi]. What these
+applications share, and what multiplierless FIR design inherits, is a moderate
+number of design variables combined with a very large number of constraints ---
+the regime in which the ellipsoid method is competitive with interior-point
+methods [@boyd2009convex; @boyd2008ellipsoid]. The distinguishing feature of the
+present article is that it keeps the quantizer inside the oracle, so that the
+optimizer reasons about a realizable coefficient vector rather than a relaxed
+one.
 
 Two obstacles stand in the way. First, the magnitude constraint
 $$L(\omega) \le |H(\omega)| \le U(\omega), \qquad \forall \omega \in [0,\pi],
@@ -132,9 +189,10 @@ $\beta > 0$ it is *deep*, and if $\beta < 0$ it is a *shadow cut*. When
 $\mathcal{K}$ is defined by $f_{j}(x) \le 0$, a cut is obtained for free from a
 subgradient, $(g,\beta) = (\partial f_{j}(x_{0}), f_{j}(x_{0}))$; for a
 differentiable $f_{j}$ the subgradient is the gradient. The method was
-introduced by Shor and by Yudin and Nemirovskii and used by Khachiyan to prove
-that linear programming is polynomial-time solvable [@BGT81;
-@bland1981ellipsoid].
+introduced independently by Shor [@shor1977cutoff] and by Yudin and Nemirovskii
+[@yudin1976informational], and used by Khachiyan to prove that linear programming
+is polynomial-time solvable [@khachiyan1979polynomial]; see the survey of
+[@BGT81; @bland1981ellipsoid].
 
 ### The Ellipsoid Update
 
@@ -182,6 +240,47 @@ The pair removes a slab from the ellipsoid rather than a half-space, which
 shrinks the volume more than either cut alone and therefore reduces the number
 of iterations [@frenk1994deep]. A single deep cut is the special case in which
 one of the two planes is tangent.
+
+The geometry is worth stating explicitly. Parameterize the current ellipsoid
+along the cut normal by $s = g^\mathsf{T}(x - x_{c})/\tau$, so that $s$ ranges
+over $[-1,1]$ on $\mathcal{E}$; the two cuts retain only the band
+$-\beta_{1}/\tau \le s \le -\beta_{0}/\tau$. The complement of the band consists
+of two caps, one where $s$ is too large and one where it is too small. A single
+cutting plane removes only one cap, whereas the pair removes both in the same
+iteration, so the least-volume ellipsoid that must contain the survivors is
+tighter. For a magnitude specification the two caps have a physical meaning:
+they are the frequency regions where the response exceeds the upper bound and
+falls below the lower bound, and the parallel cut discards both violations at
+once. Two degenerate cases anchor the formulas below. When the band is centered,
+$\beta_{0} + \beta_{1} = 0$, the new center coincides with the old one and the
+update must remain finite. When one plane is tangent, $\beta_{1} = \tau$, the
+band collapses to a half-space and the update must reduce to the deep cut
+@eq:deep.
+
+The auxiliary quantities have direct interpretations. Each
+$\zeta_{i} = \tau^{2} - \beta_{i}^{2}$ is the room that remains along $g$ beyond
+plane $i$: it is positive exactly when that plane cuts the ellipsoid
+($|\beta_{i}| \le \tau$) and vanishes when the plane is tangent. The
+combination $\eta = \tau^{2} + n\beta_{0}\beta_{1}$ is the admissibility test,
+because $\eta > 0$ is equivalent to $\beta_{0}\beta_{1} > -\tau^{2}/n$, the
+condition under which a strictly smaller enclosing ellipsoid exists; the case
+$\eta \le 0$ is precisely the "no smaller ellipsoid" branch quoted below. The
+term $\xi$ is the positive root of the quadratic that remains after the two
+tangency conditions are combined; it is the quantity that couples the two
+planes, and it collapses to the single-cut value when they coalesce. Finally,
+the displacement $\rho = \sigma(\beta_{0}+\beta_{1})/2$ moves the center toward
+the middle of the band, which is why a centered band leaves the center fixed.
+
+The update itself is obtained by choosing the least-volume ellipsoid that
+contains the intersection of $\mathcal{E}$ with the band. Equivalently, it
+minimizes $\ln\det Q^{+}$ over the ellipsoids that contain the band, and the
+optimum is characterized by both planes being supporting hyperplanes of the new
+ellipsoid. The stationarity conditions force the rank-one form @eq:update with
+two scalar multipliers; imposing tangency at both planes eliminates one
+multiplier and leaves a quadratic whose positive root is $\xi$, which yields
+@eq:parallel_sigma and @eq:parallel_delta. The central and deep cuts are the
+limiting tangency cases, and the complete algebra is worked out in
+[@frenk1994deep].
 
 The complete update uses the auxiliary quantities
 $$\begin{aligned}
@@ -321,10 +420,12 @@ so one shift-and-add network serves both occurrences, and the longest repeated
 substring of the digit string identifies the pattern worth sharing. Across
 coefficients, the same idea selects the pattern that maximizes
 $$\text{score} = (\mathrm{nnz}-1)(\text{occurrences}-1),$$
-which is exactly the number of adders saved. For a $64$-tap design the two
-mechanisms typically remove between $40$ and $60$ percent of the adders; a
-$32$-tap example required about $82$ cells with sharing against roughly $110$
-without.
+which is exactly the number of adders saved by sharing that pattern. The
+percentage saved is a property of the pattern, not of the filter: how much of
+the saving a whole design realizes depends on how many patterns are common
+across coefficients. The reference generator of @sec:experiments shares one
+dominant cross-coefficient pattern, so the whole-design reduction it achieves is
+modest, and a search over all patterns would remove more.
 
 ### Filter Architecture
 
@@ -362,23 +463,34 @@ $\mathbf{r}$ and proceeds as follows.
 - **Re-evaluate exactly.** Recompute $\mathbf{r}_{\mathrm{csd}} =
   S^{-1}(\mathbf{h}_{\mathrm{csd}})$ and test the sampled constraints against
   $\mathbf{r}_{\mathrm{csd}}$, not against $\mathbf{r}$. A feasible point then
-  corresponds to a genuinely realizable coefficient vector.
+  corresponds to a genuinely realizable coefficient vector. Because the cut is
+  generated at the quantized point rather than at the queried center, the oracle
+  re-anchors it with the first-order correction $\beta \leftarrow \beta +
+  g^\mathsf{T}(\mathbf{r}_{\mathrm{csd}} - \mathbf{r})$, so that the cut is valid
+  at $\mathbf{r}$ and can be applied directly.
 - **Classify.** The candidate is feasible (improve the best-so-far value and
   take a central cut), violated (take a deep cut from the gradient at
   $\mathbf{r}_{\mathrm{csd}}$), or ineffective (the cut does not shrink the
   ellipsoid).
 - **Retry.** The ineffective case is peculiar to the discrete setting: because
   the admissible set is finite, several consecutive centers can map to the same
-  CSD pattern, producing a cut that removes no new volume. The oracle then
-  perturbs the quantization decision, or re-derives the pattern from the
-  updated center, for a bounded number of attempts.
+  CSD pattern, producing a cut that removes no new volume. The oracle replies
+  with a retry flag and a budget equal to the number of sampled frequency rows,
+  $m = c_{\mathrm{disc}} n$; each retry advances a round-robin cursor over the
+  constraints, so that a different violated row is examined instead of the one
+  that produced the ineffective cut. When the budget is exhausted the oracle
+  returns the last cut even if it is shallow, which lets the ellipsoid update
+  proceed; termination is then governed by the usual volume test. Bounding the
+  retries by the grid size guarantees that each oracle call makes progress or
+  reports its inability to do so, so the outer loop cannot stall on a single
+  discrete pattern.
 
 ```{=latex}
 \begin{algorithm}[t]
 \caption{Quantization-aware oracle $\Omega_Q$}
 \begin{algorithmic}[1]
-\Require center $\mathbf{r}$, budget $\mathrm{nnz}$, retry flag
-\Ensure a cut $(g,\beta)$, possibly an improved $\gamma$
+\Require center $\mathbf{r}$, budget $\mathrm{nnz}$, retry flag, count $t$, grid size $m$
+\Ensure a cut $(g,\beta)$, possibly an improved $\gamma$, and whether a retry is allowed
 \If{not retry \textbf{and} $\mathbf{r} \notin \mathcal{K}$}
     \State \Return cut at $\mathbf{r}$
 \EndIf
@@ -389,7 +501,8 @@ $\mathbf{r}$ and proceeds as follows.
     \State $\gamma \gets f_0(\mathbf{r}_{\mathrm{csd}})$
     \State \Return $(\partial f_0(\mathbf{r}_{\mathrm{csd}}), 0)$ \Comment{central cut}
 \Else
-    \State \Return $(\partial f_j(\mathbf{r}_{\mathrm{csd}}), f_j(\mathbf{r}_{\mathrm{csd}}))$ \Comment{deep cut, or retry}
+    \State $g \gets \partial f_j(\mathbf{r}_{\mathrm{csd}})$;\quad $\beta \gets f_j(\mathbf{r}_{\mathrm{csd}}) + g^\mathsf{T}(\mathbf{r}_{\mathrm{csd}} - \mathbf{r})$
+    \State \Return $(g,\beta)$, retry allowed iff $t < m$ \Comment{deep cut, or retry}
 \EndIf
 \end{algorithmic}
 \end{algorithm}
@@ -505,44 +618,140 @@ factorization defects that example-based unit tests miss.
 
 ### Experimental Setup
 
-The canonical design is an order-$n = 32$ lowpass filter with passband edge
-$0.12\pi$, stopband edge $0.20\pi$, a CSD budget of $\mathrm{nnz} = 7$ non-zero
-digits, a discretization factor $c_{\mathrm{disc}} = 15$, a tolerance of
-$10^{-14}$, and an initial ellipsoid radius of $40$. All three implementations
-read the same specification and share the same defaults; measurements were
-taken on a Windows x64 machine with release builds, five measured runs after
-two warm-up runs.
+The reference design is a lowpass filter with passband edge $0.12\pi$, stopband
+edge $0.20\pi$, a CSD budget of $\mathrm{nnz} = 7$ non-zero digits, a
+discretization factor $c_{\mathrm{disc}} = 15$, a tolerance of $10^{-14}$, and an
+initial ellipsoid radius of $40$. Four orders are used, $n \in \{16, 32, 64,
+128\}$, which range from a small design to one whose dimension makes the
+$O(n^{2})$ iteration budget visible. All three implementations read the same
+specification and share the same defaults, so any difference in the results is
+attributable to the language and its standard libraries rather than to the
+algorithm. Measurements were taken on a Windows x64 machine with release builds
+of the three implementations; each figure is the mean of five measured runs
+taken after two warm-up runs.
 
 ### Cross-Language Results
 
 ```{=latex}
 \begin{table*}[t]
 \centering
-\caption{Running time and iteration count for the order-32 design. The figures
+\caption{Running time and iteration count by filter order, averaged over five
+measured runs. The three implementations share one specification; the figures
 are indicative wall-clock times from the authors' implementations.}
 \label{tbl:results}
-\begin{tabular}{lrrr}
+\begin{tabular}{lrrrrrr}
 \hline
-Implementation  & Mean time & Relative to C++ & Iterations \\
+Order $n$ & \multicolumn{3}{c}{Mean time (ms)} & \multicolumn{3}{c}{Iterations} \\
+\cline{2-4}\cline{5-7}
+          & Python & C++ & Rust & Python & C++ & Rust \\
 \hline
-C++ (FFTW3)     & 303\,ms   & $1.00\times$    & 1850 \\
-Rust (realfft)  & 286\,ms   & $0.95\times$    & 2530 \\
-Python (NumPy)  & 4046\,ms  & $13.4\times$    & 1693 \\
+$16$  & $1977$ & $61$   & $50$   & $620$  & $625$  & $625$ \\
+$32$  & $2786$ & $268$  & $252$  & $1931$ & $1850$ & $2530$ \\
+$64$  & $4224$ & $997$  & $1041$ & $1555$ & $1585$ & $1558$ \\
+$128$ & $6713$ & $2322$ & $2303$ & $1784$ & $1869$ & $1842$ \\
 \hline
 \end{tabular}
 \end{table*}
 ```
 
-Two observations stand out. First, the compiled implementations are within five
-percent of each other, and both are more than an order of magnitude faster than
-the interpreted one; the gap is the cost of the interpreter loop over the
-constraint checks, not the cost of the arithmetic. Second, the iteration counts
-differ across languages even though the inputs are identical. The ellipsoid
-method is a first-order method with no mechanism for converging to a unique
-optimum, so floating-point differences in the FFT libraries and in the
-accumulation order lead to different, equally valid trajectories; the three
-solutions satisfy the same specifications and have the same energy
-$\sum h[k]^{2}$.
+Two observations stand out. First, the compiled implementations are an order of
+magnitude or more faster than the interpreted one at small orders --- about
+thirty-two times at $n = 16$ and ten times at $n = 32$ --- but the gap narrows
+as the order grows, to about $2.9$ times at $n = 128$. The narrowing is
+informative: the interpreted cost is the dispatch of the Python-level loop over
+the constraints, which is amortized against an ever-larger amount of FFT work as
+the order rises, whereas the compiled cost is dominated by the arithmetic
+itself. The two compiled implementations are within ten percent of each other at
+every order, and neither dominates consistently: C++ is faster at $n = 32$ and
+$64$, Rust at $n = 16$ and $128$.
+
+Second, the iteration counts differ across languages even though the inputs are
+identical, and they are not monotone in the order. The ellipsoid method is a
+first-order method with no mechanism for converging to a unique optimum, so
+floating-point differences in the FFT libraries and in the accumulation order
+lead to different, equally valid trajectories; the solutions satisfy the same
+specifications and have comparable energy $\sum h[k]^{2}$. The counts also show
+that the number of iterations is not a proxy for the order: $n = 32$ requires
+more iterations than $n = 64$ in every language, because the parallel-cut
+geometry, not the dimension, determines how much volume each cut removes.
+
+### Iteration Economy of Parallel Cuts
+
+To isolate the effect of the parallel-cut update, the same designs were run with
+the parallel-cut path disabled, so that the oracle could remove only one
+half-space per iteration.
+
+```{=latex}
+\begin{table*}[t]
+\centering
+\caption{Iteration count with a single cut and with parallel cuts. The
+single-cut variant did not reach the tolerance within the $50{,}000$-iteration
+budget at the two largest orders.}
+\label{tbl:parallel_econ}
+\begin{tabular}{lrrr}
+\hline
+Order $n$ & Single cut & Parallel cut & Reduction \\
+\hline
+$16$  & $2666$            & $625$  & $76.6\%$ \\
+$32$  & $19{,}038$        & $1850$ & $90.3\%$ \\
+$64$  & $\ge 50{,}000$    & $1585$ & $\ge 96.8\%$ \\
+$128$ & $\ge 50{,}000$    & $1869$ & $\ge 96.3\%$ \\
+\hline
+\end{tabular}
+\end{table*}
+```
+
+The parallel cut reduces the iteration count by between $77$ and $97$ percent,
+and the gap widens with the order: at $n = 64$ and $n = 128$ the single-cut
+variant exhausts the $50{,}000$-iteration budget without reaching the tolerance,
+whereas the parallel-cut variant converges in fewer than $1{,}900$ iterations.
+This is the quantitative form of the observation of @sec:method: the two-sided
+magnitude constraints are what the parallel update is for, and a single-cut
+method pays for the lower bound and the upper bound in separate iterations.
+
+### Post-Synthesis Hardware Cost
+
+The emitted shift-and-add RTL was synthesized to confirm that the design is
+realizable in hardware and to give a technology-independent cost. Two flows were
+run in Yosys: a generic gate-level flow, which maps the datapath to elementary
+logic and flip-flops and reports a target-independent cell count, and the Xilinx
+flow, which maps the same RTL to six-input lookup tables and flip-flops.
+
+```{=latex}
+\begin{table*}[t]
+\centering
+\caption{Post-synthesis cost of the emitted RTL for the transposed
+cross-CSE design. The lookup-table and flip-flop counts come from a
+six-input-LUT mapping; the generic cell count is target-independent. The design
+uses no multiplier or DSP cells.}
+\label{tbl:hardware}
+\begin{tabular}{lrrr}
+\hline
+Order $n$ & Lookup tables & Flip-flops & Generic cells \\
+\hline
+$16$ & $4850$     & $704$  & $27{,}115$ \\
+$32$ & $10{,}661$ & $1472$ & $57{,}074$ \\
+$64$ & $22{,}946$ & $3264$ & $130{,}225$ \\
+\hline
+\end{tabular}
+\end{table*}
+```
+
+The design contains no multiplier or DSP cells, and the cost is dominated by the
+carry chains of the adders and by the pipeline registers: the flip-flop count is
+essentially $n$ times the output word length. Both the lookup-table and the
+generic cell counts grow a little faster than linearly in the order, because the
+word length itself grows with $n$. The $n = 128$ design was not carried through
+the synthesis flow, which did not complete within a practical time budget on the
+available machine; the trend across the three smaller orders is consistent.
+
+These figures should be read as a synthesis-level estimate, not as a power or
+area measurement. No place-and-route was performed, no dynamic power was
+measured, and the counts are specific to the mapping used; the software running
+times of the three implementations are a proxy for algorithmic cost and carry no
+direct hardware meaning. A power comparison against a multiplier-based
+realization would require a full synthesis, place-and-route, and simulation
+flow, which is outside the scope of this article.
 
 ### Profiling
 
@@ -608,7 +817,13 @@ CSD pattern & Flat adders & Shared adders & Saving \\
 \end{table*}
 ```
 
-A 32-tap design then needs about 82 cells with sharing, against roughly 110 without, a reduction of about 25 percent.
+The per-pattern figures above are the savings from a single shared pattern, not
+from a whole design. For $\mathrm{nnz} = 7$ the flat count is six adders per tap
+--- $96$ adders at $n = 16$ and $768$ at $n = 128$ --- and after the cross-pattern
+sharing performed by the reference generator the counts are $91$ and $745$,
+respectively. Closing the remaining gap requires a
+multiple-constant-multiplication search over all patterns, which is left to
+future work (@sec:conclusion).
 
 ### Multiplierless Result
 
@@ -622,7 +837,9 @@ quantizer was consulted during the optimization rather than after it, the
 returned design satisfies the sampled specifications by construction, and the
 only remaining verification is to confirm that the design also holds between
 the samples of the grid. The shift-and-add description is then emitted directly
-for synthesis.
+for synthesis, and the post-synthesis cell and register counts of the preceding
+subsection confirm that the result is realizable in hardware without a
+multiplier.
 
 ## Concluding Remarks {#sec:conclusion}
 
@@ -634,8 +851,10 @@ CSD quantizer can be embedded in the oracle so that the optimizer searches over
 realizable coefficient vectors rather than over a relaxation. The same
 formulation applies unchanged to the robust and parametric variants of the
 design problem, and the numerical experiments confirm that a compiled
-implementation of the whole pipeline runs in a fraction of a second for a
-representative order-32 design.
+implementation of the whole pipeline runs in under $2.4$ seconds for orders up to
+$128$, that the parallel-cut update keeps the iteration count below $1{,}900$
+where a single-cut method does not converge, and that the emitted RTL synthesizes
+to logic and registers without any multiplier cells.
 
 Three directions remain open. The first is a sharper analysis of the parallel
 cut under a discretization grid, so that the fine-grid advisory check can be
@@ -645,7 +864,9 @@ into the oracle, so that adder cost, and not only coefficient error, is a
 first-class design objective. The third is a systematic study of the filter
 architecture: the direct and transposed forms realize the same transfer
 function but differ substantially in adder depth and register count, and the
-choice interacts with the coefficient ordering that the CSD quantizer produces.
+choice interacts with the coefficient ordering that the CSD quantizer produces;
+the synthesis counts reported in @sec:experiments are a first datapoint, not a
+substitute for that study.
 
 ## Acknowledgments
 
