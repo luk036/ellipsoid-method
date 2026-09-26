@@ -26,7 +26,7 @@ separation oracle · ellipsoid update · parallel cuts
 spectral factorization · quantization-aware oracle
 
 **🏭 Part 4 — Practice**
-three implementations · results · lessons
+three implementations · multi-order results · synthesis cost
 
 :::
 ::::
@@ -56,8 +56,11 @@ $$c = \sum_{j} s_j\,2^{e_j}, \qquad s_j \in \{-1,0,+1\}.$$
 - A pattern occuring at positions $p < q$ can be shared:
 $$\operatorname{pat}_{q}(x) = \operatorname{pat}_{p}(x) \gg (q-p).$$
 - Pick the pattern maximizing $\text{score} = (\mathrm{nnz}-1)(\text{occurrences}-1)$.
-- Typical adder savings: **40–60%** for a 64-tap design (32-tap: ~82 cells vs ~110) 📉
-- **MCM / CSE** also reduce *adder depth*, hence the critical path.
+- Flat cost is $d-1$ adders per coefficient → $6$ adders/tap at $\mathrm{nnz}=7$ 📉
+- The reference generator shares **one dominant cross-coefficient pattern**; the
+  whole-design saving is modest (~3–7%), while a single pattern can save 50–67%.
+- **MCM / CSE** also reduce *adder depth*, hence the critical path; a full MCM
+  search is left to future work.
 
 ## 🧱 Three Obstacles
 
@@ -95,13 +98,18 @@ $$x_c^+ = x_c - \frac{\rho}{\omega}\tilde g, \qquad
 ## 🪜 Parallel Cuts
 
 - A two-sided constraint $l \le a^\mathsf{T}x + b \le u$ yields a **pair** of parallel planes sharing a normal $g$.
-- Removes a **slab**, not a half-space → faster convergence 🚀
+- Along $s = g^\mathsf{T}(x-x_c)/\tau \in [-1,1]$ the pair keeps the **band**
+  $-\beta_1/\tau \le s \le -\beta_0/\tau$: a single cut removes **one cap**, the
+  pair removes **both** — the upper- and lower-bound violations 🚀
+- $\eta = \tau^2 + n\beta_0\beta_1 > 0$ is the admissibility test
+  ($\iff \beta_0\beta_1 > -\tau^2/n$); $\xi$ is the positive root coupling the two planes.
 - With $\zeta_0 = \tau^2-\beta_0^2$, $\zeta_1 = \tau^2-\beta_1^2$, and $\xi = \sqrt{\zeta_0\zeta_1 + (\tfrac{n}{2}(\beta_1^2-\beta_0^2))^2}$:
 
 $$\sigma = \frac{2\eta}{\tau^2 + \beta_0\beta_1 + \tfrac{n}{2}(\beta_0+\beta_1)^2 + \xi}, \qquad
   \rho = \sigma\cdot\frac{\beta_0+\beta_1}{2}.$$
 
-- Finite even when $\beta_0 + \beta_1 = 0$ 🧩
+- Finite even when $\beta_0 + \beta_1 = 0$ 🧩 — the center then stays fixed,
+  since $\rho = \sigma(\beta_0+\beta_1)/2$
 
 ![Parallel cuts](ellipsoid.files/parallel_cut.pdf){height=2.1cm}
 
@@ -145,7 +153,10 @@ $$R(\omega) = r_0 + 2\sum_{k=1}^{n-1} r_k\cos(k\omega) = \mathbf{a}(\omega)^\mat
 ```
 
 - Constraints are tested against $\mathbf{r}_{\mathrm{csd}}$, a **realizable** design ✅
-- An ineffective cut → perturb the quantization and **retry** 🔁
+- Deep cut re-anchored at the center:
+  $\beta \leftarrow \beta + g^\mathsf{T}(\mathbf{r}_{\mathrm{csd}} - \mathbf{r})$ ⚓
+- Ineffective cut → **retry**, budgeted by the grid size $m = c_{\mathrm{disc}} n$;
+  each retry advances the **round-robin** cursor 🔁
 - A sampled grid means a **discretization artifact** between samples ⚠️
 
 # Realization
@@ -189,17 +200,54 @@ $$R(\omega) = r_0 + 2\sum_{k=1}^{n-1} r_k\cos(k\omega) = \mathbf{a}(\omega)^\mat
 
 - A shared ellipsoid engine, spectral factorization, and CSD quantizer 🔧
 - The oracle checks passband, stopband, and non-negativity **round-robin** and returns the first violation.
+- Each implementation emits synthesizable **Verilog** (transposed, cross-CSE) 🏭
 
 ## 📊 Cross-Language Results
 
-| Implementation | Mean time | Relative | Iterations |
-|:--|--:|--:|--:|
-| C++ (FFTW3) | 303 ms | $1.00\times$ | 1850 |
-| Rust (realfft) | 286 ms | $0.95\times$ | 2530 |
-| Python (NumPy) | 4046 ms | $13.4\times$ | 1693 |
+```{=latex}
+\begin{center}
+\scriptsize
+\begin{tabular}{lrrrrrr}
+\hline
+$n$ & \multicolumn{3}{c}{Mean time (ms)} & \multicolumn{3}{c}{Iterations} \\
+\cline{2-4}\cline{5-7}
+    & Python & C++ & Rust & Python & C++ & Rust \\
+\hline
+16  & 1977 & 61   & 50   & 620  & 625  & 625 \\
+32  & 2786 & 268  & 252  & 1931 & 1850 & 2530 \\
+64  & 4224 & 997  & 1041 & 1555 & 1585 & 1558 \\
+128 & 6713 & 2322 & 2303 & 1784 & 1869 & 1842 \\
+\hline
+\end{tabular}
+\end{center}
+```
 
-- Compiled implementations within **5%**; interpreted ~**13×** slower 🐢
-- Different trajectories, but the **same energy** and the same specification ✅
+- Compiled implementations agree within **10%**; interpreted is **10–32×** slower
+  at small $n$, but only **~2.9×** at $n=128$ 🐢→⚡
+- Iteration counts differ per language (first-order method, no unique optimum)
+  and are **not monotone** in $n$: $n=32$ needs more than $n=64$ ✅
+
+## 🪜 Parallel-Cut Economy
+
+```{=latex}
+\begin{center}
+\scriptsize
+\begin{tabular}{lrrr}
+\hline
+$n$ & Single cut & Parallel cut & Reduction \\
+\hline
+16  & 2666         & 625  & 76.6\% \\
+32  & 19,038       & 1850 & 90.3\% \\
+64  & $\ge$50,000  & 1585 & $\ge$96.8\% \\
+128 & $\ge$50,000  & 1869 & $\ge$96.3\% \\
+\hline
+\end{tabular}
+\end{center}
+```
+
+- Parallel cuts cut the iteration count by **77–97%** 🚀
+- At $n \ge 64$ the single-cut variant **does not converge** within 50,000
+  iterations; the parallel-cut variant needs **under 1,900** 🎯
 
 ## ⚡ Profiling Lessons
 
@@ -208,6 +256,28 @@ $$R(\omega) = r_0 + 2\sum_{k=1}^{n-1} r_k\cos(k\omega) = \mathbf{a}(\omega)^\mat
 - The same change **regressed** compiled C++ by 1.9× (early exit beats a full matvec) ⚠️
 - Rust: a scalar `.sum()` chain → a **4-accumulator** kernel ⚡
 - **Port the measurement, not the conclusion.** 📌
+
+## 🏭 Post-Synthesis Hardware Cost
+
+```{=latex}
+\begin{center}
+\scriptsize
+\begin{tabular}{lrrr}
+\hline
+$n$ & Lookup tables & Flip-flops & Generic cells \\
+\hline
+16 & 4850     & 704  & 27,115 \\
+32 & 10,661   & 1472 & 57,074 \\
+64 & 22,946   & 3264 & 130,225 \\
+\hline
+\end{tabular}
+\end{center}
+```
+
+- Yosys: generic gate flow + six-input-LUT flow; **no multiplier or DSP cells** ✅
+- Flip-flops $\approx n \times$ output word length; LUTs grow slightly faster
+  than linearly, because the word length grows with $n$ 📈
+- **Synthesis-level estimate**: no place-and-route and no dynamic power measured ⚠️
 
 ## 🎛️ Multiplierless Result
 
@@ -236,7 +306,7 @@ $$R(\omega) = r_0 + 2\sum_{k=1}^{n-1} r_k\cos(k\omega) = \mathbf{a}(\omega)^\mat
 **The method** 🧠
 
 - the **oracle** is the star; the ellipsoid is bookkeeping
-- **parallel cuts** pay for two-sided bounds
+- **parallel cuts** pay for two-sided bounds — **77–97%** fewer iterations
 
 :::
 ::: {.column width="47%"}
@@ -245,6 +315,7 @@ $$R(\omega) = r_0 + 2\sum_{k=1}^{n-1} r_k\cos(k\omega) = \mathbf{a}(\omega)^\mat
 
 - quantize **inside** the oracle — round-after fails
 - profile, pre-allocate, and re-measure
+- the emitted RTL synthesizes with **no multipliers**
 
 :::
 ::::
