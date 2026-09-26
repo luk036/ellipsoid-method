@@ -209,6 +209,29 @@ $\beta = \beta_{0}$. The intersection is empty when $\beta_{0} > \beta_{1}$; no
 smaller ellipsoid exists when $\beta_{0}\beta_{1} < -\tau^{2}/n$; and the update
 reduces to a deep cut when $\beta_{1}^{2} > \tau^{2}$.
 
+```{=latex}
+\begin{algorithm}[t]
+\caption{Cutting-plane optimization with parallel cuts}
+\begin{algorithmic}[1]
+\Require oracle $\Omega$, ellipsoid $\mathcal{E} \supseteq \mathcal{K}$, tolerance $\epsilon$
+\Ensure value $\gamma^\star$, coefficients $\mathbf{h}_{\mathrm{csd}}$
+\State $\gamma \gets +\infty$
+\Repeat
+    \State $x_c \gets \mathrm{center}(\mathcal{E})$
+    \State $(g, \beta_0, \beta_1, t) \gets \Omega(x_c, \gamma)$
+    \If{$t < \gamma$}
+        \State $\gamma \gets t$;\quad $\mathcal{E} \gets \textsc{CentralCut}(\mathcal{E}, g, 0)$
+    \ElsIf{$\beta_1^{2} \le \tau^{2}$}
+        \State $\mathcal{E} \gets \textsc{ParallelCut}(\mathcal{E}, g, \beta_0, \beta_1)$
+    \Else
+        \State $\mathcal{E} \gets \textsc{DeepCut}(\mathcal{E}, g, \beta_0)$
+    \EndIf
+\Until{$\operatorname{vol}(\mathcal{E}) < \epsilon$}
+\State \Return $\gamma^\star, \mathbf{h}_{\mathrm{csd}}$
+\end{algorithmic}
+\end{algorithm}
+```
+
 ![Parallel cuts.](ellipsoid.files/parallel_cut.pdf){#fig:parallel_cut}
 
 ### Volume Reduction
@@ -266,6 +289,25 @@ Enlarging the budget $\mathrm{nnz}$ improves the approximation and enlarges the
 set of feasible filters, at the price of more adders; shrinking it to one or
 two digits makes many otherwise realizable filters infeasible. The budget is a
 constraint of the design problem, and it is what makes the problem discrete.
+
+```{=latex}
+\begin{algorithm}[t]
+\caption{CSD quantization with a non-zero-digit budget}
+\begin{algorithmic}[1]
+\Require value $x$, budget $\mathrm{nnz}$
+\Ensure $c$ with at most $\mathrm{nnz}$ non-zero digits
+\State $c \gets 0$;\quad $b \gets 2^{\lceil \log_2(1.5\,|x|)\rceil - 1}$
+\While{$\mathrm{nnz} > 0$ \textbf{and} $|x| > 0$}
+    \If{$|1.5\,x| > b$}
+        \State $c \gets c + \operatorname{sign}(x)\,b$
+        \State $x \gets x - \operatorname{sign}(x)\,b$;\quad $\mathrm{nnz} \gets \mathrm{nnz}-1$
+    \EndIf
+    \State $b \gets b/2$
+\EndWhile
+\State \Return $c$
+\end{algorithmic}
+\end{algorithm}
+```
 
 ### Shift-Add Synthesis and Common Subexpressions
 
@@ -330,6 +372,28 @@ $\mathbf{r}$ and proceeds as follows.
   CSD pattern, producing a cut that removes no new volume. The oracle then
   perturbs the quantization decision, or re-derives the pattern from the
   updated center, for a bounded number of attempts.
+
+```{=latex}
+\begin{algorithm}[t]
+\caption{Quantization-aware oracle $\Omega_Q$}
+\begin{algorithmic}[1]
+\Require center $\mathbf{r}$, budget $\mathrm{nnz}$, retry flag
+\Ensure a cut $(g,\beta)$, possibly an improved $\gamma$
+\If{not retry \textbf{and} $\mathbf{r} \notin \mathcal{K}$}
+    \State \Return cut at $\mathbf{r}$
+\EndIf
+\State $\mathbf{h} \gets \textsc{SpectralFact}(\mathbf{r})$
+\State $\mathbf{h}_{\mathrm{csd}} \gets \textsc{CsdQuantize}(\mathbf{h}, \mathrm{nnz})$
+\State $\mathbf{r}_{\mathrm{csd}} \gets \textsc{InverseSpectralFact}(\mathbf{h}_{\mathrm{csd}})$
+\If{$\mathbf{r}_{\mathrm{csd}} \in \mathcal{K}$}
+    \State $\gamma \gets f_0(\mathbf{r}_{\mathrm{csd}})$
+    \State \Return $(\partial f_0(\mathbf{r}_{\mathrm{csd}}), 0)$ \Comment{central cut}
+\Else
+    \State \Return $(\partial f_j(\mathbf{r}_{\mathrm{csd}}), f_j(\mathbf{r}_{\mathrm{csd}}))$ \Comment{deep cut, or retry}
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+```
 
 One pitfall deserves emphasis. The oracle certifies feasibility only on the
 finite grid of $m = c_{\mathrm{disc}} n$ sampled frequencies. Between samples
@@ -400,6 +464,23 @@ that prevents the same cut from being reintroduced. The implementations are
 checked by property-based testing: a fast implementation is compared against a
 reference on randomly generated inputs, which exposes silent conversion and
 factorization defects that example-based unit tests miss.
+
+```{=latex}
+\begin{algorithm}[t]
+\caption{Multiplierless FIR design pipeline}
+\begin{algorithmic}[1]
+\Require specification $(n, \omega_p, \omega_s, L, U)$, budget $\mathrm{nnz}$
+\Ensure a realizable coefficient vector $\mathbf{h}_{\mathrm{csd}}$
+\State initialize $\mathcal{E}$ and $\gamma \gets +\infty$
+\Repeat
+    \State $\mathbf{r} \gets \mathrm{center}(\mathcal{E})$
+    \State $(\mathbf{h}_{\mathrm{csd}}, \text{cut}) \gets \Omega_Q(\mathbf{r}, \mathrm{nnz})$
+    \State $\mathcal{E} \gets \textsc{Update}(\mathcal{E}, \text{cut})$
+\Until{$\operatorname{vol}(\mathcal{E}) < \epsilon$}
+\State \Return $\mathbf{h}_{\mathrm{csd}}$
+\end{algorithmic}
+\end{algorithm}
+```
 
 ### Experimental Setup
 
