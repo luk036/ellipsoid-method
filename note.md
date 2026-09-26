@@ -12,7 +12,9 @@
 # crossref.yaml uses cref:false: siamltex.cls redefines \label/\refstepcounter,
 #   which breaks cleveref (cref:true renders every cross-reference as "??").
 # --shift-heading-level-by=-1 : body headings in ell-review.md start at "##".
-pandoc -F pandoc-crossref --citeproc -s -t latex -N --reference-links --shift-heading-level-by=-1 --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.pdf
+# --lua-filter=secspacing.lua : drop the non-breaking space pandoc-crossref puts
+#   in section references, so they print as "§4.2" instead of "§ 4.2".
+pandoc -F pandoc-crossref --lua-filter=secspacing.lua --citeproc -s -t latex -N --reference-links --shift-heading-level-by=-1 --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.pdf
 
 pandoc -F pandoc-crossref --citeproc -s -t html -N --katex=katex/ --reference-links --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.html
 

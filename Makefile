@@ -9,12 +9,14 @@
 #   * --shift-heading-level-by=-1 because the body headings start at "##" (title is the H1);
 #     without it pandoc emits no \section and numbering degrades to 0.1, 0.2, ...
 #   * ell-review.md references the existing .pdf figures, so no SVG converter is needed.
+#   * secspacing.lua removes the non-breaking space pandoc-crossref puts in section
+#     references ("§~\ref{...}"), so "§4.2" is printed rather than "§ 4.2".
 
 PANDOC   := pandoc
 CROSSREF := pandoc-crossref
 CSL      := applied-mathematics-letters.csl
 
-PAPER_FLAGS := -F $(CROSSREF) --citeproc -s -t latex -N --reference-links \
+PAPER_FLAGS := -F $(CROSSREF) --lua-filter=secspacing.lua --citeproc -s -t latex -N --reference-links \
                --shift-heading-level-by=-1 --csl=$(CSL)
 PAPER_META  := ell-review.yaml latex.yaml crossref.yaml
 
@@ -25,7 +27,7 @@ all: paper
 # --- Main paper (SIAM article) ---------------------------------------------
 paper: ell-review.pdf
 
-ell-review.pdf: ell-review.md $(PAPER_META) $(CSL)
+ell-review.pdf: ell-review.md $(PAPER_META) $(CSL) secspacing.lua
 	$(PANDOC) $(PAPER_FLAGS) $(PAPER_META) ell-review.md -o $@
 
 # --- Multiplierless FIR paper ----------------------------------------------
@@ -33,7 +35,7 @@ ell-review.pdf: ell-review.md $(PAPER_META) $(CSL)
 # Only the per-document metadata (multiplierless.yaml) differs.
 multiplierless: multiplierless.pdf
 
-multiplierless.pdf: multiplierless.md multiplierless.yaml latex.yaml crossref.yaml $(CSL)
+multiplierless.pdf: multiplierless.md multiplierless.yaml latex.yaml crossref.yaml $(CSL) secspacing.lua
 	$(PANDOC) $(PAPER_FLAGS) multiplierless.yaml latex.yaml crossref.yaml multiplierless.md -o $@
 
 # Requires a local katex/ directory (gitignored, not shipped).

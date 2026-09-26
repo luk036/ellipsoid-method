@@ -10,7 +10,7 @@ bibliography:
   ]
 csl: "applied-mathematics-letters.csl"
 abstract: |
-  The ellipsoid method is a powerful optimization technique that offers distinct advantages over interior-point methods, as it does not require the evaluation of all constraint functions. This makes it a natural choice for convex problems with numerous or even infinite constraints. The method employs an ellipsoid as a search space and relies on a separation oracle to provide cutting planes for updating it. It is worth noting that the significance of the separation oracle is often overlooked. This article evaluates the utility of the ellipsoid method in three distinct applications: robust convex optimization, semidefinite programming, and parametric network optimization. The effectiveness of separation oracles is assessed for each application. Furthermore, this article addresses the implementation issues associated with the ellipsoid method, including the utilization of parallel cuts for updating the ellipsoid. In certain cases, the use of parallel cuts has been observed to reduce computation time, as evidenced in the context of FIR filter design. The article also considers discrete optimization, demonstrating how the ellipsoid method can be applied to problems involving quantized discrete design variables. The additional effort in oracle implementation is limited to locating the nearest discrete solutions.
+  The ellipsoid method is a powerful optimization technique that offers distinct advantages over interior-point methods, as it does not require the evaluation of all constraint functions. This makes it a natural choice for convex problems with numerous or even infinite constraints. The method employs an ellipsoid as a search space and relies on a separation oracle to provide cutting planes for updating it. It is worth noting that the significance of the separation oracle is often overlooked. This article evaluates the utility of the ellipsoid method in three distinct applications: robust convex optimization, semidefinite programming, and parametric network optimization. The effectiveness of separation oracles is assessed for each application. Furthermore, this article addresses the implementation issues associated with the ellipsoid method, including the utilization of parallel cuts for updating the ellipsoid. In certain cases, the use of parallel cuts has been observed to reduce computation time, as evidenced in the context of FIR filter design. The article also considers discrete optimization, demonstrating how the ellipsoid method can be applied to problems involving quantized discrete design variables. The additional effort in oracle implementation is limited to locating the nearest discrete solutions. The advantages of the method are nevertheless bounded: it cannot exploit sparsity in the problem data, and its iteration budget grows as $n^2$, so it is most effective when the number of design variables is moderate; its practical performance further depends on compiled execution and on careful floating-point safeguards.
 ---
 
 ## Introduction
@@ -18,6 +18,8 @@ abstract: |
 The reputation of the ellipsoid method is negatively impacted by its perceived slower performance in solving large-scale convex problems when compared to the interior-point method. This perception is, however, an unfair one. In contrast to the interior-point method, the ellipsoid method does not require the explicit evaluation of all constraint functions. Instead, the method employs an ellipsoid as a search space and requires only a separation oracle that furnishes a _cutting plane_ (@sec:cutting_plane). This method is particularly well-suited to problems that involve a moderate number of design variables but have a large number of constraints, or even an infinite number of constraints. The method cannot exploit sparsity in the data, but the separation oracle can exploit structural properties of the problem.
 
 Despite decades of research into the ellipsoid method [@BGT81], the importance of the separation oracle is often overlooked. This article examines three specific applications: robust convex optimization, network optimization, and semidefinite programming. The effectiveness of separation oracles is assessed for each application.
+
+Beyond surveying oracle techniques, the article contributes original implementation methodology. These contributions include a split representation of the ellipsoid that lowers the per-iteration cost (@sec:search_space), parallel cuts for two-sided constraints (@sec:parallel_cut), a numerically stable factorized update and a floating-point stall guard (@sec:stable_ellipsoid, @sec:termination), the embedding of quantized constraints inside the oracle (@sec:discrete), and a cross-language benchmark against an interior-point solver (@sec:compare). The treatment is therefore both a review of how separation oracles are constructed and a practitioner's account of how the resulting method is made to work. @sec:cutting_plane establishes the cutting-plane framework, @sec:oracles surveys the oracles for robust, network, and matrix-inequality problems, and @sec:ellipsoid develops the ellipsoid update together with its numerical safeguards.
 
 Robust optimization incorporates parameter uncertainties into the optimization problem by analyzing the worst-case scenario. The objective is to find a solution that is both reliable and performs optimally under a range of possible parameter values within a specified set of uncertainties. A robust counterpart of a convex problem preserves its convexity, despite the number of constraints growing to infinity. This renders the ellipsoid method an excellent choice for addressing such problems. For further details, see @sec:robust.
 
@@ -490,98 +492,7 @@ where $y = (y_1, \ldots, y_n)$ is a real vector, $A_0, A_1, A_2, \cdots, A_n$ ar
 
 This linear matrix inequality defines a convex constraint on the variable $y$. There are efficient numerical methods for determining the feasibility of an LMI (e.g., whether there exists a vector $y$ such that $A(y) \succeq 0$), as well as for solving convex optimization problems with LMI constraints.
 
-#### Cholesky decomposition algorithm
-
-The Cholesky decomposition algorithm is a method used in linear algebra to decompose a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose.
-
-The Cholesky decomposition of a Hermitian positive-definite matrix $A$ is a unique decomposition where $A$ = $L L^*$, with $L$ being a lower triangular matrix containing real and positive diagonal entries, and $L^*$ representing the conjugate transpose of $L$. Every real-valued symmetric positive definite matrix and every Hermitian positive definite matrix admits a Cholesky decomposition.
-
-If $A$ is a real matrix that is symmetric and positive-definite, it can be decomposed as $A = L L^T$. Here, $L$ represents a real lower triangular matrix with positive diagonal entries.
-
-The Cholesky and LDLT decompositions are matrix decomposition methods utilized in linear algebra for disparate purposes, exhibiting distinctive properties.
-
-The Cholesky decomposition is a method for decomposing a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose. The Cholesky decomposition is typically a faster and more numerically stable method than the $LDL^\mathsf{T}$ decomposition. Nevertheless, the input matrix must be positive definite for this to be effective.
-
-The $LDL^\mathsf{T}$ decomposition factors a symmetric matrix into a unit lower triangular matrix, a diagonal matrix, and the transpose of the lower triangular matrix. Because it avoids the square roots of Cholesky, it can be faster, and when a symmetric indefinite factorization with $2 \times 2$ pivots is used it also handles matrices that are not positive definite.
-
-$$
-\begin{aligned}
-\mathbf{A} = \mathbf{LDL}^\mathsf{T} & =
-\begin{pmatrix} 1 & 0 & 0 \\
-   L_{21} & 1 & 0 \\
-   L_{31} & L_{32} & 1\\
-\end{pmatrix}
-\begin{pmatrix} D_1 & 0 & 0 \\
-   0 & D_2 & 0 \\
-   0 & 0 & D_3\\
-\end{pmatrix}
-\begin{pmatrix} 1 & L_{21} & L_{31} \\
-   0 & 1 & L_{32} \\
-   0 & 0 & 1\\
-\end{pmatrix} \\
-& = \begin{pmatrix} D_1 & &(\mathrm{symmetric}) \\
-   L_{21}D_1 & L_{21}^2D_1 + D_2& \\
-   L_{31}D_1 & L_{31}L_{21}D_{1}+L_{32}D_2 & L_{31}^2D_1 + L_{32}^2D_2+D_3.
-\end{pmatrix}.
-\end{aligned}
-$$
-
-If $A$ is real, the following recursive relations apply for the entries of $D$ and $L$:
-
-$$D_{j} = A_{jj} - \sum_{k=1}^{j-1} L_{jk} L_{jk}^* D_k, $$
-
-$$
-L_{ij} = \frac{1}{D_j} \left( A_{ij} - \sum_{k=1}^{j-1} L_{ik} L_{jk}^* D_k \right) \quad \text{for } i>j.
-$$
-
-Once more, the pattern of access enables the entire computation to be performed in-place.
-
-The Cholesky or LDLT decomposition can be computed using either row-based or column-based methods:
-
-- Column-Based: In this approach, the computation is conducted in a column-wise manner. The inner loops calculate the current column using a matrix-vector product that accumulates the effects of previous columns.
-
-- Row-Based: In this approach, the calculations are conducted row by row. The inner loops are responsible for computing the current row, which is achieved by solving a triangular system involving previous rows.
-
-The selection of each outer loop index results in a unique Cholesky algorithm, named after the portion of the matrix updated by the fundamental operation within the inner loops. The choice between a row-based or column-based method depends on the specific requirements of the problem, as well as the system properties, such as memory layout and access patterns. The row-based decomposition with lazy evaluation allows the cutting-plane construction to be completed in $O(p^3)$. This allows for the effective implementation of oracles.
-
-The Cholesky decomposition provides a witness vector that certifies a matrix is not positive definite. If a matrix fails the Cholesky decomposition, it is not positive definite.
-During the decomposition process, the diagonal of the lower triangular matrix should be calculated by finding the square root of a value, denoted as $x$. If $x$ is less than zero, this indicates that the matrix is not positive definite. This failure serves as evidence that the matrix in question is not positive definite.
-
-In the event that the Cholesky decomposition is unsuccessful due to a negative diagonal element, this indicates that the leading principal submatrix up to that point is not positive definite. The confirming vector is a standard basis vector with a 1 in the position of the failed diagonal element and zeros elsewhere; sandwiching it between the original matrix and its transpose yields a negative value, which certifies that the matrix is not positive definite.
-
-The oracle should perform a _row-based_ Cholesky decomposition such that $F(x_0) = R^\mathsf{T} R$. The notation $A_{:p,:p}$ is used to denote a submatrix $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$. If the Cholesky decomposition fails at row $p$, there exists a vector $e_p$, defined as $(0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p$. This can be expressed as follows:
-
-- $v = R_{:p,:p}^{-1} e_p$, and
-- $v^\mathsf{T} F_{:p,:p}(x_0) v < 0$.
-
-The cut $(g, \beta)$ is then given by the following equation:
-
-$$(-v^\mathsf{T} \partial F_{:p,:p}(x_0) v, -v^\mathsf{T} F_{:p,:p}(x_0) v).$$
-
-```{=latex}
-\begin{algorithm}[t]
-\caption{Row-based Cholesky witness for an LMI oracle}
-\begin{algorithmic}[1]
-\Require symmetric $F(x_0) \in \mathbb{R}^{n \times n}$
-\Ensure ``PD'', or a witness $v$ with $v^\mathsf{T} F v < 0$
-\For{$i = 1$ \textbf{to} $n$}
-    \For{$j = 1$ \textbf{to} $i$}
-        \State $d \gets F_{ij} - \sum_{k<j} L_{ik} L_{jk} D_k$
-        \If{$i = j$}
-            \State $D_i \gets d$
-        \Else
-            \State $L_{ij} \gets d/D_j$
-        \EndIf
-    \EndFor
-    \If{$D_i \le 0$}
-        \State $p \gets i$;\quad $v \gets R_{:p,:p}^{-1} e_p$
-        \State \Return ``not PD'', $v$
-    \EndIf
-\EndFor
-\State \Return ``PD''
-\end{algorithmic}
-\end{algorithm}
-```
+The Cholesky and $LDL^\mathsf{T}$ factorizations that underlie this oracle, together with the row-based witness construction and its $O(p^3)$ complexity, are detailed in the Appendix.
 
 #### Example: Matrix Norm Minimization
 
@@ -617,7 +528,7 @@ affine and the cone of positive semidefinite matrices is convex. The ellipsoid
 method searches over $(x, \gamma)$, and the oracle must decide whether
 $F(x_0, \gamma_0) \succeq 0$ at the queried point.
 
-The oracle is exactly the row-based Cholesky factorization described above. If
+The oracle is exactly the row-based Cholesky factorization described in the Appendix. If
 the factorization $F_{:p,:p} = R_{:p,:p}^\mathsf{T} R_{:p,:p}$ encounters a
 non-positive pivot at row $p$, then $F(x_0, \gamma_0)$ is not positive
 semidefinite and the vector $v = R_{:p,:p}^{-1} e_p$ satisfies
@@ -878,6 +789,21 @@ $$x_c^+ = x_c - \frac{\rho}{\omega}\tilde g, \qquad Q^+ = Q - \frac{\sigma}{\ome
 and differ only in the scalar triple $(\rho, \sigma, \delta)$. Throughout,
 $$\tilde g = Q g, \qquad \omega = g^\mathsf{T} \tilde g = g^\mathsf{T} Q g > 0, \qquad \tau = \sqrt{\kappa\,\omega}.$$
 The parameter written $h$ in the deep-cut formula quoted above is the cut offset $\beta$; the two symbols should be identified, so that $\rho = (\tau + n\beta)/(n+1)$.
+
+A single reference for the symbols shared by every cut type is @tbl:notation.
+
+| Symbol | Quantity | Role |
+|:--|:--|:--|
+| $g$ | cut normal | subgradient of the violated constraint |
+| $\beta$ | cut offset | depth of the cut; the symbol $h$ quoted above denotes the same quantity |
+| $\tilde g$ | $Q g$ | the normal mapped through the shape |
+| $\omega$ | $g^\mathsf{T} \tilde g$ | positive scalar measuring $g$ in the shape metric |
+| $\tau$ | $\sqrt{\kappa\,\omega}$ | ellipsoid radius along $g$ |
+| $\rho$ | center-displacement factor | $x_c^+ = x_c - (\rho/\omega)\tilde g$ |
+| $\sigma$ | rank-one factor | $Q^+ = Q - (\sigma/\omega)\tilde g\tilde g^\mathsf{T}$ |
+| $\delta$ | scale factor | $\kappa^+ = \delta\kappa$ |
+| $Q, \kappa$ | shape and scale | the split representation of @sec:search_space |
+: Unified notation for the ellipsoid update, shared by the central, deep, and parallel cuts. {#tbl:notation}
 
 **Central cut** ($\beta = 0$):
 $$\rho = \frac{\tau}{n+1}, \qquad \sigma = \frac{2}{n+1}, \qquad \delta = \frac{n^2}{n^2 - 1}.$$
@@ -1169,6 +1095,19 @@ Third, several intuitive ports of a successful optimization do not generalize. F
 
 Taken together, these observations give transferable engineering guidance. Measure before optimizing, and capture a baseline honestly by alternating between the two configurations under identical conditions. Distinguish the cost of the number of calls from the cost of the arithmetic inside them; the former usually dominates in interpreted code and the latter in compiled code. Hoist constants that do not change between iterations. Pre-allocate and reuse every buffer that the hot loop touches, and never allocate inside it. Treat consistency across sibling implementations as an optimization in its own right, since the numerically stable variant was already free of the defect that had crept into the classic path. Preserve exact iteration counts on fixed test problems: an unchanged count is strong evidence that an optimization preserved behavior, even when last-bit floating-point noise slightly alters the trajectory. The illustrative speedups reported here range from roughly $1.3$ to $5$ times, depending on language and workload, and are specific to the authors' implementations and machines; they indicate the magnitude of the allocation and call-count effects rather than universal constants.
 
+The section's guidance can be condensed into a short checklist.
+
+| Rule of thumb | Why it matters |
+|:--|:--|
+| Measure, then optimize; capture the baseline by alternating configurations under identical conditions. | Prevents crediting noise, or a port artifact, as a real gain. |
+| Distinguish the cost of the calls from the cost of the arithmetic inside them. | The former dominates in interpreted code and the latter in compiled code; optimizing the wrong one wastes effort. |
+| Pre-allocate and reuse every buffer the hot loop touches; never allocate inside it. | Per-iteration allocation was the single largest recurring defect across the C++, Rust, and Python implementations. |
+| Prefer the factorized (stable) representation in compiled code; keep the direct one for prototyping or unvectorized interpreted use. | The stable form is near-free insurance when compiled, yet can exceed $100\times$ slower when not. |
+| Port the measurement, not the conclusion. | A vectorization win in one language or workload frequently fails to generalize. |
+| Preserve exact iteration counts on fixed test problems. | An unchanged count is strong evidence that an optimization preserved behavior. |
+| Pair an absolute stopping threshold with a stall test. | A threshold on a scale-dependent quantity cannot terminate at floating-point resolution and otherwise burns inner solves. |
+: Engineering rules of thumb for embeddable oracles, distilled from the implementation study of this section. {#tbl:rules_of_thumb}
+
 ### Comparison with Interior-Point Solvers {#sec:compare}
 
 We now place the cutting-plane method alongside a mature interior-point solver on three affine-constraint problems, all of which admit exact cuts and therefore isolate the algorithmic and language overheads from oracle complexity. The first is the Chebyshev center: the largest Euclidean ball contained in a polyhedron, with $n+1$ design variables and constant constraint gradients. The second is the minimum-eigenvalue problem for an affine matrix pencil subject to box constraints, solved with the $LDL^\mathsf{T}$ witness described in @sec:lmi. The third is the lowpass filter design of @sec:parallel_cut, where the two-sided magnitude constraints are exploited as parallel cuts. The first two are prototypical of the convex formulations that classical interior-point methods [@boyd2009convex] handle with near-linear scaling, while the third is representative of the filter-design applications that motivated the spectral formulation of @wu1999fir.
@@ -1322,6 +1261,110 @@ Because the quantized design is the deliverable, verification should be conducte
 ## Concluding Remarks
 
 While the ellipsoid method may be perceived as slower than interior-point methods for solving convex problems, it offers distinct advantages, such as the ability to handle problems with a large or infinite number of constraints. Techniques like parallel cuts and efficient implementations have helped to improve the performance of the ellipsoid method, making it a valuable tool in the optimization landscape. Finally, rather than viewing the ellipsoid method as a competitor to other optimization techniques, it should be seen as a companion, with each method offering unique strengths that can be leveraged to solve a wide range of optimization problems effectively.
+
+The advantages above come with limitations that the preceding sections establish and that a prospective user should weigh. The method cannot exploit sparsity in the problem data, so any structural efficiency must be supplied by the separation oracle, and its iteration budget of order $n^2$ means that interior-point methods scale better as the number of design variables grows (@sec:compare). The comparison in @sec:compare is itself a research-grade implementation set against a mature solver stack: the interior-point path admits warm starts, the stopping tolerances were not harmonized, and the per-iteration overhead of an interpreted environment can reverse the ranking even when the compiled method is faster. Numerical robustness is not automatic either: the direct matrix representation can lose positive definiteness silently, which motivates the factorized variant of @sec:stable_ellipsoid; an absolute stopping threshold on a scale-dependent quantity must be paired with the stall guard of @sec:termination; and a triangular factor must be inverted by triangular back-substitution rather than a general symmetric routine (@sec:ccp). The oracle frameworks carry approximation risks of their own, including the residual curvature error of affine arithmetic (@sec:affine), the bias introduced when the $2Y$ trust region of the difference-of-convex problem is imposed as a hard constraint (@sec:corr_dc), and the discretization artifacts and retry heuristics of the discrete setting (@sec:discrete). These are the price of a solver that applies where interior-point methods cannot, and they are the reason its practical viability rests on compiled execution, floating-point discipline, and domain-specific oracle engineering.
+
+```{=latex}
+\let\origsection\section % siamltex \appendix redefines \section
+\appendix
+```
+
+## Cholesky Decomposition and the $LDL^\mathsf{T}$ Witness {#sec:appendix_cholesky}
+
+The Cholesky decomposition algorithm is a method used in linear algebra to decompose a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose.
+
+The Cholesky decomposition of a Hermitian positive-definite matrix $A$ is a unique decomposition where $A$ = $L L^*$, with $L$ being a lower triangular matrix containing real and positive diagonal entries, and $L^*$ representing the conjugate transpose of $L$. Every real-valued symmetric positive definite matrix and every Hermitian positive definite matrix admits a Cholesky decomposition.
+
+If $A$ is a real matrix that is symmetric and positive-definite, it can be decomposed as $A = L L^T$. Here, $L$ represents a real lower triangular matrix with positive diagonal entries.
+
+The Cholesky and LDLT decompositions are matrix decomposition methods utilized in linear algebra for disparate purposes, exhibiting distinctive properties.
+
+The Cholesky decomposition is a method for decomposing a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose. The Cholesky decomposition is typically a faster and more numerically stable method than the $LDL^\mathsf{T}$ decomposition. Nevertheless, the input matrix must be positive definite for this to be effective.
+
+The $LDL^\mathsf{T}$ decomposition factors a symmetric matrix into a unit lower triangular matrix, a diagonal matrix, and the transpose of the lower triangular matrix. Because it avoids the square roots of Cholesky, it can be faster, and when a symmetric indefinite factorization with $2 \times 2$ pivots is used it also handles matrices that are not positive definite.
+
+$$
+\begin{aligned}
+\mathbf{A} = \mathbf{LDL}^\mathsf{T} & =
+\begin{pmatrix} 1 & 0 & 0 \\
+   L_{21} & 1 & 0 \\
+   L_{31} & L_{32} & 1\\
+\end{pmatrix}
+\begin{pmatrix} D_1 & 0 & 0 \\
+   0 & D_2 & 0 \\
+   0 & 0 & D_3\\
+\end{pmatrix}
+\begin{pmatrix} 1 & L_{21} & L_{31} \\
+   0 & 1 & L_{32} \\
+   0 & 0 & 1\\
+\end{pmatrix} \\
+& = \begin{pmatrix} D_1 & &(\mathrm{symmetric}) \\
+   L_{21}D_1 & L_{21}^2D_1 + D_2& \\
+   L_{31}D_1 & L_{31}L_{21}D_{1}+L_{32}D_2 & L_{31}^2D_1 + L_{32}^2D_2+D_3.
+\end{pmatrix}.
+\end{aligned}
+$$
+
+If $A$ is real, the following recursive relations apply for the entries of $D$ and $L$:
+
+$$D_{j} = A_{jj} - \sum_{k=1}^{j-1} L_{jk} L_{jk}^* D_k, $$
+
+$$
+L_{ij} = \frac{1}{D_j} \left( A_{ij} - \sum_{k=1}^{j-1} L_{ik} L_{jk}^* D_k \right) \quad \text{for } i>j.
+$$
+
+Once more, the pattern of access enables the entire computation to be performed in-place.
+
+The Cholesky or LDLT decomposition can be computed using either row-based or column-based methods:
+
+- Column-Based: In this approach, the computation is conducted in a column-wise manner. The inner loops calculate the current column using a matrix-vector product that accumulates the effects of previous columns.
+
+- Row-Based: In this approach, the calculations are conducted row by row. The inner loops are responsible for computing the current row, which is achieved by solving a triangular system involving previous rows.
+
+The selection of each outer loop index results in a unique Cholesky algorithm, named after the portion of the matrix updated by the fundamental operation within the inner loops. The choice between a row-based or column-based method depends on the specific requirements of the problem, as well as the system properties, such as memory layout and access patterns. The row-based decomposition with lazy evaluation allows the cutting-plane construction to be completed in $O(p^3)$. This allows for the effective implementation of oracles.
+
+The Cholesky decomposition provides a witness vector that certifies a matrix is not positive definite. If a matrix fails the Cholesky decomposition, it is not positive definite.
+During the decomposition process, the diagonal of the lower triangular matrix should be calculated by finding the square root of a value, denoted as $x$. If $x$ is less than zero, this indicates that the matrix is not positive definite. This failure serves as evidence that the matrix in question is not positive definite.
+
+In the event that the Cholesky decomposition is unsuccessful due to a negative diagonal element, this indicates that the leading principal submatrix up to that point is not positive definite. The confirming vector is a standard basis vector with a 1 in the position of the failed diagonal element and zeros elsewhere; sandwiching it between the original matrix and its transpose yields a negative value, which certifies that the matrix is not positive definite.
+
+The oracle should perform a _row-based_ Cholesky decomposition such that $F(x_0) = R^\mathsf{T} R$. The notation $A_{:p,:p}$ is used to denote a submatrix $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$. If the Cholesky decomposition fails at row $p$, there exists a vector $e_p$, defined as $(0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p$. This can be expressed as follows:
+
+- $v = R_{:p,:p}^{-1} e_p$, and
+- $v^\mathsf{T} F_{:p,:p}(x_0) v < 0$.
+
+The cut $(g, \beta)$ is then given by the following equation:
+
+$$(-v^\mathsf{T} \partial F_{:p,:p}(x_0) v, -v^\mathsf{T} F_{:p,:p}(x_0) v).$$
+
+```{=latex}
+\begin{algorithm}[t]
+\caption{Row-based Cholesky witness for an LMI oracle}
+\begin{algorithmic}[1]
+\Require symmetric $F(x_0) \in \mathbb{R}^{n \times n}$
+\Ensure ``PD'', or a witness $v$ with $v^\mathsf{T} F v < 0$
+\For{$i = 1$ \textbf{to} $n$}
+    \For{$j = 1$ \textbf{to} $i$}
+        \State $d \gets F_{ij} - \sum_{k<j} L_{ik} L_{jk} D_k$
+        \If{$i = j$}
+            \State $D_i \gets d$
+        \Else
+            \State $L_{ij} \gets d/D_j$
+        \EndIf
+    \EndFor
+    \If{$D_i \le 0$}
+        \State $p \gets i$;\quad $v \gets R_{:p,:p}^{-1} e_p$
+        \State \Return ``not PD'', $v$
+    \EndIf
+\EndFor
+\State \Return ``PD''
+\end{algorithmic}
+\end{algorithm}
+```
+
+```{=latex}
+\let\section\origsection % restore so \section*{References} is not an empty "Appendix B."
+```
 
 ## References {-}
 
