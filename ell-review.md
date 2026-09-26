@@ -75,6 +75,25 @@ Let us denote the center of the current set, denoted by $\mathcal{S}$, as $x_c$.
 3. **Update**: The smaller search space, denoted by $\mathcal{S}^+$, is computed and contains the half-space from step 2.
 4. **Repeat**: Repeat steps 2 and 3 until $\mathcal{S}$ is either empty or sufficiently small.
 
+```{=latex}
+\begin{algorithm}[t]
+\caption{Cutting-plane feasibility}
+\begin{algorithmic}[1]
+\Require oracle $\Omega$, initial ellipsoid $\mathcal{E} \supseteq \mathcal{K}$, tolerance $\epsilon$
+\Ensure a point $x^\star \in \mathcal{K}$, or ``infeasible''
+\Repeat
+    \State $x_c \gets \mathrm{center}(\mathcal{E})$
+    \State $(\mathit{status}, g, \beta) \gets \Omega(x_c)$
+    \If{$\mathit{status} = \mathrm{feasible}$}
+        \State \Return $x_c$
+    \EndIf
+    \State $\mathcal{E} \gets \textsc{Update}(\mathcal{E}, g, \beta)$
+\Until{$\operatorname{vol}(\mathcal{E}) < \epsilon$}
+\State \Return ``infeasible''
+\end{algorithmic}
+\end{algorithm}
+```
+
 ### From Feasibility to Optimization
 
 Let us now turn our attention to the following consideration:
@@ -121,6 +140,27 @@ Generic cutting plane method (Optim)
   5. **If** $\mathcal{S}^+ = \emptyset$ or it is small enough, exit.
 
 We assume that the oracle takes responsibility for this update.
+
+```{=latex}
+\begin{algorithm}[t]
+\caption{Cutting-plane optimization}
+\begin{algorithmic}[1]
+\Require oracle $\Omega$, initial ellipsoid $\mathcal{E} \supseteq \mathcal{K}_{\gamma_0}$
+\Ensure best point $x^\star$ and value $\gamma^\star$
+\State $\gamma \gets +\infty$
+\Repeat
+    \State $x_c \gets \mathrm{center}(\mathcal{E})$
+    \State $(g, \beta, t) \gets \Omega(x_c, \gamma)$
+    \If{$t < \gamma$}
+        \State $\gamma \gets t$;\quad $x^\star \gets x_c$;\quad $\mathcal{E} \gets \textsc{CentralCut}(\mathcal{E}, g, \beta)$
+    \Else
+        \State $\mathcal{E} \gets \textsc{DeepCut}(\mathcal{E}, g, \beta)$
+    \EndIf
+\Until{$\operatorname{vol}(\mathcal{E}) < \epsilon$}
+\State \Return $x^\star, \gamma$
+\end{algorithmic}
+\end{algorithm}
+```
 
 #### Termination Criteria and the Stall Guard {#sec:termination}
 
@@ -518,6 +558,31 @@ The cut $(g, \beta)$ is then given by the following equation:
 
 $$(-v^\mathsf{T} \partial F_{:p,:p}(x_0) v, -v^\mathsf{T} F_{:p,:p}(x_0) v).$$
 
+```{=latex}
+\begin{algorithm}[t]
+\caption{Row-based Cholesky witness for an LMI oracle}
+\begin{algorithmic}[1]
+\Require symmetric $F(x_0) \in \mathbb{R}^{n \times n}$
+\Ensure ``PD'', or a witness $v$ with $v^\mathsf{T} F v < 0$
+\For{$i = 1$ \textbf{to} $n$}
+    \For{$j = 1$ \textbf{to} $i$}
+        \State $d \gets F_{ij} - \sum_{k<j} L_{ik} L_{jk} D_k$
+        \If{$i = j$}
+            \State $D_i \gets d$
+        \Else
+            \State $L_{ij} \gets d/D_j$
+        \EndIf
+    \EndFor
+    \If{$D_i \le 0$}
+        \State $p \gets i$;\quad $v \gets R_{:p,:p}^{-1} e_p$
+        \State \Return ``not PD'', $v$
+    \EndIf
+\EndFor
+\State \Return ``PD''
+\end{algorithmic}
+\end{algorithm}
+```
+
 #### Example: Matrix Norm Minimization
 
 Let $A(x) = A_0 + x_1 A_1 + \cdots + x_n A_n$.
@@ -836,6 +901,22 @@ $$\det Q^+ = \det Q\left(1 - \frac{\sigma}{\omega}\,g^\mathsf{T} Q g\right) = (1
 so $\det Q$ decreases monotonically, because $\sigma \in (0,1)$ for every admissible cut. The volume ratio is therefore
 $$\frac{\operatorname{vol}(\mathcal{E}^+)}{\operatorname{vol}(\mathcal{E})} = \delta^{n/2}(1-\sigma)^{1/2} \le e^{-1/(2n)},$$
 the inequality holding for central, deep, and parallel cuts alike. After $k$ iterations the volume is at most $e^{-k/(2n)}$ times the initial volume, so reducing it to a fraction $\epsilon$ requires $k \approx 2n\ln(1/\epsilon)$ iterations; for $n = 10$ and $\epsilon = 10^{-6}$ this is roughly $276$ iterations. The factor $\delta$ lies in $(0, n^2/(n^2-1))$, approaching its upper end as the cut becomes central.
+
+```{=latex}
+\begin{algorithm}[t]
+\caption{Ellipsoid update (central, deep, or parallel cut)}
+\begin{algorithmic}[1]
+\Require shape $Q \succ 0$, scale $\kappa$, center $x_c$, cut $(g, \beta)$
+\Ensure updated $(Q, \kappa, x_c)$
+\State $\tilde g \gets Q g$;\quad $\omega \gets g^\mathsf{T}\tilde g$;\quad $\tau \gets \sqrt{\kappa\,\omega}$
+\State $(\rho, \sigma, \delta) \gets \textsc{CutParams}(\beta, \tau, n)$
+\State $x_c \gets x_c - (\rho/\omega)\,\tilde g$
+\State $Q \gets Q - (\sigma/\omega)\,\tilde g\,\tilde g^\mathsf{T}$
+\State $\kappa \gets \delta\,\kappa$
+\State \Return $(Q, \kappa, x_c)$
+\end{algorithmic}
+\end{algorithm}
+```
 
 ### Parallel Cuts {#sec:parallel_cut}
 
