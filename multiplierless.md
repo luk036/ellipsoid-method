@@ -547,6 +547,48 @@ independent partial sums (rather than a single scalar reduction, which the
 compiler may not reassociate) recovered a further small margin in the compiled
 implementations.
 
+### Optimization and Sharing Results
+
+The same kernel changes paid off very differently across the three languages:
+
+```{=latex}
+\begin{table*}[t]
+\centering
+\caption{Effect of the kernel changes in three languages.}
+\begin{tabular}{llrrr}
+\hline
+Change & Language & Before & After & Speedup \\
+\hline
+Vectorized constraint scan & Python & 3.05\,s & 0.082\,s & $37\times$ \\
+End-to-end after the scan & Python & 3.01\,s & 1.87\,s & $1.6\times$ \\
+Raw-pointer dot product & C++ & 0.172\,s & 0.160\,s & $1.07\times$ \\
+Four-accumulator dot & Rust & 23.3\,ns & 10.1\,ns & $2.3\times$ \\
+Oracle scan & Rust & $13.9\,\mu\mathrm{s}$ & $10.7\,\mu\mathrm{s}$ & $1.3\times$ \\
+\hline
+\end{tabular}
+\end{table*}
+```
+
+The CSD coefficient set is compressed further by common-subexpression sharing:
+
+```{=latex}
+\begin{table*}[t]
+\centering
+\caption{Adder count with and without common-subexpression sharing.}
+\begin{tabular}{lrrr}
+\hline
+CSD pattern & Flat adders & Shared adders & Saving \\
+\hline
+\texttt{+0-0+0-0} & 4 & 2 & 50\% \\
+\texttt{+0-0+0-0+0-0} & 6 & 2 & 67\% \\
+\texttt{+00-00+00-00} & 4 & 2 & 50\% \\
+\hline
+\end{tabular}
+\end{table*}
+```
+
+A 32-tap design then needs about 82 cells with sharing, against roughly 110 without, a reduction of about 25 percent.
+
 ### Multiplierless Result
 
 ![Magnitude response of a lowpass design.](ellipsoid.files/lowpass.pdf){#fig:lowpass}
