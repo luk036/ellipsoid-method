@@ -1,7 +1,8 @@
 # Build entry point for the ellipsoid-method documents.
 #
 # Requires: pandoc, pandoc-crossref and a LaTeX engine (MiKTeX/TeX Live) with pdflatex.
-# Citations use applied-mathematics-letters.csl, which is self-contained (no network).
+# Citations use siam-numeric.csl (a SIAM-style numeric CSL adapted from the AMS
+# numeric style), which is self-contained (no network).
 #
 # Policy notes (see AGENTS.md / issue #4):
 #   * crossref.yaml uses cref:false because siamltex.cls overrides \label/\refstepcounter
@@ -14,7 +15,7 @@
 
 PANDOC   := pandoc
 CROSSREF := pandoc-crossref
-CSL      := applied-mathematics-letters.csl
+CSL      := siam-numeric.csl
 
 PAPER_FLAGS := -F $(CROSSREF) --lua-filter=secspacing.lua --citeproc -s -t latex -N --reference-links \
                --shift-heading-level-by=-1 --csl=$(CSL)

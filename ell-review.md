@@ -1,5 +1,5 @@
 ---
-title: Ellipsoid Method and the Amazing Oracles
+title: "The Ellipsoid Method and Separation Oracles: A Practical Survey"
 bibliography:
   [
     "ellipsoid.bib",
@@ -8,7 +8,7 @@ bibliography:
     "mpcss1.bib",
     "mpcss2.bib",
   ]
-csl: "applied-mathematics-letters.csl"
+csl: "siam-numeric.csl"
 abstract: |
   The ellipsoid method is a powerful optimization technique that offers distinct advantages over interior-point methods, as it does not require the evaluation of all constraint functions. This makes it a natural choice for convex problems with numerous or even infinite constraints. The method employs an ellipsoid as a search space and relies on a separation oracle to provide cutting planes for updating it. It is worth noting that the significance of the separation oracle is often overlooked. This article evaluates the utility of the ellipsoid method in three distinct applications: robust convex optimization, semidefinite programming, and parametric network optimization. The effectiveness of separation oracles is assessed for each application. Furthermore, this article addresses the implementation issues associated with the ellipsoid method, including the utilization of parallel cuts for updating the ellipsoid. In certain cases, the use of parallel cuts has been observed to reduce computation time, as evidenced in the context of FIR filter design. The article also considers discrete optimization, demonstrating how the ellipsoid method can be applied to problems involving quantized discrete design variables. The additional effort in oracle implementation is limited to locating the nearest discrete solutions. The advantages of the method are nevertheless bounded: it cannot exploit sparsity in the problem data, and its iteration budget grows as $n^2$, so it is most effective when the number of design variables is moderate; its practical performance further depends on compiled execution and on careful floating-point safeguards.
 ---
@@ -37,9 +37,9 @@ $$\{ x \mid (x-x_c)Q^{-1}(x-x_c) \le \kappa \}.$$
 
 Moreover, @sec:parallel_cut addresses the utilization of parallel cuts. Some researchers have suggested that this technique does not result in significant improvements. Nevertheless, our findings indicate that in scenarios where specific constraints are subject to narrow upper and lower bounds, such as in the context of FIR filter designs, the incorporation of parallel cuts can markedly reduce the runtime. Furthermore, we demonstrate that when the ellipsoid method is implemented with precision, any update, whether it employs a single cut or a parallel cut, requires at most one square root.
 
-In many practical engineering problems, some design variables may be constrained to discrete forms. Since the cutting plane method requires only a separation oracle, it can also be used for discrete problems. The only additional effort in the oracle implementation is finding the nearest discrete solution.
+In many practical engineering problems, some design variables may be constrained to discrete forms. Since the cutting-plane method requires only a separation oracle, it can also be used for discrete problems. The only additional effort in the oracle implementation is finding the nearest discrete solution.
 
-## Cutting plane Method Revisited {#sec:cutting_plane}
+## Cutting-Plane Method Revisited {#sec:cutting_plane}
 
 ### Convex Feasibility Problem
 
@@ -56,21 +56,21 @@ When a separation oracle, denoted by $\Omega$, is queried at a given point $x_0 
 
     $$g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \ge 0, g \neq 0, \; \forall x \in \mathcal{K}.$$
 
-The pair of $(g, \beta)$ is called a _cutting plane_ because it eliminates the half-space defined by the equation $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from the search space. The following observations are made:
+The pair $(g, \beta)$ is called a _cutting plane_ because it eliminates the half-space defined by the equation $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from the search space. The following observations are made:
 
-- If $\beta=0$, indicating that $x_0$ is on the boundary of the half-space, the cutting plane is called a _central-cut_.
-- If $\beta>0$, indicating that $x_0$ is inside the half-space, the cutting plane is called a _deep-cut_.
-- If $\beta<0$, indicating that $x_0$ is outside the half-space, the cutting plane is called a _shadow-cut_.
+- If $\beta=0$, indicating that $x_0$ is on the boundary of the half-space, the cutting plane is called a _central cut_.
+- If $\beta>0$, indicating that $x_0$ is inside the half-space, the cutting plane is called a _deep cut_.
+- If $\beta<0$, indicating that $x_0$ is outside the half-space, the cutting plane is called a _shadow cut_.
 
-The convex set $\mathcal{K}$ is typically defined by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1 \cdots m$, where $f_j(x)$ represents a convex function. The vector $g \equiv \partial f(x_0)$ is defined as the _sub-gradient_ of a convex function $f$ at the point $x_0$ if $f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)$. Thus, the cut $(g, \beta)$ can be expressed as $(\partial f(x_0), f(x_0))$. Note that if $f(x)$ is differentiable, then we can simply take $\partial f(x_0) = \nabla f(x_0)$.
+The convex set $\mathcal{K}$ is typically defined by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1, \ldots, m$, where $f_j(x)$ represents a convex function. The vector $g \equiv \partial f(x_0)$ is defined as the _subgradient_ of a convex function $f$ at the point $x_0$ if $f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)$. Thus, the cut $(g, \beta)$ can be expressed as $(\partial f(x_0), f(x_0))$. Note that if $f(x)$ is differentiable, then we can simply take $\partial f(x_0) = \nabla f(x_0)$.
 
-The cutting plane method consists of two main elements: a separation oracle, denoted by $\Omega$, and a search space, denoted by $\mathcal{S}$, which is initially chosen large enough to encompass $\mathcal{K}$. For example,
+The cutting-plane method consists of two main elements: a separation oracle, denoted by $\Omega$, and a search space, denoted by $\mathcal{S}$, which is initially chosen large enough to encompass $\mathcal{K}$. For example,
 
 - Polyhedron $\mathcal{P}$ = $\{z \mid C z \preceq d \}$.
 - Ellipsoid $\mathcal{E}$ = $\{z \mid (z-x_c)P^{-1}(z-x_c) \le 1 \}$.
 - Interval $\mathcal{I}$ = $[l, u]$ (for one-dimensional problem).
 
-Let us denote the center of the current set, denoted by $\mathcal{S}$, as $x_c$. The following is a basic outline of the methodology underlying the cutting plane method:
+Let us denote the center of the current set, denoted by $\mathcal{S}$, as $x_c$. The following is a basic outline of the methodology underlying the cutting-plane method:
 
 1. **Initialization**: The initial stage of the method involves defining a search space $\mathcal{S}$ that is guaranteed to contain a point $x^*$.
 2. **Iteration**: In each iteration, the separation oracle is queried at the center $x_c$. If $x_c$ is in $\mathcal{K}$, then the iteration is terminated.
@@ -107,7 +107,7 @@ $$
   \end{array}
 $$
 
-The objective $f_0(x)$ may be convex or quasi-convex. The aforementioned optimization problem is treated as a feasibility problem with an additional constraint, namely that $f_0(x) \le \gamma$, where $\gamma \in \mathbb{R}$ is called the best-so-far value of $f_0(x)$.
+The objective $f_0(x)$ may be convex or quasiconvex. The aforementioned optimization problem is treated as a feasibility problem with an additional constraint, namely that $f_0(x) \le \gamma$, where $\gamma \in \mathbb{R}$ is called the best-so-far value of $f_0(x)$.
 Accordingly, the problem can be reformulated as follows:
 
 $$
@@ -118,11 +118,11 @@ $$
   \end{array}
 $$
 
-where $\Phi(x, \gamma) \le 0$ is the $\gamma$-sublevel set of $f_0(x)$ when $f_0(x)$ is quasi-convex. For every $x$, $\Phi(x, \gamma)$ is a non-increasing function of $\gamma$, i.e., $\Phi(x, \gamma') \le \Phi(x, \gamma)$ whenever $\gamma' \ge \gamma$. Let $\mathcal{K}_\gamma$ denote the new constraint set.
+where $\Phi(x, \gamma) \le 0$ is the $\gamma$-sublevel set of $f_0(x)$ when $f_0(x)$ is quasiconvex. For every $x$, $\Phi(x, \gamma)$ is a non-increasing function of $\gamma$, i.e., $\Phi(x, \gamma') \le \Phi(x, \gamma)$ whenever $\gamma' \ge \gamma$. Let $\mathcal{K}_\gamma$ denote the new constraint set.
 
 One straightforward approach to solving the optimization problem is to perform a binary search on $\gamma$ and solve the corresponding feasibility problems at each value of $\gamma$. An alternative approach is to update the current best estimate of $\gamma$ whenever a feasible solution $x_0$ is found such that $\Phi(x_0, \gamma) = 0$.
 
-The following is a basic outline of the operational procedure of the cutting plane method (optim):
+The following is a basic outline of the operational procedure of the cutting-plane method (optim):
 
 1. **Initialization**: The initial stage of the process entails defining a search space $\mathcal{S}$ that is guaranteed to contain a solution, $x^*$.
 2. **Iteration**: In each iteration, the separation oracle is queried at the point $x_c$. A subgradient of the function at $x_c$ must then be computed. This results in the generation of a half-space that is guaranteed to contain $x^*$.
@@ -130,7 +130,7 @@ The following is a basic outline of the operational procedure of the cutting pla
 4. **Update**: The smaller $\mathcal{S}^+$ that contains the half-space from step 2 is computed.
 5. **Repeat**: Repeat steps 2 to 4 until $\mathcal{S}$ is either empty or sufficiently small.
 
-Generic cutting plane method (Optim)
+Generic cutting-plane method (Optim)
 
 - **Given** an initial $\mathcal{S}$ known to contain $\mathcal{K}_\gamma$.
 - **Repeat**
@@ -166,7 +166,7 @@ We assume that the oracle takes responsibility for this update.
 
 #### Termination Criteria and the Stall Guard {#sec:termination}
 
-The optimization form of the cutting plane method is often driven by a binary
+The optimization form of the cutting-plane method is often driven by a binary
 search on the best-so-far value $\gamma$, and the search terminates when the
 width of the current bracket falls below a prescribed tolerance. A common
 implementation compares this width, which scales with the magnitude of the
@@ -228,7 +228,7 @@ where $y_1 = \log x_1$ and $y_2 = \log x_2$.
 
 Some readers may recognize that the problem can also be written in a geometric program by introducing one additional variable [@Aliabadi2013Robust].
 
-## Amazing Oracles {#sec:oracles}
+## Oracle Constructions for Three Applications {#sec:oracles}
 
 - Robust convex optimization
 
@@ -251,9 +251,9 @@ For the purposes of this discussion, we will consider:
 
 $$
 \begin{array}{ll}
-    \text{minimize} & \sup_{q \in \mathcal Q} f_0(x, q), \\
+    \text{minimize} & \sup_{q \in \mathcal{Q}} f_0(x, q), \\
     \text{subject to} & f_j(x, q) \le 0, \;
-            \forall q \in \mathcal{Q}, \; j = 1,2,\cdots, m,
+            \forall q \in \mathcal{Q}, \; j = 1,2,\ldots,m,
   \end{array}
 $$ {#eq:robust-optim}
 where $q$ denotes the vector of uncertain parameters.
@@ -262,7 +262,7 @@ $$\begin{array}{ll}
     \text{minimize} & \gamma, \\
     \text{subject to} & f_0(x, q) \le \gamma, \\
                       & f_j(x, q) \le 0, \;
-            \forall q \in \mathcal{Q}, \; j = 1,2,\cdots,m.
+            \forall q \in \mathcal{Q}, \; j = 1,2,\ldots,m.
   \end{array}
 $$
 
@@ -273,7 +273,7 @@ The oracle is responsible for determining the following:
 - If $f_j(x_0, q) > 0$ for some $j$ and $q = q_0$, then the cut $(g, \beta)$ is equal to $(\partial f_j(x_0, q_0), f_j(x_0, q_0))$.
 - If $f_0(x_0, q) \ge \gamma$ for some $q = q_0$, then the cut $(g, \beta)$ is equal to $(\partial f_0(x_0, q_0), f_0(x_0, q_0) - \gamma)$.
 - Otherwise, if $x_0$ is feasible, then
-  - Let $q_{\max} = \operatorname*{arg\,max}_{q \in \mathcal Q} f_0(x_0, q)$.
+  - Let $q_{\max} = \operatorname*{arg\,max}_{q \in \mathcal{Q}} f_0(x_0, q)$.
   - $\gamma := f_0(x_0, q_{\max})$.
   - The cut $(g, \beta)$ is equal to $(\partial f_0(x_0, q_{\max}), 0)$.
 
@@ -297,13 +297,13 @@ The problem formulation of the robust counterpart considering the worst-case sce
 $$
 \begin{array}{ll}
     \text{max} & \gamma \\
-    \text{s.t.} & \log(\gamma + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) -
+    \text{subject to} & \log(\gamma + \hat{v}_1 e^{y_1} + \hat{v}_2 e^{y_2}) -
                         (\hat{\alpha} y_1 + \hat{\beta} y_2) \le \log(\hat{p}\,A) \\
                 & y_1 \le \log \hat{k}.
   \end{array}
 $$
 
-The piecewise convex linear approximation of [@Aliabadi2013Robust] makes the robust counterpart tractable for interior-point algorithms, but it requires substantial programming effort and yields inherently imprecise solutions. Both drawbacks are avoided by the cutting plane method. In this simple example the worst-case scenario occurs when:
+The piecewise convex linear approximation of [@Aliabadi2013Robust] makes the robust counterpart tractable for interior-point algorithms, but it requires substantial programming effort and yields inherently imprecise solutions. Both drawbacks are avoided by the cutting-plane method. In this simple example the worst-case scenario occurs when:
 
 - $\hat{p} = p - \varepsilon_3$, $\hat{k} = k - \varepsilon_6$
 - $\hat{v}_1 = v_1 + \varepsilon_4$, $\hat{v}_2 = v_2 + \varepsilon_5$,
@@ -322,7 +322,7 @@ $x$. When $\mathcal{Q}$ is a box, that is, the Cartesian product of finitely
 many intervals, the naive strategy evaluates $f_j$ at every vertex of the box.
 The number of vertices is exponential in the number of uncertain parameters, so
 this scenario-enumeration oracle is affordable only for a handful of
-uncertainties and is poorly suited to the cutting plane method, which may
+uncertainties and is poorly suited to the cutting-plane method, which may
 require many oracle calls along the trajectory.
 
 Affine arithmetic replaces enumeration by a first-order propagation of
@@ -446,7 +446,7 @@ $$
 $$
 
 where $x = (\pi', \psi' )^\mathsf{T}$.
-The authors of [@orlin1985computing] assert that they have developed an algorithm for solving multi-parameter problems. Nevertheless, we were unable to identify any follow-up publications that corroborate this assertion. It is noteworthy that the cutting plane method readily extends the single-parameter network algorithm to accommodate multi-parameter problems.
+The authors of [@orlin1985computing] assert that they have developed an algorithm for solving multi-parameter problems. Nevertheless, we were unable to identify any follow-up publications that corroborate this assertion. It is noteworthy that the cutting-plane method readily extends the single-parameter network algorithm to accommodate multi-parameter problems.
 
 In this application, the function $h_{ij}(x)$ is defined as follows:
 
@@ -579,7 +579,7 @@ When the two components are considered, the measurement data can still be regard
 $$
 \begin{array}{ll}
    \min_{\kappa, p}   & \| \Omega(p) + \kappa I - Y \| \\
-   \text{s.t.} & \Omega(p) \succcurlyeq 0, \kappa \ge 0 \; .\\
+   \text{subject to} & \Omega(p) \succcurlyeq 0, \kappa \ge 0 \; .\\
   \end{array}
 $$
 
@@ -638,62 +638,9 @@ falls outside. Under misspecification the constrained solution is therefore
 biased toward the boundary, and no amount of additional data removes the bias
 if the model family cannot reproduce the true correlation.
 
-#### Preconditioned Krylov Subspace Methods {#sec:krylov}
-
-The matrix inequalities discussed above are small in the number of design
-variables, but the linear systems that arise inside an oracle can be large.
-Evaluating a witness direction requires a triangular solve against a factor of
-$F(x)$, and, in other formulations, the outer algorithm that generates the
-sequence of queries may require the solution of large, sparse, and generally
-nonsymmetric systems of the form $A x = b$. Direct factorization becomes
-prohibitive in that regime, and Krylov subspace methods are the standard
-alternative. For the initial residual $v = r_0$, the $k$-th Krylov subspace is
-$$\mathcal{K}_k(A, v) = \operatorname{span}\{v, A v, A^2 v, \ldots, A^{k-1} v\},$$
-and these methods construct approximate solutions using only matrix-vector
-products, which permits matrix-free implementations in which $A$ is never
-formed explicitly.
-
-Two families dominate the nonsymmetric case. The generalized minimal residual
-method (GMRES) builds an orthogonal basis of $\mathcal{K}_k(A, v)$ by the
-Arnoldi iteration and minimizes the residual norm over the subspace; its
-recurrence is $k$-term, so its cost and storage grow with the iteration index,
-and it is usually restarted, which can slow convergence. The BiCGSTAB family,
-based on a transpose-free bi-Lanczos process, uses a short three-term recurrence
-with fixed per-iteration cost and two matrix-vector products per step, at the
-price of a non-orthogonal basis that can occasionally break down. In practice
-the two families have comparable cost, because the error reduction of one
-bi-Lanczos step is comparable to that of two Arnoldi steps.
-
-Convergence depends on the conditioning of $A$, and for the ill-conditioned
-systems that arise from discretized partial differential equations it can be
-arbitrarily slow without acceleration. Preconditioning is therefore essential.
-A preconditioner $M$ is a matrix whose inverse approximates $A^{-1}$ and whose
-application to a vector is cheap; solving the equivalent system
-$M^{-1} A x = M^{-1} b$, or $A M^{-1} y = b$ followed by $x = M^{-1} y$,
-replaces $A$ by a better-conditioned operator and directly improves the
-convergence rate. Right preconditioning is generally preferred for large-scale
-nonsymmetric systems, because it leaves the true residual unchanged and thus
-allows the stopping test to be based on the residual that the caller actually
-cares about; with left preconditioning the measured preconditioned residual can
-differ substantially from the true one, producing false stagnation or premature
-termination. Common choices include incomplete LU factorizations, which retain
-the sparsity pattern of $A$ at the cost of a controlled amount of fill-in and
-which handle saddle-point matrices with zero diagonal entries, and algebraic
-multigrid, which builds a hierarchy of coarser operators and is particularly
-effective for well-conditioned systems arising from elliptic operators.
-
-The connection to the LMI and SDP oracles is direct. Any step that must solve
-against $F(x)$, or against a normal-equation operator derived from the basis
-matrices, is a linear solve; when the dimension is large, a preconditioned
-Krylov method replaces the dense factorization, and the cut returned by the
-oracle is built from the same witness direction obtained by that solve. The
-quality of the preconditioner, rather than the choice among Krylov methods,
-usually determines whether the oracle is fast enough to be called repeatedly by
-the cutting plane method.
-
 ## Ellipsoid Method Revisited {#sec:ellipsoid}
 
-The ellipsoid method was introduced by Shor and by Yudin and Nemirovskii in 1976 [@BGT81]. It was used to show that linear programming is polynomial-time solvable (Khachiyan 1979), settling the long-standing question of the theoretical complexity of linear programming. In practice, however, the simplex method is much faster, despite its exponential worst-case complexity.
+The ellipsoid method was introduced independently by Yudin and Nemirovskii [@yudin1976informational] and by Shor [@shor1977cutoff]. Khachiyan [@khachiyan1979polynomial] used it to show that linear programming is solvable in polynomial time, settling the long-standing question of its theoretical complexity; see [@BGT81] for a survey. In practice, however, the simplex method is much faster, despite its exponential worst-case complexity.
 
 ### Basic Ellipsoid Method
 
@@ -768,6 +715,26 @@ $$\operatorname{vol}(\mathcal{E}) = \kappa^{n/2} \sqrt{\det Q}\;\operatorname{vo
 with $\mathcal{B}^n$ the unit ball. The product $\kappa^{n/2}\sqrt{\det Q}$ is the quantity tracked by the convergence analysis, and it explains why the update is expressed as a multiplicative change of $\kappa$ together with a rank-one modification of $Q$.
 
 The initial ellipsoid must be certified to contain the feasible set, and two constructions are standard. If a bound $R$ on the solution norm is known, the ball $Q = I$, $\kappa = R^2$ centered at the origin suffices. If a bounding box $l \le x \le u$ is known, the center is taken at the midpoint and a ball of radius $\lVert u - l \rVert_2/2$, that is $Q = I$ and $\kappa = (\lVert u - l \rVert_2/2)^2$, contains the entire box and therefore the feasible set. Because each iteration multiplies the volume by a factor bounded away from one, enlarging the initial volume by a factor $V$ adds only $2n\ln V$ iterations, so a conservative initialization costs logarithmically; an initialization that fails to contain the feasible set, by contrast, invalidates the method outright. This asymmetry is the reason a safe but loose starting ellipsoid is usually preferred to an aggressive one.
+
+#### Numerical Drift and the Stable $LDL^\mathsf{T}$ Variant {#sec:stable_ellipsoid}
+
+The representation above updates $Q$ directly and relies on the accumulation of rank-one downdates to preserve positive definiteness. In exact arithmetic it does; in floating-point arithmetic it need not. Over the thousands of iterations that a typical problem requires, rounding errors in the repeated rank-one updates can drive an eigenvalue of $Q$ through zero, after which $Q$ is no longer positive definite, the scalar $\omega = g^\mathsf{T} Q g$ can become negative or denormal, and the iteration produces meaningless points or non-finite values. The failure is silent: the method keeps iterating and eventually returns a point that does not satisfy the constraints.
+
+A numerically stable variant avoids this by maintaining a factorization rather than the full matrix. The shape is written as
+$$Q = \kappa\, L\, D\, L^\mathsf{T},$$
+where $L$ is unit lower triangular and $D$ is diagonal. A cut is applied by three triangular sweeps,
+$$w = L^{-1} g, \qquad z = D^{-1} w, \qquad \omega = w^\mathsf{T} z, \qquad q = L^{-\mathsf{T}} z, \qquad x_c \leftarrow x_c - \frac{\rho}{\omega}\,q,$$
+followed by a rank-one update of the pair $(L, D)$ that modifies those factors directly, in the manner of Gill, Murray, and Wright. The cut parameters $(\rho,\sigma,\delta)$ are computed from the same scalar $\tau^2 = \kappa\,\omega$ as before, so the two representations realize the same sequence of cuts in exact arithmetic. The advantage is structural: because the update preserves the unit lower-triangular form of $L$ and the positivity of $D$, positive definiteness of $Q$ is enforced by construction instead of being left to chance.
+
+The stable variant is implemented with pre-allocated scratch buffers, so that the three sweeps and the rank-one update allocate nothing inside the iteration. This matters because the stable path performs more scalar operations than the direct one, and the per-iteration allocations that a naive implementation incurs can dominate its cost.
+
+Empirically the two representations agree closely. On a suite of continuous, robust, and parallel-cut problems the iterates coincided to within $10^{-6}$ in the infinity norm, and the iteration counts differed by at most a fraction of a percent, for instance $83$ versus $83$ on a two-dimensional profit problem and $26,027$ versus $26,125$ on a thirty-two-tap parallel-cut filter. The per-iteration cost is likewise comparable in compiled languages: the stable-to-direct ratio ranged from about $1.07$ to $1.4$ across dimensions up to $256$, and at the largest dimension the stable variant was sometimes the faster of the two. The interpreted setting is different, because there the triangular sweeps are written as scalar loops; unless those loops are vectorized, the stable variant can be more than a hundred times slower at dimension $64$, and the ratio grows with the dimension. The guidance is therefore to prefer the stable variant in compiled code, where it is near-free insurance against numerical drift; to keep the direct representation for rapid prototyping and for interpreted settings in which it has not been vectorized; and to regard the factorization choice as independent of the cut formulas, since the cuts themselves are identical.
+
+| Representation | State | Update | Positive definiteness |
+|:--|:--|:--|:--|
+| Direct | $Q$ | matrix-vector product then rank-one downdate | relied upon, not enforced |
+| Stable | $(L, D)$, with $Q = \kappa L D L^\mathsf{T}$ | triangular sweeps then rank-one update of $(L,D)$ | preserved by construction |
+: Comparison of the direct and the factorized ellipsoid representations. The cut parameters, and hence the iterates, are the same; only the arithmetic differs. {#tbl:stable_ellipsoid}
 
 ### Central Cut
 
@@ -919,7 +886,7 @@ The design of a filter with magnitude constraints is often formulated as a const
 $$
 \begin{aligned}
   \min            & \gamma \\
-  \mathrm{s.t.} & f(\mathbf{x}) \le \gamma \\
+  \text{subject to} & f(\mathbf{x}) \le \gamma \\
                   & g(\mathbf{x}) \le 0.\end{aligned}
 $$
 
@@ -946,46 +913,6 @@ where $h(t)=0$ for $t<0$ or $t>n-1$.
 
 ![Result](ellipsoid.files/lowpass.pdf){width="80%"}
 
-##### The multiplierless design pipeline {#sec:fir_pipeline}
-
-The convex design outlined above is the first stage of a longer chain that converts a frequency-domain specification into a synthesizable hardware description. Describing the chain end to end clarifies how the convex, the discrete, and the arithmetic aspects of the problem interlock.
-
-1. **Convex magnitude design for the autocorrelation.** The free variable is the autocorrelation vector $\mathbf{r}$, and the specification is imposed on the squared magnitude $R(\omega)$ at a finite sampling of the frequency axis. Because the squared magnitude is affine in $\mathbf{r}$, the magnitude bounds define a convex semi-infinite program with a moderate number of variables and an effectively unbounded number of constraints. This is the regime in which the ellipsoid method is competitive, since the oracle is never required to enumerate all constraints.
-
-2. **Parallel-cut ellipsoid optimization.** At each iteration the oracle is queried at the current center and returns, for the sampled constraints it inspects, a pair of parallel cuts that share a common normal: one associated with the upper squared-magnitude bound and one with the lower. The ellipsoid update consequently removes a slab rather than a half-space, which shrinks the search volume faster than a single cut. This is the mechanism, analyzed in @sec:parallel_cut, that reduces the iteration count markedly for filters whose passband and stopband bounds are narrow. Only a modest number of frequency samples is examined per iteration.
-
-3. **Spectral factorization.** The optimal autocorrelation is converted into the unique minimum-phase impulse response that realizes it. The impulse response, not the autocorrelation, is the object that a causal implementation stores, so this stage is the bridge between the convex search and the coefficient domain. Two algorithms for the conversion, a transform-based one and a root-based one, are compared in @sec:spectral_fact.
-
-4. **CSD quantization.** Each impulse-response coefficient is replaced by the nearest canonical signed-digit number whose non-zero digit count does not exceed a prescribed budget. This is the step that removes general-purpose multipliers from the datapath, because every retained digit is a shift and every pair of digits is an addition or subtraction. Coefficient quantization is the only non-convex constraint in the problem, and the manner in which it is absorbed into the oracle, rather than applied after the event, is treated in @sec:discrete.
-
-5. **Synthesizable description generation.** The quantized coefficient set is emitted as a hardware description in which each tap is a signed sum of shifted copies of the input. Repeated shift-and-add patterns are factored across coefficients by common sub-expression elimination, so that the total adder count can fall below the sum of the per-coefficient non-zero digit counts.
-
-The composite pipeline can be summarized as
-$$ \mathbf{r}^\star \;\longrightarrow\; \mathbf{h} \;\longrightarrow\; \mathbf{h}_{\mathrm{csd}} \;\longrightarrow\; \mathbf{r}_{\mathrm{csd}} \;\longrightarrow\; \text{hardware}, $$
-where the return arrow denotes the exact recomputation of the autocorrelation of the quantized response, which is what allows the discrete optimizer to reason about the realization rather than the relaxation.
-
-##### Spectral factorization: transform-based and root-based methods {#sec:spectral_fact}
-
-Given autocorrelation coefficients $r[0], r[1], \ldots, r[N-1]$, spectral factorization seeks a minimum-phase impulse response $h[0], h[1], \ldots, h[N-1]$ satisfying
-$$ r[k] = \sum_{i=0}^{N-1-k} h[i+k]\,h[i], \qquad k = 0, 1, \ldots, N-1, $$
-which is the discrete form of the Wiener-Khinchin relation. When $r$ corresponds to a positive spectrum the minimum-phase factor is unique, and this uniqueness is what makes the reconstruction well posed.
-
-**Transform-based method (Kolmogorov).** The autocorrelation is evaluated on an oversampled frequency grid, typically with an oversampling factor of about one hundred. The logarithm of the spectral density is formed, its Hilbert transform is computed through the FFT to obtain the minimum-phase phase, and the exponential of the analytic signal is returned to the time domain:
-$$ \alpha(\omega) = \frac{1}{2}\log R(\omega), \qquad h[n] = \mathcal{F}^{-1}\{\exp(\alpha(\omega) + j\phi(\omega))\}, $$
-where $\phi$ is the Hilbert transform of $\alpha$. The method has no iterative component, is deterministic and reproducible, requires no tuning, and is numerically stable across filter orders. Its costs are a dependency on an FFT library, a memory footprint proportional to the oversampling factor, a clamp on near-zero spectral values that introduces a small controlled error, and a round trip through the inverse operation that is not exact.
-
-**Root-based method (Aberth-Ehrlich).** The autocorrelation defines a palindromic polynomial
-$$ P(z) = z^{N-1}\left(r[0] + \sum_{k=1}^{N-1} r[k](z^k + z^{-k})\right) $$
-of degree $2N-2$ whose roots occur in reciprocal pairs: if $\zeta$ is a root then $1/\bar{\zeta}$ is also a root. All roots are found simultaneously by the Aberth-Ehrlich iteration
-$$ \zeta_i^{(k+1)} = \zeta_i^{(k)} - \frac{P(\zeta_i^{(k)})}{P'(\zeta_i^{(k)})} \Big/ \left(1 - \sum_{j \neq i} \frac{P(\zeta_j^{(k)})}{(\zeta_i^{(k)} - \zeta_j^{(k)})\,P'(\zeta_j^{(k)})}\right), $$
-the roots inside the unit circle are retained, the minimum-phase factor is reconstructed from them, and its scale is normalized so that its autocorrelation matches $r[0]$. The method needs no FFT library, uses memory linear in the order, exposes a configurable convergence tolerance, and is faster per call. Its costs are that convergence is not guaranteed for pathological inputs, that the tolerance must be chosen, and that the smallest coefficients of the factor are recovered with somewhat lower relative accuracy. For very high orders the transform method is the safer choice.
-
-**Round-trip accuracy.** The natural measure of accuracy is the agreement between the prescribed $r$ and the autocorrelation of the returned factor. The transform method achieves a round-trip relative error close to machine precision, on the order of $10^{-5}$ in double precision for representative designs, whereas the root-based method exhibits a relative error around $10^{-3}$, concentrated in the smallest coefficients. Because CSD quantization discards precisely those smallest coefficients once the budget is applied, the discrepancy is usually absorbed by the quantizer; it must nevertheless be accounted for in verification, as noted below.
-
-**Relative speed.** The root-based method is typically several times faster per factorization and, more importantly, yields a better-conditioned factor that helps the surrounding optimizer converge in fewer iterations. In representative runs the combined effect reduced both the iteration count and the total factorization time by a large factor. These figures depend on the filter order, the tolerance, and the supporting libraries, so they should be read as indicative rather than universal.
-
-**Choice of method.** The transform method is the default for production designs, for high-order filters, and for reproducible benchmarks, because it needs no tuning and is the most robust. The root-based method is preferable for exploratory work and for moderate orders, where its speed and tunability dominate. Both return valid minimum-phase factors and both satisfy the specifications at the sampled frequencies; they differ in the numerical profile rather than in the mathematical result.
-
 #### Example: Maximum Likelihood estimation
 
 Consider
@@ -994,7 +921,7 @@ $$
 \begin{array}{ll}
     \min_{\kappa, p} & \log\det(\Omega(p) + \kappa\cdot I) +
                 \mathrm{Tr}((\Omega(p) + \kappa\cdot I)^{-1}Y), \\
-    \text{s.t.} & \Omega(p) \succeq 0, \kappa \ge 0 .
+    \text{subject to} & \Omega(p) \succeq 0, \kappa \ge 0 .
 \\
   \end{array}
 $$
@@ -1005,7 +932,7 @@ Therefore, the following problem is convex:
 $$
 \begin{array}{ll}
     \min_{\kappa, p} & \log\det V(p) + \mathrm{Tr}(V(p)^{-1}Y),\\
-    \text{s.t.} & \Omega(p) + \kappa \cdot I = V(p) \\
+    \text{subject to} & \Omega(p) + \kappa \cdot I = V(p) \\
                       & 0 \preceq V(p) \preceq 2Y, \kappa {>} 0.
   \end{array}
 $$
@@ -1028,7 +955,7 @@ whose gradient at $\Omega_k$ equals $\nabla f(\Omega_k)$. Dropping the constant
 terms, the subproblem solved at each step is
 $$\min_{\Omega \succ 0} \; \operatorname{Tr}(\Omega^{-1} Y)
    + \operatorname{Tr}(M_k \Omega), \qquad M_k = \Omega_k^{-1},$$
-a convex problem that the cutting plane method can solve with the same LMI
+a convex problem that the cutting-plane method can solve with the same LMI
 oracle. Because the surrogate is a majorant that touches $f$ at the current
 iterate, the iterates are monotone,
 $$f(\Omega_{k+1}) \le S_k(\Omega_{k+1}) \le S_k(\Omega_k) = f(\Omega_k),$$
@@ -1050,26 +977,6 @@ and its gradient are then corrupted, and the solver may converge to a point
 that is stationary for the wrong function. Triangular factors should always be
 inverted with a triangular routine, and the result should be checked against
 the identity $\Omega \Omega^{-1} = I$ in a regression test.
-
-#### Numerical Drift and the Stable $LDL^\mathsf{T}$ Variant {#sec:stable_ellipsoid}
-
-The representation above updates $Q$ directly and relies on the accumulation of rank-one downdates to preserve positive definiteness. In exact arithmetic it does; in floating-point arithmetic it need not. Over the thousands of iterations that a typical problem requires, rounding errors in the repeated rank-one updates can drive an eigenvalue of $Q$ through zero, after which $Q$ is no longer positive definite, the scalar $\omega = g^\mathsf{T} Q g$ can become negative or denormal, and the iteration produces meaningless points or non-finite values. The failure is silent: the method keeps iterating and eventually returns a point that does not satisfy the constraints.
-
-A numerically stable variant avoids this by maintaining a factorization rather than the full matrix. The shape is written as
-$$Q = \kappa\, L\, D\, L^\mathsf{T},$$
-where $L$ is unit lower triangular and $D$ is diagonal. A cut is applied by three triangular sweeps,
-$$w = L^{-1} g, \qquad z = D^{-1} w, \qquad \omega = w^\mathsf{T} z, \qquad q = L^{-\mathsf{T}} z, \qquad x_c \leftarrow x_c - \frac{\rho}{\omega}\,q,$$
-followed by a rank-one update of the pair $(L, D)$ that modifies those factors directly, in the manner of Gill, Murray, and Wright. The cut parameters $(\rho,\sigma,\delta)$ are computed from the same scalar $\tau^2 = \kappa\,\omega$ as before, so the two representations realize the same sequence of cuts in exact arithmetic. The advantage is structural: because the update preserves the unit lower-triangular form of $L$ and the positivity of $D$, positive definiteness of $Q$ is enforced by construction instead of being left to chance.
-
-The stable variant is implemented with pre-allocated scratch buffers, so that the three sweeps and the rank-one update allocate nothing inside the iteration. This matters because the stable path performs more scalar operations than the direct one, and the per-iteration allocations that a naive implementation incurs can dominate its cost.
-
-Empirically the two representations agree closely. On a suite of continuous, robust, and parallel-cut problems the iterates coincided to within $10^{-6}$ in the infinity norm, and the iteration counts differed by at most a fraction of a percent, for instance $83$ versus $83$ on a two-dimensional profit problem and $26,027$ versus $26,125$ on a thirty-two-tap parallel-cut filter. The per-iteration cost is likewise comparable in compiled languages: the stable-to-direct ratio ranged from about $1.07$ to $1.4$ across dimensions up to $256$, and at the largest dimension the stable variant was sometimes the faster of the two. The interpreted setting is different, because there the triangular sweeps are written as scalar loops; unless those loops are vectorized, the stable variant can be more than a hundred times slower at dimension $64$, and the ratio grows with the dimension. The guidance is therefore to prefer the stable variant in compiled code, where it is near-free insurance against numerical drift; to keep the direct representation for rapid prototyping and for interpreted settings in which it has not been vectorized; and to regard the factorization choice as independent of the cut formulas, since the cuts themselves are identical.
-
-| Representation | State | Update | Positive definiteness |
-|:--|:--|:--|:--|
-| Direct | $Q$ | matrix-vector product then rank-one downdate | relied upon, not enforced |
-| Stable | $(L, D)$, with $Q = \kappa L D L^\mathsf{T}$ | triangular sweeps then rank-one update of $(L,D)$ | preserved by construction |
-: Comparison of the direct and the factorized ellipsoid representations. The cut parameters, and hence the iterates, are the same; only the arithmetic differs. {#tbl:stable_ellipsoid}
 
 ### Implementation {#sec:impl}
 
@@ -1277,7 +1184,7 @@ The Cholesky decomposition of a Hermitian positive-definite matrix $A$ is a uniq
 
 If $A$ is a real matrix that is symmetric and positive-definite, it can be decomposed as $A = L L^T$. Here, $L$ represents a real lower triangular matrix with positive diagonal entries.
 
-The Cholesky and LDLT decompositions are matrix decomposition methods utilized in linear algebra for disparate purposes, exhibiting distinctive properties.
+The Cholesky and $LDL^\mathsf{T}$ decompositions are matrix decomposition methods utilized in linear algebra for disparate purposes, exhibiting distinctive properties.
 
 The Cholesky decomposition is a method for decomposing a Hermitian, positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose. The Cholesky decomposition is typically a faster and more numerically stable method than the $LDL^\mathsf{T}$ decomposition. Nevertheless, the input matrix must be positive definite for this to be effective.
 
@@ -1315,7 +1222,7 @@ $$
 
 Once more, the pattern of access enables the entire computation to be performed in-place.
 
-The Cholesky or LDLT decomposition can be computed using either row-based or column-based methods:
+The Cholesky or $LDL^\mathsf{T}$ decomposition can be computed using either row-based or column-based methods:
 
 - Column-Based: In this approach, the computation is conducted in a column-wise manner. The inner loops calculate the current column using a matrix-vector product that accumulates the effects of previous columns.
 
@@ -1328,7 +1235,7 @@ During the decomposition process, the diagonal of the lower triangular matrix sh
 
 In the event that the Cholesky decomposition is unsuccessful due to a negative diagonal element, this indicates that the leading principal submatrix up to that point is not positive definite. The confirming vector is a standard basis vector with a 1 in the position of the failed diagonal element and zeros elsewhere; sandwiching it between the original matrix and its transpose yields a negative value, which certifies that the matrix is not positive definite.
 
-The oracle should perform a _row-based_ Cholesky decomposition such that $F(x_0) = R^\mathsf{T} R$. The notation $A_{:p,:p}$ is used to denote a submatrix $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$. If the Cholesky decomposition fails at row $p$, there exists a vector $e_p$, defined as $(0, 0, \cdots, 0, 1)^\mathsf{T} \in \mathbb{R}^p$. This can be expressed as follows:
+The oracle should perform a _row-based_ Cholesky decomposition such that $F(x_0) = R^\mathsf{T} R$. The notation $A_{:p,:p}$ is used to denote a submatrix $A(1:p, 1:p) \in \mathbb{R}^{p\times p}$. If the Cholesky decomposition fails at row $p$, there exists a vector $e_p$, defined as $(0, 0, \ldots, 0, 1)^\mathsf{T} \in \mathbb{R}^p$. This can be expressed as follows:
 
 - $v = R_{:p,:p}^{-1} e_p$, and
 - $v^\mathsf{T} F_{:p,:p}(x_0) v < 0$.

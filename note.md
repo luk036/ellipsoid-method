@@ -14,13 +14,13 @@
 # --shift-heading-level-by=-1 : body headings in ell-review.md start at "##".
 # --lua-filter=secspacing.lua : drop the non-breaking space pandoc-crossref puts
 #   in section references, so they print as "§4.2" instead of "§ 4.2".
-pandoc -F pandoc-crossref --lua-filter=secspacing.lua --citeproc -s -t latex -N --reference-links --shift-heading-level-by=-1 --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.pdf
+pandoc -F pandoc-crossref --lua-filter=secspacing.lua --citeproc -s -t latex -N --reference-links --shift-heading-level-by=-1 --csl=siam-numeric.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.pdf
 
-pandoc -F pandoc-crossref --citeproc -s -t html -N --katex=katex/ --reference-links --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.html
+pandoc -F pandoc-crossref --citeproc -s -t html -N --katex=katex/ --reference-links --csl=siam-numeric.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.html
 
-pandoc -F pandoc-crossref -s -t beamer --toc --natbib --reference-links --pdf-engine=xelatex --csl=applied-mathematics-letters.csl beamer.yaml cutting_plane.md -o cutting_plane.pdf
+pandoc -F pandoc-crossref -s -t beamer --toc --natbib --reference-links --pdf-engine=xelatex --csl=siam-numeric.csl beamer.yaml cutting_plane.md -o cutting_plane.pdf
 
-pandoc -F pandoc-crossref -s -t html --katex=katex/ --toc --natbib --reference-links --csl=applied-mathematics-letters.csl beamer.yaml cutting_plane.md -o cutting_plane.html
+pandoc -F pandoc-crossref -s -t html --katex=katex/ --toc --natbib --reference-links --csl=siam-numeric.csl beamer.yaml cutting_plane.md -o cutting_plane.html
 
 pandoc -s --wrap=preserve ell-review.md -o temp.md
 

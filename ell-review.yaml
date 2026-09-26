@@ -6,7 +6,7 @@ classoption:
   - leqno
 keywords:
   - Ellipsoid method
-  - Cutting plane method
+  - Cutting-plane method
   - Separation oracle
   - Cholesky Factorization
 thanks: This work was supported by ...

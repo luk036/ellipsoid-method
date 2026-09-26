@@ -423,10 +423,18 @@ The method is non-iterative, deterministic, and stable, and it has no tuning
 parameter; its costs are an FFT dependency and a memory footprint proportional
 to the oversampling factor, which is customarily $100$ times the filter order.
 
-*Root-based method (Aberth--Ehrlich).* The autocorrelation defines a palindromic
-polynomial whose roots occur in reciprocal pairs; all roots are found
-simultaneously by the Aberth iteration, the roots inside the unit circle are
-retained, and the factor is reconstructed from them. The method needs no FFT
+*Root-based method (Aberth--Ehrlich).* The autocorrelation defines the palindromic
+polynomial
+$$P(z) = z^{N-1}\left(r[0] + \sum_{k=1}^{N-1} r[k]\,(z^{k} + z^{-k})\right)$$
+of degree $2N-2$, whose roots occur in reciprocal pairs: if $\zeta$ is a root then
+$1/\bar{\zeta}$ is also a root. All roots are found simultaneously by the
+Aberth--Ehrlich iteration
+$$\zeta_{i}^{(k+1)} = \zeta_{i}^{(k)}
+  - \frac{P(\zeta_{i}^{(k)})}{P'(\zeta_{i}^{(k)})}
+  \Big/ \left(1 - \sum_{j \neq i}
+  \frac{P(\zeta_{j}^{(k)})}{(\zeta_{i}^{(k)} - \zeta_{j}^{(k)})\,P'(\zeta_{j}^{(k)})}\right),$$
+the roots inside the unit circle are retained, and the factor is reconstructed
+from them. The method needs no FFT
 library, uses memory linear in the order, and exposes a convergence tolerance;
 convergence is not guaranteed for pathological inputs, and the smallest
 coefficients are recovered with somewhat lower relative accuracy.
@@ -443,11 +451,24 @@ invariant --- both the correction and its denominator scale the same way ---
 while making the tolerance relative, which restores convergence without
 changing the roots.
 
+The natural measure of a factorization is its round-trip relative error, the
+agreement between the prescribed $r$ and the autocorrelation of the returned
+factor. The transform method attains close to machine precision, on the order of
+$10^{-5}$ in double precision for representative designs, whereas the root-based
+method is around $10^{-3}$, concentrated in the smallest coefficients. Because
+CSD quantization discards precisely those coefficients once the budget is
+applied, the discrepancy is usually absorbed by the quantizer, but it must be
+accounted for in verification.
+
 Which method is faster is a property of the implementation rather than of the
 algorithm. When the root finder is compiled and the FFT is not, the root-based
 method can be the faster choice; when both are compiled, the two methods are
 comparable and the crossover depends on the order. This observation motivates
-the cross-language experiments of @sec:experiments.
+the cross-language experiments of @sec:experiments. The transform method is the
+default for production designs, for high-order filters, and for reproducible
+benchmarks, because it needs no tuning and is the most robust; the root-based
+method is preferable for exploratory work and for moderate orders, where its
+speed and tunability dominate.
 
 ## Implementation and Experiments {#sec:experiments}
 

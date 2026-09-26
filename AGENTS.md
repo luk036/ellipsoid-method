@@ -28,7 +28,7 @@ make clean
 The paper command it runs is:
 
 ```powershell
-pandoc -F pandoc-crossref --lua-filter=secspacing.lua --citeproc -s -t latex -N --reference-links --shift-heading-level-by=-1 --csl=applied-mathematics-letters.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.pdf
+pandoc -F pandoc-crossref --lua-filter=secspacing.lua --citeproc -s -t latex -N --reference-links --shift-heading-level-by=-1 --csl=siam-numeric.csl ell-review.yaml latex.yaml crossref.yaml ell-review.md -o ell-review.pdf
 ```
 
 Why each non-obvious flag (each fixed a real breakage — see issue #4):
@@ -37,7 +37,7 @@ Why each non-obvious flag (each fixed a real breakage — see issue #4):
 - `crossref.yaml` uses `cref:false`: `siamltex.cls` redefines `\label`/`\refstepcounter`, which breaks cleveref. `cref:true` renders **every** cross-reference as `??`. Don't flip it back without patching the class.
 - `secspacing.lua` fixes the cosmetic side effect of `cref:false`: pandoc-crossref joins the section symbol and the number with a non-breaking space (`§~\ref{…}`), which prints as `§ 4.2`. The filter runs **after** `-F pandoc-crossref` and rewrites the emitted `Str "§~"` to `§\ref{…}`, so references read `§4.2`. Order matters — keep `--lua-filter=secspacing.lua` after `-F pandoc-crossref`.
 - `ell-review.md` references the existing `.pdf` figures, so no SVG converter (`rsvg-convert`/`inkscape`) is needed for the paper. The slide decks contain emoji and therefore build with `xelatex` (emoji render as missing glyphs until a font is configured).
-- `applied-mathematics-letters.csl` is **self-contained** (its Elsevier parent style is inlined), so `--citeproc` works offline. Don't reintroduce `rel="independent-parent"`.
+- `siam-numeric.csl` is a SIAM-style numeric CSL (adapted from the AMS numeric style, following `siamplain.bst`). There is **no official SIAM CSL**, so this stands in for one. It is **self-contained** (`rel="template"` links are informational only), so `--citeproc` works offline. Don't introduce `rel="independent-parent"`.
 
 The `*.yaml` files are **pandoc metadata**, not app config: `latex.yaml`/`beamer.yaml` (class options), `crossref.yaml` (pandoc-crossref), plus per-doc `ell-review.yaml`. HTML builds need a local `katex/` directory (gitignored, not shipped).
 
