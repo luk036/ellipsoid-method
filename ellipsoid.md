@@ -13,7 +13,7 @@ title: "Ellipsoid Method and the Amazing Oracles (II)"
 - Proposed by Shor and Yudin and Nemirovskii in 1976.
 
 - used to prove that linear programming (LP) is polynomial time
-  solvable (Kachiyan 1979), settling the long-standing problem of
+  solvable (Khachiyan 1979), settling the long-standing problem of
   determining the theoretical complexity of LP.
 
 - However, in practice, the simplex method runs much faster,
@@ -69,7 +69,7 @@ class ell:
 
 ## Updating the ellipsoid (deep-cut)
 
-Compte the minimum volume ellipsoid covering:
+Compute the minimum volume ellipsoid covering:
 $$ \mathcal{E} \cap \{z \mid g^\mathsf{T} (z - x_c) + h \le 0 \}. $$
 
 - Let $\tilde{g} = P\,g$ and $\tau^2 = g^\mathsf{T} P g$.
@@ -230,7 +230,7 @@ def calc_cc(self, tau):
 
 - If $\beta_1 \beta_2 < -\tau^2/n$, no smaller ellipsoid can be found.
 
-- If $\beta_2^2 > \tau^2$, it reduces to a deep-cut with $\alpha = \alpha_1$.
+- If $\beta_2^2 > \tau^2$, it reduces to a deep-cut with $\beta = \beta_1$.
 
 - Otherwise,
 
@@ -300,7 +300,7 @@ def calc_ll_core(self, b0, b1, tsq):
 
 - The magnitude constraint on frequency domain is expressed as
 
-  $$L(\omega)~\leq~|H(\omega)|~\leq~U(\omega),~\forall~\omega\in(-\infty,+\infty. $$
+  $$L(\omega)~\leq~|H(\omega)|~\leq~U(\omega),~\forall~\omega\in(-\infty,+\infty). $$
 
   where $L(\omega)$ and $U(\omega)$ are the lower and
   upper (non-negative) bounds at the frequency $\omega$, respectively.
@@ -316,7 +316,7 @@ def calc_ll_core(self, b0, b1, tsq):
 
   where
 
-  - $R(\omega)=\sum_{i=-1+n}^{n-1}{r(t)e^{-j{\omega}t}}=|H(\omega)|^2$
+  - $R(\omega)=\sum_{t=-n+1}^{n-1}{r(t)e^{-j\omega t}}=|H(\omega)|^2$
   - $\mathbf{r}=(r(-n+1),r(-n+2),...,r(n-1))$ are the
     autocorrelation coefficients.
 
@@ -328,7 +328,7 @@ def calc_ll_core(self, b0, b1, tsq):
 
   $$r(t)~=~\sum_{i=-n+1}^{n-1}{h(i)h(i+t)},~t\in\mathbf{Z}.$$
 
-  where $h(t)=0$ for $\gamma < 0$ or $\gamma > n - 1$.
+  where $h(t)=0$ for $t < 0$ or $t > n - 1$.
 
 - The whole problem can be formulated as:
 

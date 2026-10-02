@@ -15,7 +15,7 @@ This essay will explore the algorithmic framework, historical context, performan
 
 ## Algorithmic Framework
 
-The ellipsoid method is a type of cutting plane method used to solve convex feasibility problems. It operates by iteratively shrinking a search space known to contain the feasible region, $\mathcal{K}$. Initially, the method begins with a large ellipsoid that is guaranteed to contain the entire feasible region. This initial ellipsoid is defined by its center $x_c \in \mathbb{R}^n$ and a positive definite matrix $P \in \mathbb{R}^{n \times n}$ that determines its shape and orientation. The ellipsoid can be represented by the set of points $x$ such that $(x - x_c)P^{-1}(x - x_c) \le 1$. An alternative representation splits the matrix $P$ into two parts, $\kappa$ and $Q$, where the ellipsoid is defined as $x$ such that $(x-x_c)Q^{-1}(x-x_c) \le \kappa$.
+The ellipsoid method is a type of cutting plane method used to solve convex feasibility problems. It operates by iteratively shrinking a search space known to contain the feasible region, $\mathcal{K}$. Initially, the method begins with a large ellipsoid that is guaranteed to contain the entire feasible region. This initial ellipsoid is defined by its center $x_c \in \mathbb{R}^n$ and a positive definite matrix $P \in \mathbb{R}^{n \times n}$ that determines its shape and orientation. The ellipsoid can be represented by the set of points $x$ such that $(x - x_c)^\mathsf{T}P^{-1}(x - x_c) \le 1$. An alternative representation splits the matrix $P$ into two parts, $\kappa$ and $Q$, where the ellipsoid is defined as $x$ such that $(x-x_c)^\mathsf{T}Q^{-1}(x-x_c) \le \kappa$.
 
 At the heart of each iteration is the consultation with a **separation oracle**. The oracle is queried at the center of the current ellipsoid, $x_c$. The oracle's task is to either confirm that the center point $x_c$ belongs to the feasible region $\mathcal{K}$ or, if it does not, to provide a *separating hyperplane*. This hyperplane acts as a cut, passing through the ellipsoid and separating the current center $x_c$ from the feasible region $\mathcal{K}$.
 
@@ -151,13 +151,14 @@ graph LR
 ***
 
 **Equation Translation Note:** Equations from the source materials have been translated into KaTeX format. For example, the ellipsoid definition:
-$$\{x \mid (x-x_k) P^{-1}_k (x - x_k) \le 1 \}$$
+$$\{x \mid (x-x_k)^\mathsf{T} P_k^{-1} (x - x_k) \le 1 \}$$
 or the split matrix form:
-$$\{ x \mid (x-x_c)Q^{-1}(x-x_c) \le \kappa \}$$
+$$\{ x \mid (x-x_c)^\mathsf{T}Q^{-1}(x-x_c) \le \kappa \}$$
 The cutting plane definition:
 $$g^\mathsf{T} (x - x_0) + \beta \le 0$$
-Updates for deep cut:
+Updates for deep cut, with $\tilde{g} = Pg$ and $\tau^2 = g^\mathsf{T} P g$:
 $$ x_c^+ = x_c - \frac{\rho}{ \tau^2 } \tilde{g}, \qquad P^+ = \delta\cdot\left(P - \frac{\sigma}{ \tau^2 } \tilde{g}\tilde{g}^\mathsf{T}\right) $$
+and, in the split form with $\tilde{g} = Qg$, $\omega = g^\mathsf{T}\tilde{g}$, and $\tau = \sqrt{\kappa\omega}$:
 $$ x_c^+ = x_c - \frac{\rho}{\omega} \tilde{g}, \qquad Q^+ = Q - \frac{\sigma}{\omega} \tilde{g}\tilde{g}^\mathsf{T}, \qquad \kappa^+ = \delta\cdot\kappa $$
 Parameters for deep cut:
 $$ \rho = \frac{ \tau+n\beta}{n+1}, \qquad \sigma = \frac{2\rho}{ \tau+\beta}, \qquad \delta = \frac{n^2(\tau^2 - \beta^2)}{(n^2 - 1)\tau^2} $$
@@ -168,7 +169,7 @@ $$ g^\mathsf{T} (x - x_c) + \beta_1 \le 0, \quad g^\mathsf{T} (x - x_c) + \beta_
 SDP condition:
 $$ v^\mathsf{T} A v \ge 0 $$
 LMI definition:
-$$A(y) = A_0 + y_1 A_1 + y_2 A_2 + \cdots + y_m A_n \succeq 0$$
+$$A(y) = A_0 + y_1 A_1 + y_2 A_2 + \cdots + y_n A_n \succeq 0$$
 Cholesky decomposition:
 $$ A = L L^T $$
 LDLT decomposition:
@@ -187,7 +188,7 @@ $$C(h)=\sigma^2 R(h)$$
 Covariance matrix form:
 $$\Omega(p) = p_1 F_1 + \cdots + p_n F_n$$
 Correlation function form:
-$$\rho(h) = \sum_i^n p_i \Psi_i(h)$$
+$$\rho(h) = \sum_{i=1}^n p_i \Psi_i(h)$$
 Example correlation problem constraints:
 $$ \Omega(p) \succcurlyeq 0, \kappa \ge 0 $$
 FIR time response:
@@ -198,7 +199,7 @@ Magnitude constraints:
 $$L(\omega) \le |H(\omega)| \le U(\omega)$$
 Autocorrelation representation:
 $$L^2(\omega) \le R(\omega) \le U^2(\omega)$$
-$$R(\omega)=\sum_{i=-n+1}^{n-1}{r(t)e^{-j{\omega}t}}=|H(\omega)|^2$$
+$$R(\omega)=\sum_{t=-n+1}^{n-1}{r(t)e^{-j\omega t}}=|H(\omega)|^2$$
 Autocorrelation coefficients:
 $$ r(t) = \sum_{i=-n+1}^{n-1}{h(i)h(i+t)} $$
 Example likelihood estimation problems:

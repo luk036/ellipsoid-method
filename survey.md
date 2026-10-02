@@ -12,7 +12,7 @@ There are some limitations and drawbacks to using the Ellipsoid Method. One limi
 
 ## What is Parallel Cut?
 
-In the context of the Ellipsoid Method, a parallel cut refers to a pair of linear constraints of the form aTx <= b and -aTx <= -b, where a is a vector of coefficients and b is a scalar constant. These constraints are said to be parallel because they have the same normal vector a, but opposite signs. When a parallel cut is encountered during the Ellipsoid Method, both constraints can be used simultaneously to generate a new ellipsoid. This can improve the convergence rate of the method, especially for problems with many parallel constraints.
+In the context of the Ellipsoid Method, a parallel cut refers to a pair of linear constraints of the form a^T x <= b1 and a^T x >= b2 (equivalently -a^T x <= -b2), where a is the normal vector and b1 != b2 are scalars. The two constraints are parallel because they share the normal vector a. When a parallel cut is encountered during the Ellipsoid Method, both constraints can be used simultaneously to generate a new ellipsoid. This can improve the convergence rate of the method, especially for problems with many parallel constraints.
 
 ## What is a shallow cut?
 
@@ -20,4 +20,4 @@ In the context of the Ellipsoid Method, a shallow cut refers to a linear constra
 
 ## What is the meaning of quasi-convex?
 
-A function f: R^n -> R is quasi-convex if its sublevel sets {x | f(x) <= gamma} are convex for all gamma in R. In other words, a function is quasi-convex if the region below any of its level sets is a convex set. Intuitively, this means that the function does not have any "holes" or disjoint regions in its domain where the function takes on smaller values. Quasi-convex functions are important in optimization because they share many of the desirable properties of convex functions, such as having a unique global minimum, while still allowing for some non-convexity in the function.
+A function f: R^n -> R is quasi-convex if its sublevel sets {x | f(x) <= gamma} are convex for all gamma in R. In other words, a function is quasi-convex if the region below any of its level sets is a convex set. Intuitively, this means that the function does not have any "holes" or disjoint regions in its domain where the function takes on smaller values. Quasi-convex functions are important in optimization because they share many of the desirable properties of convex functions, such as having a convex set of global minima, while still allowing for some non-convexity in the function.

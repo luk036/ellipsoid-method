@@ -53,7 +53,7 @@ $$c = \sum_{j} s_j\,2^{e_j}, \qquad s_j \in \{-1,0,+1\}.$$
 
 ## ➕➖ Shift-Add Synthesis and Sharing
 
-- A pattern occuring at positions $p < q$ can be shared:
+- A pattern occurring at positions $p < q$ can be shared:
 $$\operatorname{pat}_{q}(x) = \operatorname{pat}_{p}(x) \gg (q-p).$$
 - Pick the pattern maximizing $\text{score} = (\mathrm{nnz}-1)(\text{occurrences}-1)$.
 - Flat cost is $d-1$ adders per coefficient → $6$ adders/tap at $\mathrm{nnz}=7$ 📉

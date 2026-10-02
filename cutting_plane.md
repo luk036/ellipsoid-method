@@ -24,7 +24,7 @@ _Sir Arthur Conan Doyle, stated by Sherlock Holmes_
 
   - Cannot exploit sparsity.
 
-- It has since then supplanted by the interior-point methods.
+- It has since then been supplanted by the interior-point methods.
 
 - Used only as a theoretical tool to prove polynomial-time
   solvability of some combinatorial optimization problems.
@@ -36,7 +36,7 @@ _Sir Arthur Conan Doyle, stated by Sherlock Holmes_
 - The ellipsoid method works very differently compared with the
   interior point method.
 
-- Require only a _separtion oracle_. Can work nicely with other
+- Require only a _separation oracle_. Can work nicely with other
   techniques.
 
 - While the ellipsoid method itself cannot take advantage of sparsity, the oracle can.
@@ -111,7 +111,7 @@ node [above right] {$x_0$};
   our search.
 
 - If $\beta=0$ ($x_0$ lies on the boundary of the half-space being cut),
-  the cutting-plane is called _neutral cut_.
+  the cutting-plane is called _central cut_.
 
 - If $\beta>0$ ($x_0$ lies in the interior of the half-space being cut),
   the cutting-plane is called _deep cut_.
@@ -232,11 +232,11 @@ def bsearch(evaluate, I, options=Options()):
     l, u = I
     gamma = l + (u - l)/2
     for niter in range(options.max_it):
-        if evaluate(t):  # feasible sol'n obtained
+        if evaluate(gamma):  # feasible sol'n obtained
             feasible = True
-            u = t
+            u = gamma
         else:
-            l = t
+            l = gamma
         tau = (u - l)/2
         gamma = l + tau
         if tau < options.tol:
@@ -278,9 +278,9 @@ class bsearch_adaptor:
   $\gamma$ whenever a feasible solution $x_0$ is found,
   by solving the equation $\Phi(x_0, t_\text{new}) = 0$.
 
-- If the equation is difficuit to solve
-  but $\gamma$ is also convex w.r.t. $\Phi$,
-  then we may create a new varaible, say $x_{n+1}$
+- If the equation is difficult to solve
+but $\gamma$ is also convex w.r.t. $\Phi$,
+then we may create a new variable, say $x_{n+1}$
   and let $x_{n+1} \le \gamma'$.
 
 ---
@@ -303,11 +303,11 @@ class bsearch_adaptor:
 \scriptsize
 
 ```python
-def cutting_plane_dc(evaluate, S, \gamma, options=Options()):
+def cutting_plane_dc(evaluate, S, gamma, options=Options()):
     feasible = False  # no sol'n
     x_best = S.xc
     for niter in range(options.max_it):
-        cut, t1 = evaluate(S.xc, t)
+        cut, t1 = evaluate(S.xc, gamma)
         if gamma != t1:  # best gamma obtained
             feasible = True
             gamma = t1
@@ -318,7 +318,7 @@ def cutting_plane_dc(evaluate, S, \gamma, options=Options()):
         if tau < options.tol:
             status = 2
             break
-    return x_best, \gamma, niter+1, feasible, status
+    return x_best, gamma, niter+1, feasible, status
 ```
 
 ---
@@ -392,11 +392,11 @@ class profit_oracle:
         log_Cobb = self.log_pA + np.dot(self.a, y)
         x = np.exp(y)
         vx = np.dot(self.v, x)
-        te = gamma + vx
+        te = t + vx
         fj = np.log(te) - log_Cobb
         if fj < 0.:
             te = np.exp(log_Cobb)
-            gamma = te - vx
+            t = te - vx
             fj = 0.
         g = (self.v * x) / te - self.a
         return (g, fj), t

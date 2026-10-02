@@ -54,15 +54,15 @@ When a separation oracle, denoted by $\Omega$, is queried at a given point $x_0 
 1. It asserts that $x_0$ belongs to $\mathcal{K}$, or
 2. Returns a hyperplane separating the point $x_0$ from the set $\mathcal{K}$:
 
-    $$g^\mathsf{T} (x - x_0) + \beta \le 0, \beta \ge 0, g \neq 0, \; \forall x \in \mathcal{K}.$$
+    $$g^\mathsf{T} (x - x_0) + \beta \le 0, g \neq 0, \; \forall x \in \mathcal{K}.$$
 
 The pair $(g, \beta)$ is called a _cutting plane_ because it eliminates the half-space defined by the equation $\{x \mid g^\mathsf{T} (x - x_0) + \beta > 0\}$ from the search space. The following observations are made:
 
 - If $\beta=0$, indicating that $x_0$ is on the boundary of the half-space, the cutting plane is called a _central cut_.
 - If $\beta>0$, indicating that $x_0$ is inside the half-space, the cutting plane is called a _deep cut_.
-- If $\beta<0$, indicating that $x_0$ is outside the half-space, the cutting plane is called a _shadow cut_.
+- If $\beta<0$, indicating that $x_0$ is outside the half-space, the cutting plane is called a _shallow cut_.
 
-The convex set $\mathcal{K}$ is typically defined by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1, \ldots, m$, where $f_j(x)$ represents a convex function. The vector $g \equiv \partial f(x_0)$ is defined as the _subgradient_ of a convex function $f$ at the point $x_0$ if $f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)$. Thus, the cut $(g, \beta)$ can be expressed as $(\partial f(x_0), f(x_0))$. Note that if $f(x)$ is differentiable, then we can simply take $\partial f(x_0) = \nabla f(x_0)$.
+The convex set $\mathcal{K}$ is typically defined by a set of inequalities $f_j(x) \le 0$ or $f_j(x) < 0$ for $j = 1, \ldots, m$, where $f_j(x)$ represents a convex function. The vector $g \in \partial f(x_0)$ is defined as the _subgradient_ of a convex function $f$ at the point $x_0$ if $f(z) \ge f(x_0) + g^\mathsf{T} (z - x_0)$. Thus, the cut $(g, \beta)$ can be expressed as $(\partial f(x_0), f(x_0))$. Note that if $f(x)$ is differentiable, then we can simply take $\partial f(x_0) = \nabla f(x_0)$.
 
 The cutting-plane method consists of two main elements: a separation oracle, denoted by $\Omega$, and a search space, denoted by $\mathcal{S}$, which is initially chosen large enough to encompass $\mathcal{K}$. For example,
 

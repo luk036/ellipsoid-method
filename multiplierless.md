@@ -185,7 +185,7 @@ $$g^\mathsf{T}(x - x_{0}) + \beta \le 0, \qquad \beta \ge 0, \quad g \neq 0,
 $$ {#eq:cut}
 The pair $(g,\beta)$ is a *cutting plane*: it discards the half-space where
 $g^\mathsf{T}(x-x_{0}) + \beta > 0$. If $\beta = 0$ the cut is *central*, if
-$\beta > 0$ it is *deep*, and if $\beta < 0$ it is a *shadow cut*. When
+$\beta > 0$ it is *deep*, and if $\beta < 0$ it is a *shallow cut*. When
 $\mathcal{K}$ is defined by $f_{j}(x) \le 0$, a cut is obtained for free from a
 subgradient, $(g,\beta) = (\partial f_{j}(x_{0}), f_{j}(x_{0}))$; for a
 differentiable $f_{j}$ the subgradient is the gradient. The method was
@@ -662,8 +662,8 @@ informative: the interpreted cost is the dispatch of the Python-level loop over
 the constraints, which is amortized against an ever-larger amount of FFT work as
 the order rises, whereas the compiled cost is dominated by the arithmetic
 itself. The two compiled implementations are within ten percent of each other at
-every order, and neither dominates consistently: C++ is faster at $n = 32$ and
-$64$, Rust at $n = 16$ and $128$.
+every order, and neither dominates consistently: Rust is faster at $n = 16$,
+$32$, and $128$, C++ at $n = 64$.
 
 Second, the iteration counts differ across languages even though the inputs are
 identical, and they are not monotone in the order. The ellipsoid method is a

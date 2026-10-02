@@ -2,7 +2,7 @@
 bibliography:
   - "Geostatistics.bib"
   - "statistics.bib"
-  - "ref.bib"
+  - "ref-spatial.bib"
 title: |
   Intra-die Spatial Correlation Extraction with Maximum Likelihood
   Estimation Method
@@ -29,7 +29,7 @@ variations in the devices and interconnects, and greatly affect their
 electrical parameters. As a result, the performances of the fabricated
 circuits are degraded from the design specifications, and the
 manufacturing yield is lost. Therefore, it is more desirable to develop
-statistical analysis and design methodologies to tackle with variation
+statistical analysis and design methodologies to tackle variation
 problems in the design stages [@Nassif00].
 
 Process variations can be classified into two categories according to
@@ -50,13 +50,13 @@ in variation aware circuit analysis and design techniques, such as
 statistical timing analysis [@Chang05; @Zhang06], power/leakage
 minimization [@Bhardwaj06; @Heloue07]. Recently how to model spatial
 correlation from silicon measurement data has also attracted a lot of
-attentions. The task of spatial correlation
+attention. The task of spatial correlation
 modeling [@Friedberg05; @Doh05; @Xiong07; @Liu07; @Hargreaves08; @Fu08]
 aims to extract the characteristic parameters of spatial correlation
 function provided with a large amount of silicon measurement data. It
 consists of two essential issues. Firstly, an appropriate kind of
 function form should be chosen to represent spatial correlation. The
-_positive definiteness_ property possessed by a valid spatial
+_positive semidefiniteness_ property possessed by a valid spatial
 correlation function should be satisfied, which means that any
 correlation matrix generated from the correlation function is positive
 semidefinite. Secondly, the unknown parameters in the function should be
@@ -125,7 +125,7 @@ decomposed into three components:
   to proximity effects;
 
 - a _purely random_ component $Z_\mathrm{rnd}$, which is spatially
-  uncorrelated and can be treated as statistitically random.
+  uncorrelated and can be treated as statistically random.
 
 In this paper, for the sake of simplicity, the deterministic component
 is assumed to be well modeled and taken away from the whole process
@@ -182,9 +182,9 @@ relationship between covariance and correlation is $C(h)=\sigma^2 R(h)$.
 
 -----------------------------------------------------------
 
-The spatially correlatied component is modeled as random field with
+The spatially correlated component is modeled as random field with
 variance $\sigma^2$ and correlation function $R(h)$ to be extracted.
-Positive definiteness is the necessary condition for a parametric family
+Positive semidefiniteness is the necessary condition for a parametric family
 of functions to define a legitimate class of correlation functions.
 However, this is not an easy condition to check directly. In practice,
 this is usually ensured by working within one of several standard
@@ -337,8 +337,8 @@ smaller in the sub-micron regime, the extraction results will be
 distorted if the influence is neglected. To alleviate the sample
 deviations caused by inter-die variations, we remove the mean effect
 through a simple averaging process as
-$$z_m^*(\mathbf{s}_i)=z_m(\mathbf{s}_i) - \frac{1}{M}\sum_{m=1}^M z_m(\mathbf{s}_i)$$
-and the the $m$-th sample of data vector becomes
+$$z_m^*(\mathbf{s}_i)=z_m(\mathbf{s}_i) - \frac{1}{M}\sum_{k=1}^M z_k(\mathbf{s}_i)$$
+and the $m$-th sample of data vector becomes
 $\vec{z}_m^*=(z_m^*(\mathbf{s}_1),\ldots, z_m^*(\mathbf{s}_N))^T$.
 Secondly, as mentioned in Sect. 2.3, the purely random component and
 measurement error result in the nugget effect, which should be taken
@@ -355,7 +355,7 @@ $Z\sim \mathrm{N}(\mathbf{0},\sigma^2 \tilde{R}(\kappa,\vec{\psi}))$.
 
 After the processings, the likelihood function for all the $M$ samples
 is [@Anderson03]
-$$L(\sigma^2,\kappa,\vec{\psi}) = \prod_{m=1}^{M}L_m(\sigma^2,\kappa,\vec{\psi})=\frac{1}{(2\pi)^{MN/2}(\mathrm{det}(\sigma^2 \tilde{R}))^{M/2}} \cdot \mathrm{exp}\left(-\frac{1}{2\sigma^2}\sum_{m=1}^{M}\vec{z}_m^{_T} \tilde{R}^{-1}\vec{z}_m^_ \right)$$
+$$L(\sigma^2,\kappa,\vec{\psi}) = \prod_{m=1}^{M}L_m(\sigma^2,\kappa,\vec{\psi})=\frac{1}{(2\pi)^{MN/2}(\mathrm{det}(\sigma^2 \tilde{R}))^{M/2}} \cdot \mathrm{exp}\left(-\frac{1}{2\sigma^2}\sum_{m=1}^{M}\vec{z}_m^{*T} \tilde{R}^{-1}\vec{z}_m^{*} \right)$$
 and the log-likelihood function is $$\label{eqn:loglik}
 \log L(\sigma^2,\kappa,\vec{\psi}) = \log \left(\prod_{m=1}^{M}L_m(\sigma^2,\kappa,\vec{\psi})\right)=-\frac{MN}{2}\log 2\pi-\frac{MN}{2}\log\sigma^2-\frac{M}{2}\log \mathrm{det}~\tilde{R}-\frac{1}{2\sigma^2}\sum_{m=1}^{M}\vec{z}_m^{*T} \tilde{R}^{-1}\vec{z}_m^*$$
 By setting $\frac{\partial \log L}{\partial \sigma^2}=0$, we can get the
@@ -393,7 +393,7 @@ $\vec{\psi}$, followed by back substitution to obtain $\hat{\sigma}^2$.
 
 In the numerical evaluation steps of log-likelihood function, we find
 that direct computation of the log determinant of $\tilde{R}$ often
-incurrs "log of zero\" error, as the determinant of $\tilde{R}$ may
+incurs "log of zero\" error, as the determinant of $\tilde{R}$ may
 approach to zero too closely. However, if there is no numerical errors,
 a positive value close to zero will result in a negative value in the
 acceptable range after taking the logarithm. To overcome this problem,
@@ -406,11 +406,11 @@ $\mathrm{det}~\tilde{R}=|\mathrm{det}~L| \cdot |\mathrm{det}~U|$, and
 $|\mathrm{det}~L|=1$, the log determinant of $\tilde{R}$ can be obtained
 by summing up the absolute values of the diagonal elements of the $U$
 matrix, i.e.,
-$$\log \mathrm{det}~\tilde{R}=\log |\mathrm{det}~U|=\log |\prod_{m=1}^M u_{mm}|=\sum_{m=1}^M \log |u_{mm}|$$
+$$\log \mathrm{det}~\tilde{R}=\log |\mathrm{det}~U|=\log |\prod_{j=1}^N u_{jj}|=\sum_{j=1}^N \log |u_{jj}|$$
 where $u_{mm}$ is the diagonal element of $U$ and $|\bullet|$ means
 taking the absolute value. The finally obtained log-likelihood function
 is in the form as
-$$\log L_0(\kappa,\vec{\psi})=-\sum_{m=1}^M \log |u_{mm}| - N\log (\mathrm{tr}(Y\tilde{R}^{-1}))$$
+$$\log L_0(\kappa,\vec{\psi})=-\sum_{j=1}^N \log |u_{jj}| - N\log (\mathrm{tr}(Y\tilde{R}^{-1}))$$
 This can be solved by any standard nonlinear optimization technique. In
 our implementation, we use the _fmincon_ function in MATLAB which is
 based on a sequential quadratic programming method.
@@ -925,7 +925,7 @@ relative errors of the extracted spatial correlation function are above
 30%, or even higher to 70% which are totally unacceptable. When nugget
 effect is considered, MLEnug works well, and achieves better results
 than RESCF for all test cases with less runtime for both two sampling
-schemes. This shows the accuaracy and efficiency of the proposed method.
+schemes. This shows the accuracy and efficiency of the proposed method.
 Figure [\[fig:corr_funs\]](#fig:corr_funs){reference-type="ref"
 reference="fig:corr_funs"} illustrates the correlation functions
 extracted by the three methods compared with the actual correlation

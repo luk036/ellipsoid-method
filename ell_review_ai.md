@@ -8,7 +8,7 @@ Overall, the PDF provides a detailed and technical overview of the cutting-plane
 
 # Introduction
 
-The ellipsoid method is widely believed to be inefficient in practice for large-scale problems. The convergent rate is slow, even when using deep cuts, and it cannot exploit sparsity. As a result, it has been supplanted by the interior-point methods and is used only as a theoretical tool to prove polynomial-time solvability of some combinatorial optimization problems.
+The ellipsoid method is widely believed to be inefficient in practice for large-scale problems. The convergence rate is slow, even when using deep cuts, and it cannot exploit sparsity. As a result, it has been supplanted by the interior-point methods and is used only as a theoretical tool to prove polynomial-time solvability of some combinatorial optimization problems.
 
 However, the ellipsoid method can be effective in problems where the number of design variables is moderate, such as ECO flow, analog circuit sizing, and parametric problems. It can also be effective in problems where the number of constraints is large, or even infinite. Additionally, the oracle can be implemented effectively.
 

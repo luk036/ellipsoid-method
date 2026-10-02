@@ -51,7 +51,7 @@ The `*.yaml` files are **pandoc metadata**, not app config: `latex.yaml`/`beamer
 
 ## Lint / verification
 
-No tests. Two markdown linters are configured and they disagree: `.markdownlint.json` (line length 500) and `rumdl.toml` (line length 1200, currently untracked). Recent history applies prettier, so keep formatting consistent. To verify an edit, run `make paper` (or the matching `note.md` command) and check the output.
+No tests. Two markdown linters are configured and they disagree: `.markdownlint.json` (line length 500) and `rumdl.toml` (line length 1200). Recent history applies prettier, so keep formatting consistent. To verify an edit, run `make paper` (or the matching `note.md` command) and check the output.
 
 ## Gotchas
 
@@ -64,5 +64,5 @@ No tests. Two markdown linters are configured and they disagree: `.markdownlint.
 ## Git
 
 - Default branch `master`; remote branches `revision`, `imgbot`, `luk036/gitpod-setup`.
-- Work often starts dirty: many `.md` files modified and `rumdl.toml` untracked. Run `git status` before assuming a clean tree.
+- Work often starts dirty: many `.md` files modified. Run `git status` before assuming a clean tree.
 - Commits are small prose edits ("fix typo", "improve the paper"). Match that style; do not commit unless asked.
