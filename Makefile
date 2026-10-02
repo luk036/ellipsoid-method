@@ -21,7 +21,7 @@ PAPER_FLAGS := -F $(CROSSREF) --lua-filter=secspacing.lua --citeproc -s -t latex
                --shift-heading-level-by=-1 --csl=$(CSL)
 PAPER_META  := ell-review.yaml latex.yaml crossref.yaml
 
-.PHONY: all paper multiplierless html slides clean
+.PHONY: all paper multiplierless mle html slides clean
 
 all: paper
 
@@ -38,6 +38,16 @@ multiplierless: multiplierless.pdf
 
 multiplierless.pdf: multiplierless.md multiplierless.yaml latex.yaml crossref.yaml $(CSL) secspacing.lua
 	$(PANDOC) $(PAPER_FLAGS) multiplierless.yaml latex.yaml crossref.yaml multiplierless.md -o $@
+
+# --- MLE paper (intra-die spatial correlation) -----------------------------
+# MLE.md carries its own front matter (title/author/abstract/keywords, csl,
+# bibliography), so the shared latex.yaml and crossref.yaml are layered in and
+# no separate MLE.yaml is needed. The wide result tables are raw LaTeX (table*)
+# so their multicolumn group headers and width are preserved exactly.
+mle: MLE.pdf
+
+MLE.pdf: MLE.md latex.yaml crossref.yaml $(CSL) secspacing.lua
+	$(PANDOC) $(PAPER_FLAGS) latex.yaml crossref.yaml MLE.md -o $@
 
 # Requires a local katex/ directory (gitignored, not shipped).
 html: ell-review.html
